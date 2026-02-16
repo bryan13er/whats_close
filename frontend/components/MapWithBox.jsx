@@ -1,14 +1,26 @@
 "use client";
 
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
-import { useEffect, useState } from "react";
-import "./MapWithBox.css"; // import the CSS file
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
+import { useEffect, useRef, useState } from "react";
+import "./MapWithBox.css";
+
+const LIBRARIES = ["places"];
+const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
+
+function StatusOverlay({ message }) {
+  return <div className="overlay-box">{message}</div>;
+}
 
 export default function MapWithBox({ center }) {
-  const defaultCenter = center || { lat: 37.7749, lng: -122.4194 };
-  const [mapCenter, setMapCenter] = useState(defaultCenter);
-  const [collapsed, setCollapsed] = useState(false);
+  const [mapCenter, setMapCenter] = useState(center || DEFAULT_CENTER);
+  const inputRef = useRef(null);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+  const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: apiKey || "",
+    libraries: LIBRARIES,
+  });
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -19,45 +31,64 @@ export default function MapWithBox({ center }) {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         });
-      },
-      () => {
-        // Keep default center if geolocation fails.
       }
     );
   }, []);
 
+  useEffect(() => {
+    if (!isLoaded || !window.google || !inputRef.current) return;
+
+    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+      types: ["geocode"], // restrict to addresses
+      componentRestrictions: { country: "us" },
+    });
+
+    const listener = autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (!place.geometry) return;
+
+      setMapCenter({
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng(),
+      });
+    });
+
+    return () => {
+      if (listener) listener.remove();
+    };
+  }, [isLoaded]);
+
   if (!apiKey) {
-    return (
-      <div className="overlay-box">
-        Set NEXT_PUBLIC_GOOGLE_MAPS_KEY in frontend/.env to load the map.
-      </div>
-    );
+    return <StatusOverlay message="Set NEXT_PUBLIC_GOOGLE_MAPS_KEY in frontend/.env to load the map." />;
+  }
+
+  if (!mapId) {
+    return <StatusOverlay message="Set NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID in frontend/.env to use Advanced Markers." />;
+  }
+
+  if (!isLoaded) {
+    return <StatusOverlay message="Loading map..." />;
   }
 
   return (
-    <LoadScript googleMapsApiKey={apiKey}>
-      <div className="map-container">
-        <GoogleMap
-          mapContainerClassName="map-canvas"
-          center={mapCenter}
-          zoom={12}
-        >
-          <Marker position={mapCenter} />
-        </GoogleMap>
+    <div className="map-container">
+      <GoogleMap
+        mapContainerClassName="map-canvas"
+        center={mapCenter}
+        zoom={12}
+        mapId={mapId}
+      />
 
-        {/* Overlay box */}
-        <div className={`overlay-box ${collapsed ? "collapsed" : ""}`}>
-          <button
-            type="button"
-            className="collapse-button"
-            onClick={() => setCollapsed((prev) => !prev)}
-            aria-expanded={!collapsed}
-          >
-            {collapsed ? "Expand" : "Collapse"}
-          </button>
-          {!collapsed && <div>This is a box on top of the map</div>}
+      <div className="overlay-layer">
+        <div className="search-box">
+          <input
+            type="text"
+            ref={inputRef}
+            placeholder="Where from..."
+            aria-label="Search destination"
+          />
         </div>
       </div>
-    </LoadScript>
+    </div>
   );
 }
