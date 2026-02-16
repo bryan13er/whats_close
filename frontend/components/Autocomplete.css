@@ -1,0 +1,21 @@
+.search-container {
+  width: clamp(220px, 34vw, 520px);
+  height: 52px;
+  pointer-events: auto;
+}
+
+.modern-search-element {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  color-scheme: light;
+}
+
+@media (max-width: 600px) {
+  .search-container {
+    width: clamp(200px, 82vw, 420px);
+    height: 48px;
+    margin-top: 25px;
+  }
+}

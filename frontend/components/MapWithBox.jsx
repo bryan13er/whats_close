@@ -1,94 +1,81 @@
 "use client";
 
-import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  APIProvider,
+  AdvancedMarker,
+  Map,
+  Pin,
+} from "@vis.gl/react-google-maps";
 import "./MapWithBox.css";
+import Autocomplete from "./Autocomplete";
 
-const LIBRARIES = ["places"];
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
+const MAP_STYLE = { width: "100%", height: "100%" };
+const LIBRARIES = ["places"];
 
 function StatusOverlay({ message }) {
   return <div className="overlay-box">{message}</div>;
 }
 
 export default function MapWithBox({ center }) {
-  const [mapCenter, setMapCenter] = useState(center || DEFAULT_CENTER);
-  const inputRef = useRef(null);
+  const initialPosition = center || DEFAULT_CENTER;
+  const [mapCenter, setMapCenter] = useState(initialPosition);
+  const [markerPosition, setMarkerPosition] = useState(initialPosition);
+  const [zoom, setZoom] = useState(12);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
-
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: apiKey || "",
-    libraries: LIBRARIES,
-  });
 
   useEffect(() => {
     if (!navigator.geolocation) return;
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setMapCenter({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-      }
-    );
+    navigator.geolocation.getCurrentPosition((position) => {
+      const userPosition = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+      setMapCenter(userPosition);
+      setMarkerPosition(userPosition);
+      setZoom(13);
+    });
   }, []);
 
-  useEffect(() => {
-    if (!isLoaded || !window.google || !inputRef.current) return;
+  if (!apiKey) return <StatusOverlay message="Missing API key in frontend/.env" />;
+  if (!mapId) return <StatusOverlay message="Missing map ID in frontend/.env" />;
 
-    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-      types: ["geocode"], // restrict to addresses
-      componentRestrictions: { country: "us" },
-    });
-
-    const listener = autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      if (!place.geometry) return;
-
-      setMapCenter({
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng(),
-      });
-    });
-
-    return () => {
-      if (listener) listener.remove();
-    };
-  }, [isLoaded]);
-
-  if (!apiKey) {
-    return <StatusOverlay message="Set NEXT_PUBLIC_GOOGLE_MAPS_KEY in frontend/.env to load the map." />;
-  }
-
-  if (!mapId) {
-    return <StatusOverlay message="Set NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID in frontend/.env to use Advanced Markers." />;
-  }
-
-  if (!isLoaded) {
-    return <StatusOverlay message="Loading map..." />;
-  }
+  const handlePlaceSelect = (location) => {
+    setMapCenter({ lat: location.lat, lng: location.lng });
+    setMarkerPosition({ lat: location.lat, lng: location.lng });
+    setZoom(14);
+  };
 
   return (
-    <div className="map-container">
-      <GoogleMap
-        mapContainerClassName="map-canvas"
-        center={mapCenter}
-        zoom={12}
-        mapId={mapId}
-      />
-
-      <div className="overlay-layer">
-        <div className="search-box">
-          <input
-            type="text"
-            ref={inputRef}
-            placeholder="Where from..."
-            aria-label="Search destination"
-          />
+    <APIProvider apiKey={apiKey} libraries={LIBRARIES}>
+      <div className="map-container">
+        <div className="search-overlay">
+          <Autocomplete onPlaceSelect={handlePlaceSelect} />
         </div>
+        <Map
+          style={MAP_STYLE}
+          center={mapCenter}
+          zoom={zoom}
+          mapId={mapId}
+          onCameraChanged={(ev) => {
+            setMapCenter(ev.detail.center);
+            setZoom(ev.detail.zoom); // This stops the "snapping" back to 12
+          }}
+        >
+          <AdvancedMarker position={markerPosition}>
+            <div className="custom-marker-pin">
+              <Pin 
+                background={'#EA4335'} 
+                borderColor={'#B31412'} 
+                glyphColor={'#000000'} 
+              />
+            </div>
+          </AdvancedMarker>
+        </Map>
       </div>
-    </div>
+    </APIProvider>
   );
 }
