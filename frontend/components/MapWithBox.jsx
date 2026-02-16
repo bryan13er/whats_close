@@ -9,6 +9,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import "./MapWithBox.css";
 import Autocomplete from "./Autocomplete";
+import HomeIcon from '@mui/icons-material/Home';
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
 const MAP_STYLE = { width: "100%", height: "100%" };
@@ -22,6 +23,7 @@ export default function MapWithBox({ center }) {
   const initialPosition = center || DEFAULT_CENTER;
   const [mapCenter, setMapCenter] = useState(initialPosition);
   const [markerPosition, setMarkerPosition] = useState(initialPosition);
+  const [showHome, setShowHome] = useState(true)
   const [zoom, setZoom] = useState(12);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
@@ -46,15 +48,26 @@ export default function MapWithBox({ center }) {
   const handlePlaceSelect = (location) => {
     setMapCenter({ lat: location.lat, lng: location.lng });
     setMarkerPosition({ lat: location.lat, lng: location.lng });
+    setShowHome(false);
     setZoom(14);
   };
+
+  const handleHomeClick = () => {
+    setShowHome(true);
+  }
 
   return (
     <APIProvider apiKey={apiKey} libraries={LIBRARIES}>
       <div className="map-container">
-        <div className="search-overlay">
-          <Autocomplete onPlaceSelect={handlePlaceSelect} />
-        </div>
+        {showHome ? (
+          <div className="search-overlay">
+            <Autocomplete onPlaceSelect={handlePlaceSelect} />
+          </div>
+        ) : (
+          <button type="button" onClick={handleHomeClick} className="home-button" aria-label="Go home">
+            <HomeIcon className="home-icon" />
+          </button>
+        )}
         <Map
           style={MAP_STYLE}
           center={mapCenter}
