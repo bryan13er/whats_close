@@ -28,7 +28,7 @@ async function extractSelectedLocation(event) {
   };
 }
 
-export default function Autocomplete({ onPlaceSelect }) {
+export default function Autocomplete({ onPlaceSelect, placeholder = "Where to..."}) {
   const containerRef = useRef(null);
   const placesLib = useMapsLibrary("places");
 
@@ -36,6 +36,7 @@ export default function Autocomplete({ onPlaceSelect }) {
     if (!placesLib || !containerRef.current) return;
 
     const autocompleteElement = new placesLib.PlaceAutocompleteElement();
+    autocompleteElement.placeholder = placeholder;
     autocompleteElement.className = "modern-search-element";
 
     const handleSelect = async (event) => {

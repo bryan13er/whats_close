@@ -22,8 +22,10 @@ function StatusOverlay({ message }) {
 export default function MapWithBox({ center }) {
   const initialPosition = center || DEFAULT_CENTER;
   const [mapCenter, setMapCenter] = useState(initialPosition);
-  const [markerPosition, setMarkerPosition] = useState(initialPosition);
-  const [showHome, setShowHome] = useState(true)
+  const [homeMarker, setHomeMarker] = useState(initialPosition);
+  const [showHomeSearch, setShowHomeSearch] = useState(true)
+  const [destination, setDestination] = useState(null)
+  const [destinations, setDestinations] = useState([])
   const [zoom, setZoom] = useState(12);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
@@ -37,7 +39,7 @@ export default function MapWithBox({ center }) {
         lng: position.coords.longitude,
       };
       setMapCenter(userPosition);
-      setMarkerPosition(userPosition);
+      setHomeMarker(userPosition);
       setZoom(13);
     });
   }, []);
@@ -45,28 +47,44 @@ export default function MapWithBox({ center }) {
   if (!apiKey) return <StatusOverlay message="Missing API key in frontend/.env" />;
   if (!mapId) return <StatusOverlay message="Missing map ID in frontend/.env" />;
 
-  const handlePlaceSelect = (location) => {
+  const handleHomeSelect = (location) => {
     setMapCenter({ lat: location.lat, lng: location.lng });
-    setMarkerPosition({ lat: location.lat, lng: location.lng });
-    setShowHome(false);
+    setHomeMarker({ lat: location.lat, lng: location.lng });
+    setShowHomeSearch(false);
     setZoom(14);
   };
 
+  const handleDestinationSelect = (location) => {
+    // setMapCenter({ lat: location.lat, lng: location.lng });
+    setDestination(location);
+    setDestinations((prev) => [...prev, location]);
+    setZoom(14);
+  };
+
+  useEffect(() => {
+    console.log(destinations);
+  },[destinations]);
+
   const handleHomeClick = () => {
-    setShowHome(true);
+    setShowHomeSearch(true);
   }
 
   return (
     <APIProvider apiKey={apiKey} libraries={LIBRARIES}>
       <div className="map-container">
-        {showHome ? (
-          <div className="search-overlay">
-            <Autocomplete onPlaceSelect={handlePlaceSelect} />
+        {showHomeSearch ? (
+          <div className="search-overlay search-overlay--top">
+            <Autocomplete onPlaceSelect={handleHomeSelect} placeholder="Where from..." />
           </div>
         ) : (
           <button type="button" onClick={handleHomeClick} className="home-button" aria-label="Go home">
             <HomeIcon className="home-icon" />
           </button>
+        )}
+        {!showHomeSearch && destination == null && (
+            <div className="search-overlay search-overlay--top">
+              <Autocomplete onPlaceSelect={handleDestinationSelect} />
+          </div>
         )}
         <Map
           style={MAP_STYLE}
@@ -78,7 +96,7 @@ export default function MapWithBox({ center }) {
             setZoom(ev.detail.zoom); // This stops the "snapping" back to 12
           }}
         >
-          <AdvancedMarker position={markerPosition}>
+          <AdvancedMarker position={homeMarker}>
             <div className="custom-marker-pin">
               <Pin 
                 background={'#EA4335'} 

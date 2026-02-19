@@ -10,10 +10,13 @@
   inset: 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: clamp(1rem, 5vh, 2.5rem);
   pointer-events: none;
   z-index: 10;
+}
+
+.search-overlay--top {
+  align-items: flex-start;
+  padding-top: clamp(1rem, 5vh, 2.5rem);
 }
 
 .home-button {
