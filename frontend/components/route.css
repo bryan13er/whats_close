@@ -1,0 +1,38 @@
+.route-info-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  display: flex;
+  justify-content: center;   /* horizontal center */
+  padding-top: 16px;         /* distance from top */
+
+  z-index: 10;
+  pointer-events: none;      /* don't block map dragging */
+}
+
+.route-info-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  background: #ffffff;
+  padding: 8px 20px;
+  border-radius: 9999px;     /* pill shape */
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+
+  white-space: nowrap;
+  pointer-events: auto;      /* clickable if needed */
+}
+
+.route-info-divider {
+  opacity: 0.3;
+  font-weight: 400;
+}

@@ -5,57 +5,63 @@ import {
   APIProvider,
   AdvancedMarker,
   Map,
-  Pin,
+  useMap,
 } from "@vis.gl/react-google-maps";
 import {RoutesApi} from '../routes-api';
 import "./MapWithBox.css";
 import Autocomplete from "./Autocomplete";
 import Route from './route'
 import HomeIcon from '@mui/icons-material/Home';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
 const MAP_STYLE = { width: "100%", height: "100%" };
 const LIBRARIES = ["places"];
 
 const apiClient = new RoutesApi(process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY);
-const routeOrigin = { lat: 36.6177, lng: -121.9166 };
-const routeDestination = { lat: 36.6111, lng: -121.8219 };
-
-const appearance = {
-  walkingPolylineColor: '#000',
-  defaultPolylineColor: '#7c7c7c',
-  stepMarkerFillColor: '#333333',
-  stepMarkerBorderColor: '#000000'
-};
-
 
 const routeOptions = {
   travelMode: 'DRIVE',
   // RoutingPreference: 'TRAFFIC_AWARE'
 }
 
-const mapOptions = {
-  mapId: '49ae42fed52588c3',
-  defaultCenter: {lat: 22, lng: 0},
-  defaultZoom: 3,
-  gestureHandling: 'greedy',
-  disableDefaultUI: true
-};
-
-
 function StatusOverlay({ message }) {
   return <div className="overlay-box">{message}</div>;
+}
+
+function RecenterRouteButton({ routeBounds, home }) {
+  const map = useMap();
+
+  if (!routeBounds && !home) return null;
+
+  return (
+    <button
+      type="button"
+      className="recenter-button"
+      aria-label="Recenter map"
+      onClick={() => {
+        if (!map) return;
+
+        if (routeBounds) {
+          map.fitBounds(routeBounds);
+          return;
+        }
+
+        map.panTo(home);
+        map.setZoom(14);
+      }}
+    >
+      <MyLocationIcon className="recenter-icon" />
+    </button>
+  );
 }
 
 export default function MapWithBox({ center }) {
   const initialPosition = center || DEFAULT_CENTER;
   const [mapCenter, setMapCenter] = useState(initialPosition);
-  const [homeMarker, setHomeMarker] = useState(initialPosition);
-  const [showHomeSearch, setShowHomeSearch] = useState(true);
-  const [home, setHome] = useState(initialPosition);
+  const [home, setHome]               = useState(null);
   const [destination, setDestination] = useState(null);
-  const [destinationMarker, setDestinationMarker] = useState(null);
-  const [destinations, setDestinations] = useState([]);
+  const [routeBounds, setRouteBounds] = useState(null); // needed for recenter button
   const [zoom, setZoom] = useState(12);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
@@ -69,8 +75,6 @@ export default function MapWithBox({ center }) {
         lng: position.coords.longitude,
       };
       setMapCenter(userPosition);
-      setHomeMarker(userPosition);
-      setHome(position);
       setZoom(13);
     });
   }, []);
@@ -80,32 +84,26 @@ export default function MapWithBox({ center }) {
 
   const handleHomeSelect = (location) => {
     setMapCenter({ lat: location.lat, lng: location.lng });
-    setHomeMarker({ lat: location.lat, lng: location.lng });
-    setShowHomeSearch(false);
-    setHome(location)
+    setHome(location);
     setZoom(14);
   };
 
   const handleDestinationSelect = (location) => {
-    // setMapCenter({ lat: location.lat, lng: location.lng });
     setDestination(location);
-    setDestinationMarker({ lat: location.lat, lng: location.lng })
-    setDestinations((prev) => [...prev, location]);
     setZoom(14);
   };
 
-  useEffect(() => {
-    console.log(destinations);
-  },[destinations]);
 
   const handleHomeClick = () => {
-    setShowHomeSearch(true);
+    setHome(null);
+    setDestination(null);
+    setRouteBounds(null);
   }
 
   return (
     <APIProvider apiKey={apiKey} libraries={LIBRARIES}>
       <div className="map-container">
-        {showHomeSearch ? (
+        {!home ? (
           <div className="search-overlay search-overlay--top">
             <Autocomplete onPlaceSelect={handleHomeSelect} placeholder="Where from..." />
           </div>
@@ -114,7 +112,7 @@ export default function MapWithBox({ center }) {
             <HomeIcon className="home-icon" />
           </button>
         )}
-        {!showHomeSearch && destination == null && (
+        {home && !destination && (
             <div className="search-overlay search-overlay--top">
               <Autocomplete onPlaceSelect={handleDestinationSelect} />
           </div>
@@ -126,28 +124,25 @@ export default function MapWithBox({ center }) {
           mapId={mapId}
           onCameraChanged={(ev) => {
             setMapCenter(ev.detail.center);
-            setZoom(ev.detail.zoom); // This stops the "snapping" back to 12
+            setZoom(ev.detail.zoom); 
           }}
         >
-          {homeMarker && destinationMarker &&
+          {home && destination &&
             <Route
               apiClient={apiClient}
-              origin={homeMarker}
-              destination={destinationMarker}
+              origin={home}
+              destination={destination}
               routeOptions={routeOptions}
-              appearance={appearance}
+              onRouteBoundsChange={setRouteBounds}
             />
-          } 
+          }
+
+          <RecenterRouteButton routeBounds={routeBounds} home={home} />
           
-          <AdvancedMarker position={homeMarker}>
-            <div className="custom-marker-pin">
-              <Pin 
-                background={'#EA4335'} 
-                borderColor={'#B31412'} 
-                glyphColor={'#000000'} 
-              />
-            </div>
-          </AdvancedMarker>
+          {home && (
+            <AdvancedMarker position={home} />
+          )}
+          
         </Map>
       </div>
     </APIProvider>
