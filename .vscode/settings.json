@@ -1,0 +1,17 @@
+{
+  "eslint.useFlatConfig": true,
+  "eslint.options": {
+    "overrideConfigFile": "frontend/eslint.config.mjs"
+  },
+  "eslint.workingDirectories": [
+    {
+      "directory": "frontend",
+      "changeProcessCWD": true
+    }
+  ],
+  "eslint.run": "onType",
+  "eslint.validate": ["javascript", "javascriptreact"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}
