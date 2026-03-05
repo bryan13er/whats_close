@@ -67,11 +67,12 @@ export type RouteProps = {
   destination: {lat: number; lng: number};
   routeOptions?: any;
   appearance?: Partial<Appearance>;
+  showInfoPill?: boolean;
   onRouteBoundsChange?: (bounds: google.maps.LatLngBoundsLiteral) => void;
 };
 
 const Route = (props: RouteProps) => {
-  const {apiClient, origin, destination, routeOptions, onRouteBoundsChange} = props;
+  const {apiClient, origin, destination, routeOptions, showInfoPill, onRouteBoundsChange} = props;
 
   const [route, setRoute] = useState<any>(null);
   const [travelTime, setTravelTime] = useState<string>('');
@@ -158,7 +159,7 @@ const Route = (props: RouteProps) => {
       
       {polylines}
 
-      {route && (
+      {route && showInfoPill && (
         <div className="route-info-container">
           <div className="route-info-pill" onClick={handleRouteInfoClick}>
             <AccessTimeIcon fontSize="small" />
