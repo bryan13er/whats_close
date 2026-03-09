@@ -1,0 +1,13 @@
+.cache-container{
+  /* position: absolute;
+  top: 72px;
+  left: 12px; */
+  height: 35vh;
+  width: min(45vw, 360px);
+  background: white;
+  z-index: 20;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  pointer-events: auto;
+}

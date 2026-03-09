@@ -13,9 +13,12 @@ import {RoutesApi} from '../routes-api';
 import "./MapWithBox.css";
 import Autocomplete from "./Autocomplete";
 import Route from './route'
+import DestCache from "./DestCache";
 import HomeIcon from '@mui/icons-material/Home';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import NavigationIcon from '@mui/icons-material/Navigation';
+import TrafficIcon from '@mui/icons-material/Traffic';
+import PublicIcon from '@mui/icons-material/Public';
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
 const MAP_STYLE = { width: "100%", height: "100%" };
@@ -74,7 +77,7 @@ function RecenterRouteButton({ routeBounds, home, isStreetViewVisible }) {
   };
 
   return (
-    <MapControl position={ControlPosition.RIGHT_BOTTOM}>
+    <MapControl position={ControlPosition.INLINE_END_BLOCK_END}>
       <button
         type="button"
         className="map-control-button recenter-mapcontrol-button"
@@ -94,6 +97,7 @@ export default function MapWithBox({ center }) {
   const [destination, setDestination] = useState(null);
   const [routeBounds, setRouteBounds] = useState(null); // needed for recenter button
   const [isStreetViewVisible, setIsStreetViewVisible] = useState(false);
+  const [mapType, setMapType] = useState(true);
   const [zoom, setZoom] = useState(12);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
@@ -142,6 +146,10 @@ export default function MapWithBox({ center }) {
     }
   }
 
+  const handleMapType = () => {
+    setMapType(mapType => !mapType);
+  }
+
   return (
     <APIProvider apiKey={apiKey} libraries={LIBRARIES}>
       <div className="map-container">
@@ -165,11 +173,16 @@ export default function MapWithBox({ center }) {
             </button>
           )
         )}
+
+        
+
+
         <Map
           style={MAP_STYLE}
           center={mapCenter}
           zoom={zoom}
           mapId={mapId}
+          mapTypeId={mapType ? 'roadmap' : 'hybrid'}
           streetViewControl
           cameraControl={false}
           mapTypeControl={false}
@@ -198,12 +211,25 @@ export default function MapWithBox({ center }) {
             routeBounds={routeBounds}
             isStreetViewVisible={isStreetViewVisible}
           />
+
+          <MapControl position={ControlPosition.BLOCK_START_INLINE_START}>
+            <button 
+              type="button" 
+              onClick={handleMapType} 
+              className="nav-buttons" 
+              aria-label={mapType ? "Switch to standard map" : "Switch to traffic map"}
+              aria-pressed={mapType}
+            >
+              {mapType ? <TrafficIcon className="nav-icons"/> : <PublicIcon className="nav-icons"/>}
+            </button>
+          </MapControl>
           
+            
           {home && (
             <AdvancedMarker position={home} />
           )}
-          
         </Map>
+        <DestCache/>
       </div>
     </APIProvider>
   );

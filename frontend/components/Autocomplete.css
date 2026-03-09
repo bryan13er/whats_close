@@ -1,5 +1,5 @@
 .search-container {
-  width: clamp(220px, 34vw, 520px);
+  width: clamp(220px, 34vw, 650px);
   height: 52px;
   pointer-events: auto;
 }
@@ -14,8 +14,7 @@
 
 @media (max-width: 600px) {
   .search-container {
-    width: clamp(200px, 82vw, 420px);
-    height: 48px;
-    margin-top: 25px;
+    width: clamp(200px, 70vw, 420px);
+    height: 40px;
   }
 }

@@ -16,7 +16,8 @@
 
 .search-overlay--top {
   align-items: flex-start;
-  padding-top: clamp(1rem, 5vh, 2.5rem);
+  /* Keep top search offset responsive to (vh) viewport height, but cap it with rems for consistent UX across small and large screens. */
+  padding-top: 10px;
 }
 
 .nav-buttons {
@@ -40,15 +41,14 @@
   font-size: 20px;
 }
 
-
 .home-button {
-  top: 0px;
-  right: 50px;
+  top: 50px;
+  right: 0px;
 }
 
 .dest-button {
-  top: 50px;
-  right: 0px;
+  top: 0px;
+  right: 50px;
 }
 
 .map-control-button {

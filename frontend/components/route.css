@@ -6,7 +6,7 @@
 
   display: flex;
   justify-content: center;   /* horizontal center */
-  padding-top: 16px;         /* distance from top */
+  padding-top: 10px;         /* distance from top */
 
   z-index: 10;
   pointer-events: none;      /* don't block map dragging */
@@ -18,13 +18,13 @@
   gap: 5px;
 
   background: #ffffff;
-  padding: 8px 20px;
+  padding: 10px 20px;
   border-radius: 9999px;     /* pill shape */
 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.05);
 
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
 
@@ -35,4 +35,11 @@
 .route-info-divider {
   opacity: 0.3;
   font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .route-info-container {
+    right: 43px;   /* reserve space for right-side buttons */
+    width: auto;   /* now center inside available map area */
+  }
 }
