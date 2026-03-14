@@ -5,7 +5,7 @@ import {
   APIProvider,
   AdvancedMarker,
   ControlPosition,
-  Map,
+  Map as GoogleMap,
   MapControl,
   useMap,
 } from "@vis.gl/react-google-maps";
@@ -13,7 +13,7 @@ import {RoutesApi} from '../routes-api';
 import "./MapWithBox.css";
 import Autocomplete from "./Autocomplete";
 import Route from './route'
-import DestCache from "./DestCache";
+import DestInfoTable from "./DestInfoTable";
 import HomeIcon from '@mui/icons-material/Home';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import NavigationIcon from '@mui/icons-material/Navigation';
@@ -21,6 +21,7 @@ import TrafficIcon from '@mui/icons-material/Traffic';
 import PublicIcon from '@mui/icons-material/Public';
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
+const DEFAULT_ZOOM =  12;
 const MAP_STYLE = { width: "100%", height: "100%" };
 const LIBRARIES = ["places"];
 
@@ -31,8 +32,17 @@ const routeOptions = {
   // RoutingPreference: 'TRAFFIC_AWARE'
 }
 
-function StatusOverlay({ message }) {
-  return <div className="overlay-box">{message}</div>;
+function MapCenterControl({centerTarget}){  
+  const map = useMap();
+
+  useEffect(() => {
+    if(map && centerTarget){
+      map.setCenter(centerTarget);
+      map.setZoom(DEFAULT_ZOOM);
+    }
+  }, [map, centerTarget]);
+
+  return null;
 }
 
 function StreetViewWatcher({ onVisibilityChange }) {
@@ -72,7 +82,7 @@ function RecenterRouteButton({ routeBounds, home, isStreetViewVisible }) {
 
     if (home) {
       map.panTo(home);
-      map.setZoom(14);
+      map.setZoom(DEFAULT_ZOOM);
     }
   };
 
@@ -90,7 +100,11 @@ function RecenterRouteButton({ routeBounds, home, isStreetViewVisible }) {
   );
 }
 
+//TODO: there is a big problem the component rerenders everytime i move the map
+// so its leading to a crash becasue its running out o memory consult the
+// docs and see how to properly set center
 export default function MapWithBox({ center }) {
+  console.log("🛠️ MapWithBox Rendered"); // Add this
   const initialPosition = center || DEFAULT_CENTER;
   const [mapCenter, setMapCenter] = useState(initialPosition);
   const [home, setHome]               = useState(null);
@@ -98,9 +112,11 @@ export default function MapWithBox({ center }) {
   const [routeBounds, setRouteBounds] = useState(null); // needed for recenter button
   const [isStreetViewVisible, setIsStreetViewVisible] = useState(false);
   const [mapType, setMapType] = useState(true);
-  const [zoom, setZoom] = useState(12);
+  const [destHistory, setDestHistory] = useState([]);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+
+  const seenDests = new Set();
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -111,7 +127,6 @@ export default function MapWithBox({ center }) {
         lng: position.coords.longitude,
       };
       setMapCenter(userPosition);
-      setZoom(13);
     });
   }, []);
 
@@ -119,14 +134,26 @@ export default function MapWithBox({ center }) {
   if (!mapId) return <StatusOverlay message="Missing map ID in frontend/.env" />;
 
   const handleHomeSelect = (location) => {
+    console.log(location);
     setMapCenter({ lat: location.lat, lng: location.lng });
     setHome(location);
-    setZoom(14);
   };
 
   const handleDestinationSelect = (location) => {
     setDestination(location);
-    setZoom(14);
+
+    // TODO: settled on this check beause the node will run out of memory
+    setDestHistory((prev) => {
+      // Check if we already have this destination in our history
+      const isDuplicate = prev.some((d) => d.placeId === location.placeId);
+      if (isDuplicate) {
+        return prev; // Return existing state, triggering NO re-render
+      }
+      // Add the new location to the array
+      return [...prev, location];
+    });
+
+    console.log("searchhistory", destHistory);
   };
 
 
@@ -142,7 +169,6 @@ export default function MapWithBox({ center }) {
 
     if (home) {
       setMapCenter({ lat: home.lat, lng: home.lng });
-      setZoom(14);
     }
   }
 
@@ -174,13 +200,10 @@ export default function MapWithBox({ center }) {
           )
         )}
 
-        
-
-
-        <Map
+        <GoogleMap
           style={MAP_STYLE}
-          center={mapCenter}
-          zoom={zoom}
+          defaultCenter={DEFAULT_CENTER}
+          defaultZoom={DEFAULT_ZOOM}
           mapId={mapId}
           mapTypeId={mapType ? 'roadmap' : 'hybrid'}
           streetViewControl
@@ -188,11 +211,9 @@ export default function MapWithBox({ center }) {
           mapTypeControl={false}
           fullscreenControl
           
-          onCameraChanged={(ev) => {
-            setMapCenter(ev.detail.center);
-            setZoom(ev.detail.zoom); 
-          }}
+  
         >
+          <MapCenterControl centerTarget={mapCenter} />
           <StreetViewWatcher onVisibilityChange={setIsStreetViewVisible} />
 
           {home && destination &&
@@ -223,13 +244,19 @@ export default function MapWithBox({ center }) {
               {mapType ? <TrafficIcon className="nav-icons"/> : <PublicIcon className="nav-icons"/>}
             </button>
           </MapControl>
-          
-            
           {home && (
             <AdvancedMarker position={home} />
           )}
-        </Map>
-        <DestCache/>
+        </GoogleMap>
+        {home && destHistory.length > 0 && 
+          <div className="table-overlay">
+            <DestInfoTable
+              apiKey={apiKey}
+              home={home}
+              destinations={destHistory}
+            />
+          </div>
+        }
       </div>
     </APIProvider>
   );

@@ -68,3 +68,16 @@
 .recenter-mapcontrol-button {
   margin: 10px;
 }
+
+.table-overlay {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 60%;
+  height: 40%;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+}

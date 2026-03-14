@@ -44,7 +44,7 @@ function formatDurationFromSeconds(totalSeconds: number): string {
     const remSec = totalSeconds % secondsInMin
     let round = remSec >= 45 ? 1 : 0;
     const mins = Math.floor(totalSeconds / secondsInMin) + round;
-    time += `${mins}m `
+    time += `${mins}min `
   }
 
   return time.trim();

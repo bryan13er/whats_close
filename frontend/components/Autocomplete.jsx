@@ -11,6 +11,7 @@ async function extractSelectedLocation(event) {
       lat: directPlace.location.lat(),
       lng: directPlace.location.lng(),
       name: directPlace.displayName || "",
+      placeId: directPlace.id 
     };
   }
 
@@ -18,13 +19,14 @@ async function extractSelectedLocation(event) {
   if (!prediction?.toPlace) return null;
 
   const place = prediction.toPlace();
-  await place.fetchFields({ fields: ["location", "displayName"] });
+  await place.fetchFields({ fields: ["location", "displayName", "id"] });
   if (!place?.location) return null;
 
   return {
     lat: place.location.lat(),
     lng: place.location.lng(),
     name: place.displayName || "",
+    placeId: place.id
   };
 }
 
