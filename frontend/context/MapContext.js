@@ -19,6 +19,7 @@ export function MapFeatureProvider({ children }) {
   const [mapCenter, setMapCenter] = useState(MAP_CONFIG.defaultCenter);
   const [isStreetViewVisible, setIsStreetViewVisible] = useState(false);
   const [mapType, setMapType] = useState(true); // true = roadmap, false = hybrid
+  const [showDataTable, setShowDataTable] = useState(true)
 
   // --- Logic Handlers (Memoized) ---
 
@@ -90,6 +91,7 @@ export function MapFeatureProvider({ children }) {
     mapCenter, setMapCenter,
     isStreetViewVisible, setIsStreetViewVisible,
     mapType, toggleMapType,
+    showDataTable, setShowDataTable,
     rows
   }), [
     home, handleHomeSelect, handleHomeClear,
@@ -99,6 +101,7 @@ export function MapFeatureProvider({ children }) {
     mapCenter,
     isStreetViewVisible,
     mapType,
+    showDataTable,
     toggleMapType,
     rows
   ]);

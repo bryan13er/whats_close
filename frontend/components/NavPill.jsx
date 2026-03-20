@@ -143,6 +143,7 @@ export default function NavPill({ onSelect }) {
     handleHomeSelect, handleHomeClear,
     destination, addDestination, clearRoute,
     isStreetViewVisible,
+    showDataTable, setShowDataTable
   } = useMapFeatures();
 
   const pillRef = useRef(null);
@@ -152,6 +153,7 @@ export default function NavPill({ onSelect }) {
   const requestSeq = useRef(0);
   const isMobile = useIsMobile();
   const shouldRenderMobile = isMobile === true;
+  const tableStateBeforeOverlay = useRef(null);
 
   useEffect(() => {
     document.body.style.overflow = mobileOverlay ? 'hidden' : '';
@@ -209,8 +211,21 @@ export default function NavPill({ onSelect }) {
   }
 
   function handleMobileOpen(fieldId, value) {
+    // needed to hide the display table correctly
+    tableStateBeforeOverlay.current = showDataTable;
+    setShowDataTable(false);
+
     setMobileOverlay(fieldId);
     value.length >= 3 ? fetchSuggestions(value) : invalidateSuggestions();
+  }
+
+  function closeOverlay() {
+    setMobileOverlay(null);
+    invalidateSuggestions();
+    if (tableStateBeforeOverlay.current !== null) {
+      setShowDataTable(tableStateBeforeOverlay.current);
+      tableStateBeforeOverlay.current = null;
+    }
   }
 
   function handleSelect(suggestion) {
@@ -220,7 +235,7 @@ export default function NavPill({ onSelect }) {
     setFieldState(prev => ({ ...prev, [fieldId]: { input: label, label } }));
     invalidateSuggestions();
     setActiveField(null);
-    setMobileOverlay(null);
+    closeOverlay();
     
     // Once something is selected then get their lat and long from geocode call
     places.getGeocodeV3(placeId).then(({ location }) => {
@@ -319,7 +334,7 @@ export default function NavPill({ onSelect }) {
           input={fieldState[mobileOverlay].input}
           suggestions={suggestions}
           inputRef={mobileInputRef}
-          onClose={() => { setMobileOverlay(null); invalidateSuggestions(); }}
+          onClose={closeOverlay}
           onChange={e => handleChange(mobileOverlay, e.target.value)}
           onSelect={handleSelect}
           onClear={() => handleClear(mobileOverlay)}

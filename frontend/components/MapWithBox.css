@@ -80,6 +80,11 @@
   right: 50px;
 }
 
+.show-data-table-button {
+  top: 50px;
+  right: 0px;
+}
+
 .map-control-button {
   width: 40px;
   height: 40px;

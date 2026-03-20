@@ -19,6 +19,7 @@ import MapTypeButton from "./MapTypeButton";
 import StreetViewWatcher from "./StreetViewWatcher";
 import MapCenterControl from "./MapCenterControl";
 import NavPill from "./NavPill";
+import ShowDataTableButton from "./ShowDataTableButton";
 
 
 const routeOptions = {
@@ -39,7 +40,8 @@ export default function MapWithBox() {
     destination,
     setMapCenter,
     mapType, 
-    destHistory, deleteFromHistory
+    destHistory,
+    showDataTable,
   } = useMapFeatures();
 
   useEffect(() => {
@@ -75,6 +77,9 @@ export default function MapWithBox() {
           mapTypeControl={false}
           fullscreenControl
         >
+          {destHistory.length > 0 &&
+            <ShowDataTableButton />
+          } 
           <MapCenterControl />
           <StreetViewWatcher/>
 
@@ -92,7 +97,7 @@ export default function MapWithBox() {
             <AdvancedMarker position={home} />
           )}
         </GoogleMap>
-        {home && destHistory.length > 0 && !destination && 
+        {showDataTable && destHistory.length > 0 &&
           <div className="table-overlay">
             <DestInfoTable/>
           </div>
