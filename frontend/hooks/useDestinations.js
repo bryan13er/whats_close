@@ -1,68 +1,96 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createDataLookup, prepRowData } from '../utils/places';
 import { routesMatrixApi, placesApi } from '../config/maps';
 
-// TODO: Optimize destination fetching to avoid redundant API calls
+// Helper function extracted to keep the useEffect clean
+async function fetchDestinationsData(homeOrigin, destsArray) {
+  const [driveRes, walkRes, transitRes, placesRes] = await Promise.all([
+    //computeMatrix can take multiple dests as an arg
+    routesMatrixApi.computeMatrix(homeOrigin, destsArray, "DRIVE"),
+    routesMatrixApi.computeMatrix(homeOrigin, destsArray, "WALK"),
+    routesMatrixApi.computeMatrix(homeOrigin, destsArray, "TRANSIT"),
+    //getDetails has to take each dest one by one
+    Promise.all(destsArray.map(dest => placesApi.getPlaceDetails(dest.placeId)))
+  ]);
+  const driveResLookUp   = createDataLookup(driveRes);
+  const walkResLookUp    = createDataLookup(walkRes);
+  const transitResLookUp = createDataLookup(transitRes);
+  return destsArray.map((dest, index) => {
+    return prepRowData(dest, driveResLookUp[index], walkResLookUp[index], transitResLookUp[index], placesRes[index]);
+  });
+}
 
-// Currently, every time destinations changes (add or delete), the hook refetches 
-// all destinations from scratch. This means:
-// - On add: N+1 fetches when only 1 is needed
-// - On delete: N-1 fetches when 0 are needed
-
-// Fix: Diff destinations against current rows on each useEffect trigger.
-// - Items in destinations but not in rows → fetch only those, append to rows
-// - Items in rows but not in destinations → filter out, no fetch needed
-
-// rows is already functioning as a cache keyed by desPlaceId. Staleness is 
-// acceptable here since destinations only ever changes by one item at a time,
-// so stale rows will always reflect the correct previous state to diff against.
-
-// Not a priority until destination lists exceed ~50 items.
-
-export function useDestinations(home, destinations){
-  
+export function useDestinations(home, destinations) {
   const [rows, setRows] = useState([]);
 
+  // Initialized to null so the first run always sees a change and does a full fetch
+  const prevHome = useRef(null);
+  const prevDests = useRef(null);
+
   useEffect(() => {
+    let isMounted = true; // Prevents stale state updates if component unmounts during fetch
+
     const loadTableData = async () => {
       try {
+        // Handle empty states immediately
         if (!home || destinations.length === 0) {
-          setRows([]);
+          if (isMounted) setRows([]);
+          prevHome.current = home;
+          prevDests.current = destinations;
           return;
         }
 
-        // 1. Fire all "batch" requests at once
-        const [driveRes, walkRes, transitRes, placesRes] = await Promise.all([
-          routesMatrixApi.computeMatrix(home, destinations, "DRIVE"),
-          routesMatrixApi.computeMatrix(home, destinations, "WALK"),
-          routesMatrixApi.computeMatrix(home, destinations, "TRANSIT"),
-          Promise.all(destinations.map(dest => placesApi.getPlaceDetails(dest.placeId)))
-        ]);
+        const homeChanged = prevHome.current?.placeId !== home?.placeId;
+        const currentIds = destinations.map(d => d.placeId);
+        const prevIds = (prevDests.current || []).map(d => d.placeId);
 
-        const driveResLookUp = createDataLookup(driveRes);
-        const walkResLookUp  = createDataLookup(walkRes);
-        const transitResLookUp = createDataLookup(transitRes);
+        // SCENARIO 1: Home changed (or initial load) -> Refetch ALL
+        if (homeChanged || prevIds.length === 0) {
+          const newRows = await fetchDestinationsData(home, destinations);
+          console.log("HOME CHANGED REFETCH ALL", newRows);
+          if (isMounted) setRows(newRows);
+        }
+        // SCENARIO 2 & 3: Home is the same, diff the destinations
+        else {
+          const addedDests = destinations.filter(d => !prevIds.includes(d.placeId));
+          const removedIds = prevIds.filter(id => !currentIds.includes(id));
 
-        // 2. Map the results into your row format
-        // Maps and Matrices return results in the same order as your input array
-        const newRows = destinations.map((dest, index) => {
-          const drive = driveResLookUp[index];
-          const walk = walkResLookUp[index];
-          const transit = transitResLookUp[index];
-          const place = placesRes[index];
-  
-          return prepRowData(dest, drive, walk, transit, place);
-        });
-  
-        // 3. Set the state once to avoid multiple re-renders
-        setRows(newRows);
+          // SCENARIO 3: Only deletions -> No fetch, just filter local state
+          if (removedIds.length > 0 && addedDests.length === 0) {
+            if (isMounted) {
+              console.log("NO FETCH DELETE ONLY")
+              setRows(prevRows => prevRows.filter(row => !removedIds.includes(row.desPlaceId)));
+            }
+          }
+          // SCENARIO 2: Additions -> Fetch ONLY new, append to local state
+          else if (addedDests.length > 0) {
+            const newRowsData = await fetchDestinationsData(home, addedDests);
+            console.log("SAME HOME NEW DEST", newRowsData);
+            if (isMounted) {
+              setRows(prevRows => {
+                // Filter out any deleted ones just in case both happened, then append new
+                const filteredRows = prevRows.filter(row => !removedIds.includes(row.desPlaceId));
+                return [...filteredRows, ...newRowsData];
+              });
+            }
+          }
+        }
+
+        // Sync the refs with the current state for the next render cycle
+        prevHome.current = home;
+        prevDests.current = destinations;
       } catch (err) {
-        console.error("Initialization failed:", err);
+        console.error("Destination initialization failed:", err);
       }
     };
-  
-    loadTableData();
-  }, [home, destinations]); // refresh when inputs change
 
-  return {rows};
+    loadTableData();
+
+    // Cleanup function — isMounted prevents stale setRows calls from resolved fetches
+    return () => {
+      isMounted = false;
+    };
+  }, [home, destinations]);
+
+  return { rows };
 }

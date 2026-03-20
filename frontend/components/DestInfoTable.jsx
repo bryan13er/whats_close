@@ -16,7 +16,6 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import './DestInfoTable.css';
-import { useDestinations } from '../hooks/useDestinations';
 import { formatDurationFromSeconds } from '../utils/time';
 import { getImperialDist } from '../utils/distance';
 import { useMapFeatures } from "../context/MapContext";
@@ -74,12 +73,11 @@ const stickyLeftOffsets = (() => {
 const tableMinWidth = columns.reduce((sum, column) => sum + (column.minWidth ?? 0), 0);
 
 export default function StickyHeadTable() {
-  const {home, destHistory:destinations, deleteFromHistory:destDelete, setDestination} = useMapFeatures();
+  const { deleteFromHistory:destDelete, setDestination, rows} = useMapFeatures();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // fetch the data with custom hook 
-  const { rows } = useDestinations(home, destinations);
+  
 
   const maxPage = Math.max(0, Math.ceil(rows.length / rowsPerPage) - 1);
   const pageClamped = Math.min(page, maxPage);
