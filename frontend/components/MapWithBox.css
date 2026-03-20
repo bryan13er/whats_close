@@ -20,6 +20,35 @@
   padding-top: 10px;
 }
 
+.nav-pill-overlay {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.nav-pill-overlay > .np-pill-wrapper,
+.nav-pill-overlay > .np-pill {
+  pointer-events: auto;
+  width: clamp(220px, 34vw, 640px);
+}
+
+.nav-pill-overlay > .np-mobile-overlay {
+  pointer-events: auto;
+}
+
+@media (max-width: 600px) {
+  .nav-pill-overlay > .np-pill-wrapper,
+  .nav-pill-overlay > .np-pill {
+    width: clamp(200px, 70vw, 420px);
+  }
+}
+
 .nav-buttons {
   width: 40px;
   height: 40px;

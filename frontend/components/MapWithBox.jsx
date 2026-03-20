@@ -18,6 +18,7 @@ import MapOverlays from "./MapOverlays";
 import MapTypeButton from "./MapTypeButton";
 import StreetViewWatcher from "./StreetViewWatcher";
 import MapCenterControl from "./MapCenterControl";
+import NavPill from "./NavPill";
 
 
 const routeOptions = {
@@ -59,7 +60,10 @@ export default function MapWithBox() {
   return (
     <APIProvider apiKey={MAP_CONFIG.apiKey} libraries={MAP_CONFIG.libraries}>
       <div className="map-container">
-        <MapOverlays/>
+        {/* <MapOverlays/> */}
+        <div className="nav-pill-overlay">
+          <NavPill/>
+        </div>
         <GoogleMap
           style={MAP_CONFIG.mapStyle}
           defaultCenter={MAP_CONFIG.defaultCenter}

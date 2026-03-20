@@ -28,10 +28,21 @@ export const priceMap = {
   PRICE_LEVEL_VERY_EXPENSIVE: "$$$$"
 };
 
+/**
+ * @typedef {Object} DestinationPlace
+ * @property {'dest'} field i.e. input type origin or dest
+ * @property {string} label i.e. name of locaiton
+ * @property {string} placeId gogole place id
+ * @property {number} lat
+ * @property {number} lng
+ */
 
+/**
+ * @param {DestinationPlace} dest
+ */
 export function prepRowData(dest, driveData, walkData, transitData, placeInfo){
   return {
-    name:        dest.name,
+    name:        dest.label,
     desPlaceId:  dest.placeId,
     destObj:     dest,
     distance:    driveData.distanceMeters,

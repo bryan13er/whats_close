@@ -103,6 +103,8 @@ export function useDestinations(home, destinations) {
             // read the cahce here 
             const placeData = cache.current.places[dest.placeId];
             const routeData = cache.current.routes[`${currentHomeId}_${dest.placeId}`];
+            
+            console.log(dest);
 
             return prepRowData(
               dest,
