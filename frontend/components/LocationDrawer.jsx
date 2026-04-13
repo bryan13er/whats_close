@@ -94,7 +94,7 @@ export default function LocationDrawer() {
           },
         }}
       >
-        <div className="puller-tab">
+        <div className="puller-tab" onClick={() => open ? handleClose() : setOpen(true)}>
           <div className="puller" />
         </div>
         <div className="mobile-drawer-inner">
