@@ -1,118 +1,89 @@
-'use client'
+'use client';
 
-import { Trash2, Navigation, Star, DollarSign, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle } from 'lucide-react';
+/* ─────────────────────────────────────────────────────────────────────────────
+   LocationCard — redesigned result card
+   Visual changes vs. v1:
+     · Tighter padding and a cleaner visual hierarchy
+     · Name truncates to two lines (was unlimited height)
+     · Rating, cost, and distance row uses pill badges instead of plain text
+     · Transport options are horizontal pills with icon + duration
+     · Action buttons are a compact icon-row at the bottom (icon + label)
+     · Subtle border instead of a heavy box shadow
+   Logic is unchanged — same MapContext hooks, same button handlers.
+───────────────────────────────────────────────────────────────────────────── */
+
+import { Trash2, Navigation, Star, DollarSign, Eye } from 'lucide-react';
 import { formatDurationFromSeconds } from '../utils/time';
 import { getImperialDist } from '../utils/distance';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
-import './LocationCard.css'
-import { useMapFeatures } from "../context/MapContext";
+import './LocationCard.css';
+import { useMapFeatures } from '../context/MapContext';
 
-
-//TODO: add weather
-const weatherIcons = {
-  sunny: Sun,
-  cloudy: Cloud,
-  rainy: CloudRain,
-  snowy: CloudSnow,
-  drizzle: CloudDrizzle,
-};
-
-const weatherColors = {
-  sunny: 'weather-sunny',
-  cloudy: 'weather-cloudy',
-  rainy: 'weather-rainy',
-  snowy: 'weather-snowy',
-  drizzle: 'weather-drizzle',
-};
-
-/**
- * @typedef {Object} place
- * @property {string} name - "Chipotle Mexican Grill, Munras Avenue, Monterey, CA, USA"
- * @property {string} desPlaceId - "ChIJl28xQCTkjYAR48CoQtJ6pb4"
- * @property {object} destObj
- * @property {string} destObj.field - "dest"
- * @property {string} destObj.label - "Chipotle Mexican Grill, Munras Avenue, Monterey, CA, USA"
- * @property {string} destObj.placeId - "ChIJl28xQCTkjYAR48CoQtJ6pb4"
- * @property {number} destObj.lat - 36.5969267
- * @property {number} destObj.lng - -121.8944817
- * @property {number} distance - 30353 (meters)
- * @property {number} driveTime - 1595 (seconds)
- * @property {number} transitTime - 3471 (seconds)
- * @property {number} walkTime - 23688 (seconds)
- * @property {number} ratings - 3.8 or 'N/A'
- * @property {string} cost - "$" or 'N/A'
- */
-
-/**
- * @param {{ place: place }} props
- */
-export default function LocationCard({place}) {
+export default function LocationCard({ place }) {
   const { deleteFromHistory, setDestination, toggleActiveRoute } = useMapFeatures();
-  console.log(place)
 
   return (
-    <div className="location-card">
-      <div className="card-header">
-        <h2 className="card-title">{place.name}</h2>
-        {/* <WeatherIcon className={`weather-icon ${weatherColors[weather]}`} /> */}
-      </div>
+    <div className="lc-card">
 
-      <div className="card-meta">
+      {/* ── Name ── */}
+      <h2 className="lc-title">{place.name}</h2>
+
+      {/* ── Meta row: rating · cost · distance ── */}
+      <div className="lc-meta">
         {place.ratings !== 'N/A' && (
-          <div className="rating">
-            <Star className="star-icon" />
-            <span>{place.ratings.toFixed(1)}</span>
-          </div>
+          <span className="lc-badge lc-badge--rating">
+            <Star className="lc-badge__icon lc-badge__icon--star" />
+            {place.ratings.toFixed(1)}
+          </span>
         )}
         {place.cost !== 'N/A' && (
-          <div className="price">
+          <span className="lc-badge lc-badge--cost">
             {[...Array(place.cost.length)].map((_, i) => (
-              <DollarSign key={i} className="dollar active" />
+              <DollarSign key={i} className="lc-dollar lc-dollar--active" />
             ))}
             {[...Array(4 - place.cost.length)].map((_, i) => (
-              <DollarSign key={i + place.cost.length} className="dollar inactive" />
+              <DollarSign key={i + place.cost.length} className="lc-dollar lc-dollar--inactive" />
             ))}
-          </div>
+          </span>
         )}
-        {/*TODO: think about where distance should go will leave it here for now maybe make it a button to see km like the other */}
-        <div>
+        <span className="lc-badge lc-badge--distance">
           {getImperialDist(place.distance)}
+        </span>
+      </div>
+
+      {/* ── Transport options ── */}
+      <div className="lc-transport">
+        <div className="lc-transport-option">
+          <DriveEtaIcon className="lc-transport-icon" />
+          <span>{formatDurationFromSeconds(place.driveTime)}</span>
+        </div>
+        <div className="lc-transport-option">
+          <DirectionsWalkIcon className="lc-transport-icon" />
+          <span>{formatDurationFromSeconds(place.walkTime)}</span>
+        </div>
+        <div className="lc-transport-option">
+          <DirectionsTransitFilledIcon className="lc-transport-icon" />
+          <span>{formatDurationFromSeconds(place.transitTime)}</span>
         </div>
       </div>
 
-      <div className="transport-section">
-        <div className="transport-options">
-          <div className="transport-option">
-            <DriveEtaIcon className="transport-icon"/>
-            <span>{formatDurationFromSeconds(place.driveTime)}</span>
-          </div>
-          <div className="transport-option">
-            <DirectionsWalkIcon className="transport-icon"/>
-            <span>{formatDurationFromSeconds(place.walkTime)}</span>
-          </div>
-          <div className="transport-option">
-            <DirectionsTransitFilledIcon className="transport-icon"/>
-            <span>{formatDurationFromSeconds(place.transitTime)}</span>
-          </div>
-        </div>
+      {/* ── Actions ── */}
+      <div className="lc-actions">
+        <button className="lc-btn lc-btn--primary" onClick={() => setDestination(place.destObj)}>
+          <Navigation className="lc-btn__icon" />
+          Route
+        </button>
+        <button className="lc-btn lc-btn--secondary" onClick={() => toggleActiveRoute(place.destObj)}>
+          <Eye className="lc-btn__icon" />
+          Show
+        </button>
+        <button className="lc-btn lc-btn--danger" onClick={() => deleteFromHistory(place.desPlaceId)}>
+          <Trash2 className="lc-btn__icon" />
+        </button>
       </div>
 
-      {/* TODO: set up button handlers */}
-      <div className="card-actions">
-        <button className="btn-route" onClick={() => {setDestination(place.destObj)}}>
-          <Navigation className="btn-icon" />
-          Set Route
-        </button>
-        <button className="btn-show-route" onClick={() => {toggleActiveRoute(place.destObj)}}>
-          Show Route
-        </button>
-        <button className="btn-delete" onClick={() => {deleteFromHistory(place.desPlaceId)}}>
-          <Trash2 className="btn-icon" />
-          Delete
-        </button>
-      </div>
     </div>
   );
 }

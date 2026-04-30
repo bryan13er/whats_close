@@ -104,37 +104,102 @@ function PillField({ icon: Icon, label, value, placeholder, onChange, onFocus, o
   );
 }
 
-// SIMPLIFIED: Removed inputRef prop. Changed input-row <div> to <label>.
+/* ─────────────────────────────────────────────────────────────────────────────
+   MobileOverlay — bottom-sheet-style search panel
+   Replaces the old full-screen takeover with a card that slides up from
+   the bottom. A drag handle at the top lets the user swipe down to dismiss
+   (drag > 30% of sheet height → trigger onClose). Tapping the handle also
+   closes the overlay.
+
+   Touch gesture (swipe-to-dismiss):
+     Non-passive touchmove listener on the handle zone lets us call
+     preventDefault() and move the card with the finger. On touchend,
+     if the card was dragged more than 30% of its visible height we
+     close; otherwise we spring back to the open position.
+───────────────────────────────────────────────────────────────────────────── */
 function MobileOverlay({ field, input, suggestions, onClose, onChange, onSelect, onClear }) {
-  const Icon = field.icon;
+  const Icon      = field.icon;
+  const cardRef   = useRef(null);
+  const dragState = useRef({ startY: 0, startTop: 0, dragging: false });
+
+  /* ── Swipe-to-dismiss: non-passive touch on handle zone ── */
+  useEffect(() => {
+    const handle = cardRef.current?.querySelector('[data-dismiss-handle]');
+    if (!handle) return;
+
+    function onStart(e) {
+      dragState.current = {
+        startY:   e.touches[0].clientY,
+        startTop: 0,
+        dragging: true,
+      };
+      const el = cardRef.current;
+      if (el) el.style.transition = 'none';
+    }
+
+    function onMove(e) {
+      e.preventDefault();
+      if (!dragState.current.dragging) return;
+      const delta = Math.max(0, e.touches[0].clientY - dragState.current.startY);
+      const el = cardRef.current;
+      if (el) el.style.transform = `translateY(${delta}px)`;
+    }
+
+    function onEnd(e) {
+      dragState.current.dragging = false;
+      const delta = Math.max(0, e.changedTouches[0].clientY - dragState.current.startY);
+      const el    = cardRef.current;
+      if (!el) return;
+
+      const sheetHeight = el.getBoundingClientRect().height;
+      if (delta > sheetHeight * 0.3) {
+        /* Dragged more than 30% down → dismiss */
+        el.style.transition = 'transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)';
+        el.style.transform  = `translateY(100%)`;
+        setTimeout(onClose, 280);
+      } else {
+        /* Spring back */
+        el.style.transition = 'transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)';
+        el.style.transform  = 'translateY(0)';
+      }
+    }
+
+    handle.addEventListener('touchstart', onStart, { passive: true  });
+    handle.addEventListener('touchmove',  onMove,  { passive: false });
+    handle.addEventListener('touchend',   onEnd,   { passive: true  });
+    return () => {
+      handle.removeEventListener('touchstart', onStart);
+      handle.removeEventListener('touchmove',  onMove);
+      handle.removeEventListener('touchend',   onEnd);
+    };
+  }, [onClose]);
 
   return (
-    <div className="np-mobile-overlay np-mobile-overlay--open">
-      <div className="np-mobile-overlay__header">
-        <button className="np-mobile-overlay__back" onClick={onClose}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        <div className="np-mobile-overlay__label">
-          {field.id === 'origin' ? 'Set origin' : 'Set destination'}
-        </div>
+    <div className="np-mobile-overlay np-mobile-overlay--open" ref={cardRef}>
+
+      {/* ── Drag handle — tap to close or swipe down to dismiss ── */}
+      <div className="np-mobile-overlay__handle-zone" data-dismiss-handle onClick={onClose}>
+        <div className="np-mobile-overlay__handle" />
       </div>
+
+      {/* ── Search input row ── */}
       <label className="np-mobile-overlay__input-row" style={{ cursor: 'text' }}>
         <Icon />
-        {/* SIMPLIFIED: Added native autoFocus attribute to replace the useEffect + ref mount logic */}
-        <input 
-          autoFocus 
-          className="np-mobile-overlay__input" 
-          value={input} 
-          onChange={onChange} 
-          placeholder={field.placeholder} 
+        <input
+          autoFocus
+          className="np-mobile-overlay__input"
+          value={input}
+          onChange={onChange}
+          placeholder={field.placeholder}
         />
         <ClearButton visible={input.length > 0} onClick={onClear} />
       </label>
+
+      {/* ── Suggestions ── */}
       <div className="np-mobile-overlay__body">
         <SuggestionList suggestions={suggestions} onSelect={onSelect} inOverlay />
       </div>
+
     </div>
   );
 }
