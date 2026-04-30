@@ -1,6 +1,6 @@
 'use client'
 
-import { Trash2, Navigation, Star, DollarSign, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle } from 'lucide-react';
+import { Trash2, Navigation, Star, DollarSign, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle, Map, MapOff } from 'lucide-react';
 import { formatDurationFromSeconds } from '../utils/time';
 import { getImperialDist } from '../utils/distance';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
@@ -49,7 +49,9 @@ const weatherColors = {
  * @param {{ place: place }} props
  */
 export default function LocationCard({place}) {
-  const { deleteFromHistory, setDestination, toggleActiveRoute } = useMapFeatures();
+  const { deleteFromHistory, setDestination, toggleActiveRoute, activeRoutes } = useMapFeatures();
+  // true when this card's route is currently being displayed on the map
+  const isRouteActive = activeRoutes.some(r => r.placeId === place.destObj.placeId);
   console.log(place)
 
   return (
@@ -105,8 +107,14 @@ export default function LocationCard({place}) {
           <Navigation className="btn-icon" />
           Set Route
         </button>
-        <button className="btn-show-route" onClick={() => {toggleActiveRoute(place.destObj)}}>
-          Show Route
+        <button
+          className={`btn-show-route${isRouteActive ? ' btn-show-route--active' : ''}`}
+          onClick={() => { toggleActiveRoute(place.destObj); }}
+        >
+          {isRouteActive
+            ? <><Map className="btn-icon" /> Route On</>
+            : <><MapOff className="btn-icon" /> Show Route</>
+          }
         </button>
         <button className="btn-delete" onClick={() => {deleteFromHistory(place.desPlaceId)}}>
           <Trash2 className="btn-icon" />

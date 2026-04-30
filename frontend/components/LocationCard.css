@@ -139,13 +139,23 @@
 
 .btn-show-route {
   background: rgb(252, 245, 228);
-  color: orange
-
+  color: #f97316;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
 .btn-show-route:hover {
   background: rgb(253, 238, 204);
+}
 
+/* Active state: route is currently displayed on the map */
+.btn-show-route--active {
+  background: #f97316;
+  color: white;
+  box-shadow: 0 0 0 2px #fdba74;
+}
+
+.btn-show-route--active:hover {
+  background: #ea580c;
 }
 
 .btn-delete {
