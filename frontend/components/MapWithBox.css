@@ -47,7 +47,10 @@
   width: clamp(220px, 34vw, 640px);
 }
 
-.nav-pill-overlay > .np-mobile-overlay {
+/* Mobile overlay (bottom-sheet style) — needs pointer-events even though
+   the nav-pill-overlay container is pointer-events: none */
+.nav-pill-overlay > .np-mobile-overlay,
+.np-mobile-overlay {
   pointer-events: auto;
 }
 

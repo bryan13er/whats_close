@@ -1,113 +1,106 @@
-'use client'
+'use client';
 
-import { useRef, useState } from "react";
+/* ─────────────────────────────────────────────────────────────────────────────
+   LocationDrawer
+
+   Desktop (≥ 600px): MUI persistent Drawer anchored to the right (unchanged).
+                       Opened/closed via the menu icon button.
+
+   Mobile (< 600px):  Custom BottomSheet replaces MUI SwipeableDrawer.
+                       LocationDrawer is only mounted when destHistory.length > 0
+                       (controlled by MapWithBox), so the sheet auto-opens with
+                       a "slide up" animation every time new destinations appear.
+                       Three snap points (collapsed / half / full) let the user
+                       reveal as much of the card list as they want. Tapping
+                       the handle toggles between half and full.
+───────────────────────────────────────────────────────────────────────────── */
+
+import { useRef, useState } from 'react';
 import Drawer from '@mui/material/Drawer';
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import LocationCard from "./LocationCard";
-import { useMapFeatures } from "../context/MapContext";
+import LocationCard from './LocationCard';
+import BottomSheet from './BottomSheet';
+import { useMapFeatures } from '../context/MapContext';
 import './LocationDrawer.css';
-import "./MapWithBox.css";
 
-
-const drawerWidth = 460;
-const drawerBleeding = 20;
+const DRAWER_WIDTH = 460;
 
 export default function LocationDrawer() {
-  const [open, setOpen] = useState(false);
+  /* Desktop drawer open/close state (menu button) */
+  const [desktopOpen, setDesktopOpen] = useState(false);
   const menuButtonRef = useRef(null);
-  const { setDestHistory, rows} = useMapFeatures();
+  const { setDestHistory, rows } = useMapFeatures();
 
-  const handleClose = () => {
-    const activeElement = document.activeElement;
-    if (activeElement instanceof HTMLElement) {
-      activeElement.blur();
-    }
-
+  function handleDesktopClose() {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement) active.blur();
     menuButtonRef.current?.focus();
-    setOpen(false);
-  };
+    setDesktopOpen(false);
+  }
 
-  const cards = (
-    <div className="card-list">
-      {rows.map((row) => {
-        return(
-          <LocationCard key={row.desPlaceId} place={row}/>
-        );
-      })}
+  /* Shared card list rendered in both desktop and mobile layouts */
+  const cardList = (
+    <div className="bs-card-list">
+      {rows.map((row) => (
+        <LocationCard key={row.desPlaceId} place={row} />
+      ))}
     </div>
   );
 
   return (
     <div>
-      {/* Menu button — hidden on mobile */}
+
+      {/* ── Menu button — desktop only (CSS hides it on mobile) ── */}
       <div className="nav-buttons show-data-table-button menu-btn">
-        <IconButton ref={menuButtonRef} onClick={() => setOpen(true)}>
+        <IconButton ref={menuButtonRef} onClick={() => setDesktopOpen(true)}>
           <MenuIcon />
         </IconButton>
       </div>
 
-      {/* Desktop — right drawer */}
+      {/* ══════════════════════════════════════════════════════════════
+          DESKTOP — MUI right-side drawer (unchanged from v1)
+      ══════════════════════════════════════════════════════════════ */}
       <Drawer
         className="desktop-drawer"
         variant="persistent"
         anchor="right"
-        open={open}
-        onClose={handleClose}
+        open={desktopOpen}
+        onClose={handleDesktopClose}
         sx={{
           display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-          },
+          '& .MuiDrawer-paper': { width: DRAWER_WIDTH },
         }}
       >
         <div className="drawer-header">
-          <IconButton onClick={handleClose}>
+          <IconButton onClick={handleDesktopClose}>
             <ChevronRightIcon />
           </IconButton>
           <button className="btn-clear-all" onClick={() => setDestHistory([])}>
             Clear All
           </button>
         </div>
-        {cards}
+        <div className="card-list">{cardList}</div>
       </Drawer>
 
-      {/* Mobile — bottom swipeable drawer */}
-      {/* TODO: first have people tap to fully extend then they can slide down to close it */}
-      <SwipeableDrawer
-        anchor="bottom"
-        open={open}
-        onClose={handleClose}
-        onOpen={() => setOpen(true)}
-        swipeAreaWidth={drawerBleeding}
-        disableSwipeToOpen={false}
-        keepMounted
-        sx={{
-          display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': {
-            height: '75vh',
-            overflow: 'visible',
-            borderTopLeftRadius: '12px',
-            borderTopRightRadius: '12px',
-          },
-        }}
-      >
-        <div className="puller-tab" onClick={() => open ? handleClose() : setOpen(true)}>
-          <div className="puller" />
-        </div>
-        <div className="mobile-drawer-inner">
-          <div className="drawer-header">
+      {/* ══════════════════════════════════════════════════════════════
+          MOBILE — custom three-snap bottom sheet (replaces MUI SwipeableDrawer)
+          Visible only on mobile via CSS (display:none on desktop).
+          Opens automatically to "half" when this component first mounts.
+      ══════════════════════════════════════════════════════════════ */}
+      <div className="mobile-sheet-wrapper">
+        <BottomSheet defaultSnap="half">
+          <div className="bs-drawer-header">
+            <span className="bs-drawer-title">Nearby Places</span>
             <button className="btn-clear-all" onClick={() => setDestHistory([])}>
               Clear All
             </button>
           </div>
-          <div className="mobile-card-list">
-            {cards}
-          </div>
-        </div>
-      </SwipeableDrawer>
+          {cardList}
+        </BottomSheet>
+      </div>
+
     </div>
   );
 }

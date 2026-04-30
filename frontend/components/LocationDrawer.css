@@ -1,13 +1,12 @@
+/* ── Menu button — shown on desktop (≥ 600px) only ── */
 .menu-btn {
   display: none;
 }
-
 @media (min-width: 600px) {
-  .menu-btn {
-    display: block;
-  }
+  .menu-btn { display: block; }
 }
 
+/* ── Desktop drawer ── */
 .drawer-header {
   display: flex;
   align-items: center;
@@ -23,51 +22,56 @@
   padding: 16px;
 }
 
-.mobile-drawer-inner {
-  height: 100%;
-  overflow: auto;
-  background: white;
+/* ── Mobile sheet wrapper — hidden on desktop ── */
+.mobile-sheet-wrapper {
+  display: block;
+}
+@media (min-width: 600px) {
+  .mobile-sheet-wrapper { display: none; }
 }
 
-.mobile-card-list {
-  padding-bottom: 32px;
+/* ── Sheet header (inside BottomSheet on mobile) ── */
+.bs-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 20px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
+.bs-drawer-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+  letter-spacing: -0.01em;
+}
+
+/* ── Card list inside the mobile sheet ── */
+.bs-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 40px; /* bottom padding for home indicator */
+}
+
+/* ── Shared clear-all button ── */
 .btn-clear-all {
-  margin-left: auto;
   background: #e5e7eb;
   border: none;
   color: #374151;
   font-weight: 500;
   cursor: pointer;
   padding: 6px 14px;
-  border-radius: 400px;
-  transition: background 0.2s;
+  border-radius: 999px;
+  transition: background 0.15s;
+  font-size: 13px;
 }
+.btn-clear-all:hover { background: #d1d5db; }
 
-.btn-clear-all:hover {
-  background: #f3f4f6;
-}
-
-.puller-tab {
-  position: absolute;
-  top: -20px;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  visibility: visible;
-  right: 0;
-  left: 0;
-  background: white;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.puller {
-  width: 30px;
-  height: 6px;
-  background: #d1d5db;
-  border-radius: 3px;
+/* ── Dark mode ── */
+@media (prefers-color-scheme: dark) {
+  .bs-drawer-title { color: #f0f0f5; }
+  .bs-drawer-header { border-bottom-color: rgba(255, 255, 255, 0.08); }
+  .btn-clear-all { background: rgba(255,255,255,0.1); color: #e0e0ea; }
+  .btn-clear-all:hover { background: rgba(255,255,255,0.16); }
 }

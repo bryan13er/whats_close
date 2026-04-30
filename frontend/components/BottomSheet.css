@@ -1,0 +1,81 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   BottomSheet — mobile-only draggable results sheet
+   Sits above the map. Light frosted-glass card on light theme;
+   deep charcoal on dark theme (prefers-color-scheme: dark).
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Full-height card anchored to the top of the viewport.
+   translateY controls how much is visible (set by JS).               */
+.bs-sheet {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100dvh;
+  z-index: 50;
+
+  border-radius: 22px 22px 0 0;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+
+  box-shadow:
+    0 -2px 0 rgba(0, 0, 0, 0.06),
+    0 -8px 32px rgba(0, 0, 0, 0.15);
+
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Drag handle zone ── */
+.bs-handle-zone {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 0 10px;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none; /* let JS handle all touch, not the browser */
+}
+
+.bs-handle-zone:active { cursor: grabbing; }
+
+/* Pill indicator — 36×4px, same proportions as iOS / Apple Maps */
+.bs-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.18);
+  transition: background 0.15s;
+}
+
+.bs-handle-zone:active .bs-handle { background: rgba(0, 0, 0, 0.32); }
+
+/* ── Card content ── */
+.bs-content {
+  flex: 1;
+  overflow: hidden; /* clip while partially visible */
+}
+
+/* When at FULL snap, allow the card list to scroll */
+.bs-content--scrollable {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ── Dark mode ── */
+@media (prefers-color-scheme: dark) {
+  .bs-sheet {
+    background: rgba(26, 26, 30, 0.95);
+    box-shadow:
+      0 -2px 0 rgba(255, 255, 255, 0.06),
+      0 -8px 40px rgba(0, 0, 0, 0.5);
+  }
+  .bs-handle { background: rgba(255, 255, 255, 0.22); }
+  .bs-handle-zone:active .bs-handle { background: rgba(255, 255, 255, 0.38); }
+}

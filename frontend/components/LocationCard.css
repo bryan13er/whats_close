@@ -1,161 +1,153 @@
-.location-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-  max-width: 420px;
+/* ─────────────────────────────────────────────────────────────────────────────
+   LocationCard — Apple Maps-inspired result card
+   Cleaner than v1: tighter spacing, pill badges, icon-row actions.
+───────────────────────────────────────────────────────────────────────────── */
+
+.lc-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  /* Softer shadow than v1's heavy drop shadow */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  padding: 16px 18px;
   width: 100%;
-  color: #374151;
-  transition: transform 0.2s, box-shadow 0.2s;
-  font-family: 'Poppins', sans-serif;
-}
-
-.card-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.card-title {
-  font-size: 1.5rem;
+/* ── Place name ── */
+.lc-title {
+  font-size: 15px;
   font-weight: 600;
-  color: #43484f;
+  color: #111;
   margin: 0;
+  /* Truncate at 2 lines so long addresses don't collapse the card list */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
 }
 
-.weather-icon {
-  width: 32px;
-  height: 32px;
-}
-
-.weather-sunny  { color: #eab308; }
-.weather-cloudy { color: #6b7280; }
-.weather-rainy  { color: #3b82f6; }
-.weather-snowy  { color: #93c5fd; }
-.weather-drizzle{ color: #60a5fa; }
-
-.card-meta {
+/* ── Meta row (rating · cost · distance) ── */
+.lc-meta {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.rating {
-  display: flex;
+.lc-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  font-size: 12px;
   font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
 }
 
-.rating span{
-  color: #43484f;
-}
+.lc-badge--rating { background: #fef9ec; color: #92400e; }
+.lc-badge--cost   { background: #f0fdf4; color: #166534; padding: 3px 6px; }
+.lc-badge--distance { background: #eff6ff; color: #1e40af; }
 
-.star-icon {
-  width: 20px;
-  height: 20px;
-  color: #facc15;
-  fill: #facc15;
-}
+.lc-badge__icon { width: 12px; height: 12px; }
+.lc-badge__icon--star { fill: #f59e0b; color: #f59e0b; }
 
-.price {
+.lc-dollar { width: 12px; height: 12px; }
+.lc-dollar--active   { color: #16a34a; }
+.lc-dollar--inactive { color: #d1d5db; }
+
+/* ── Transport options ── */
+.lc-transport {
   display: flex;
-  align-items: center;
-}
-
-.dollar {
-  width: 16px;
-  height: 16px;
-}
-
-.dollar.active   { color: #076f2d; }
-.dollar.inactive { color: #aaadb0; }
-
-.transport-section {
-  margin-bottom: 24px;
-}
-
-.transport-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #3a3e43;
-  margin: 0 0 8px 0;
-}
-
-.transport-options {
-  display: flex;
-  gap: 12px;
-}
-
-.transport-option {
-  display: flex;
-  align-items: center;
   gap: 8px;
-  background: #eff2f3;
+  flex-wrap: wrap;
+}
+
+.lc-transport-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
 }
 
-.transport-option span {
-  color: #43484f;
+.lc-transport-icon {
+  width: 16px !important;
+  height: 16px !important;
+  color: #6b7280;
 }
 
-
-.transport-icon {
-  width: 20px;
-  height: 20px;
-  color: #2d3035;
-}
-
-.card-actions {
+/* ── Action buttons ── */
+.lc-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
+  margin-top: 2px;
 }
 
-.btn-route,
-.btn-delete,
-.btn-show-route {
-  display: flex;
+.lc-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: 5px;
+  padding: 8px 14px;
   border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: opacity 0.15s;
 }
+.lc-btn:active { opacity: 0.75; }
 
-.btn-route {
+.lc-btn--primary {
   flex: 1;
   background: #2563eb;
-  color: white;
+  color: #fff;
 }
+.lc-btn--primary:hover { background: #1d4ed8; }
 
-.btn-route:hover { background: #1d4ed8; }
-
-.btn-show-route {
-  background: rgb(252, 245, 228);
-  color: orange
-
+.lc-btn--secondary {
+  flex: 1;
+  background: #fef3c7;
+  color: #92400e;
 }
+.lc-btn--secondary:hover { background: #fde68a; }
 
-.btn-show-route:hover {
-  background: rgb(253, 238, 204);
-
-}
-
-.btn-delete {
+/* Compact icon-only delete button */
+.lc-btn--danger {
   background: #fef2f2;
   color: #dc2626;
+  padding: 8px 11px;
 }
+.lc-btn--danger:hover { background: #fee2e2; }
 
-.btn-delete:hover { background: #fee2e2; }
+.lc-btn__icon { width: 15px; height: 15px; }
 
-.btn-icon {
-  width: 20px;
-  height: 20px;
+/* ── Dark mode ── */
+@media (prefers-color-scheme: dark) {
+  .lc-card {
+    background: #1c1c1e;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+  .lc-title { color: #f0f0f5; }
+  .lc-badge { background: rgba(255,255,255,0.08); color: #d0d0da; }
+  .lc-badge--rating  { background: rgba(251,191,36,0.12); color: #fcd34d; }
+  .lc-badge--cost    { background: rgba(34,197,94,0.1);   color: #4ade80; }
+  .lc-badge--distance{ background: rgba(59,130,246,0.1);  color: #93c5fd; }
+  .lc-transport-option { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #c0c0cc; }
+  .lc-transport-icon { color: #888899; }
+  .lc-btn--primary   { background: #1d4ed8; }
+  .lc-btn--secondary { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  .lc-btn--danger    { background: rgba(220,38,38,0.12); color: #f87171; }
 }
