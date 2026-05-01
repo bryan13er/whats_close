@@ -1,3 +1,5 @@
+import { apiRequest } from './lib/apiRequest';
+
 const PLACES_API_ENDPOINT = "https://places.googleapis.com/v1/places";
 
 /**
@@ -17,12 +19,12 @@ const PLACES_API_ENDPOINT = "https://places.googleapis.com/v1/places";
 
 export class PlacesApi {
   constructor(apiKey){
-    if (!apiKey) throw new Error("API key is needed")
+    if (!apiKey) throw new Error("PlacesApi: API key is required")
     this.apiKey = apiKey;
   }
 
   /**
-   * get details on a place 
+   * get details on a place
    * adjust fildmask args as needed
    * reference:
    * for request structure
@@ -31,25 +33,22 @@ export class PlacesApi {
    * https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places#PriceLevel
    * @param {string} placeId the unique id key representing a place
    * @param {string} [fieldMask] the field mask for the response data
+   * @param {{ signal?: AbortSignal }} [requestOptions]
    * @returns {Promise<PlaceDetails>}
    */
-  async getPlaceDetails(placeId, fieldMask = "rating,regularOpeningHours,priceLevel,id"){
+  async getPlaceDetails(placeId, fieldMask = "rating,regularOpeningHours,priceLevel,id", requestOptions = {}){
     if(!placeId){
-      throw new Error("PlaceId required");
+      throw new Error("PlacesApi.getPlaceDetails: placeId is required");
     }
 
-    const response = await fetch(`${PLACES_API_ENDPOINT}/${encodeURIComponent(placeId)}`, {
+    return apiRequest(`${PLACES_API_ENDPOINT}/${encodeURIComponent(placeId)}`, {
       method: 'GET',
       headers: {
         "X-Goog-Api-Key": this.apiKey,
         "X-Goog-FieldMask": fieldMask,
       },
+      signal: requestOptions.signal,
+      label: 'PlaceDetails',
     });
-
-    if (!response.ok) {
-      throw new Error(`Places API error: ${response.status} ${response.statusText}`);
-    }
-
-    return response.json();
   }
 }
