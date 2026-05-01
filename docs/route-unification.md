@@ -148,7 +148,7 @@ No new context state is needed. All changes are derived from existing fields:
 | File | Change |
 |---|---|
 | `components/route.tsx` | **Deleted** |
-| `components/MapWithBox.jsx` | Remove `<Route>` import and render |
+| `components/MapView.jsx` | Remove `<Route>` import and render |
 | `components/MultiRoutes.jsx` | Derive `isPrimary`, pass correct `routeOptions` and prop to `RouteEntry` |
 | `components/RouteEntry.jsx` | Accept `isPrimary` prop, render info pill when true |
 | `components/LocationCard.jsx` | Remove "Set Route" / "Highlight Route" from active card; rename button on history cards |

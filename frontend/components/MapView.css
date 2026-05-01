@@ -112,7 +112,7 @@
   margin: 10px;
 }
 
-/* MapWithBox.css */
+/* MapView.css */
 .table-overlay {
   position: absolute;
   bottom: 50px; /* Anchors the box to the bottom so it grows UP */

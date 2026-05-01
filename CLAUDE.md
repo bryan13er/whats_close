@@ -47,7 +47,7 @@ No test suite is configured.
    - Fetches route data (distance, duration per travel mode) via Routes Matrix API
    - Uses `useRef`-based caches to avoid redundant API calls when the user switches origins or destinations
 
-3. **Map** — `MapWithBox` is the central map container using `@vis.gl/react-google-maps`. It renders home/destination markers, route polylines via `MultiRoutes → RouteEntry`, a street view panel, map type toggle, and a recenter button.
+3. **Map** — `MapView` is the central map container using `@vis.gl/react-google-maps`. It renders home/destination markers, route polylines via `MultiRoutes → RouteEntry`, a street view panel, map type toggle, and a recenter button.
 
 4. **Table** — `DestInfoTable` displays the fetched route/place data in a comparison table.
 
@@ -79,7 +79,7 @@ Both live in `MapContext`:
 | `frontend/hooks/useDestinations.js` | Matrix data fetching with internal places+routes cache |
 | `frontend/hooks/useRouteCache.js` | Polyline fetching with `routesCache` from context |
 | `frontend/components/NavPill.jsx` | Origin/destination input (desktop + mobile overlay) |
-| `frontend/components/MapWithBox.jsx` | Map container and route rendering |
+| `frontend/components/MapView.jsx` | Map container and route rendering |
 | `frontend/components/MultiRoutes.jsx` | Renders one `RouteEntry` per active route |
 | `frontend/components/RouteEntry.jsx` | Single route polyline, reads from `useRouteCache` |
 | `frontend/components/LocationDrawer.jsx` | History drawer (desktop panel / mobile bottom sheet) |

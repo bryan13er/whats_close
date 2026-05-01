@@ -1,7 +1,7 @@
-import "./MapWithBox.css";
+import "./MapView.css";
 import { useMapFeatures } from "../context/MapContext"
 import ListIcon from '@mui/icons-material/List';
-import "./MapWithBox.css";
+import "./MapView.css";
 
 export default function ShowDataTableButton() {
   const {isStreetViewVisible, showDataTable, setShowDataTable} = useMapFeatures();

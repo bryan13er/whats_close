@@ -1,7 +1,7 @@
 
 import { useMapFeatures } from "../context/MapContext";
 import Autocomplete from "./Autocomplete";
-import "./MapWithBox.css";
+import "./MapView.css";
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigationIcon from '@mui/icons-material/Navigation';

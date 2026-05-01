@@ -6,7 +6,7 @@ import {
   AdvancedMarker,
   Map as GoogleMap,
 } from "@vis.gl/react-google-maps";
-import "./MapWithBox.css";
+import "./MapView.css";
 
 import RecenterRouteButton from "./RecenterRouteButton";
 import Route from './route'
@@ -33,8 +33,8 @@ const routeOptions = {
 // TODO: there is a big problem the component rerenders everytime i move the map
 // so its leading to a crash becasue its running out o memory consult the
 // docs and see how to properly set center
-export default function MapWithBox() {
-  console.log("🛠️ MapWithBox Rendered"); // Add this
+export default function MapView() {
+  console.log("🛠️ MapView Rendered"); // Add this
 
   // get from context provider
   const {
