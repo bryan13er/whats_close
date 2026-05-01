@@ -1,26 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { routesApiClient } from '../config/maps';
 import { useMapFeatures } from '../context/MapContext';
+import { logError } from '../lib/logger';
 
-async function fetchMissingRoute(home, dest, routeOptions) {
-  try {
-    // 1. Declare with 'const' to keep it local
-    const res = await routesApiClient.computeRoutes(home, dest, routeOptions);
+async function fetchMissingRoute(home, dest, routeOptions, signal) {
+  const res = await routesApiClient.computeRoutes(home, dest, routeOptions, { signal });
 
-    // 2. Check if routes actually exist before unboxing
-    if (!res.routes || res.routes.length === 0) {
-      console.warn("No routes found for:", dest.placeId);
-      return null; 
-    }
-
-    const [route] = res.routes; // get the first route
-    return route;
-
-  } catch (error) {
-    // 3. Handle network/API errors gracefully
-    console.error("Maps API Error:", error);
-    return null; 
+  // Empty `routes` array means Google found no path — this is not an error,
+  // just an unservable request (e.g. transit between disconnected regions)
+  if (!res.routes || res.routes.length === 0) {
+    console.warn("No routes found for:", dest.placeId);
+    return null;
   }
+
+  const [route] = res.routes;
+  return route;
 }
 
 export function useRouteCache(destination, routeOptions) {
@@ -28,23 +22,38 @@ export function useRouteCache(destination, routeOptions) {
   const [route, setRoute] = useState(null);
 
   useEffect(() => {
-    if (!home || !destination) return;  // missing this
+    if (!home || !destination) return;
 
     const routeKey = `${home.placeId}_${destination.placeId}`;
     const cachedRoute = routesCache.current[routeKey];
 
-    if (cachedRoute){
+    if (cachedRoute) {
       setRoute(cachedRoute);
       return;
     }
 
-    fetchMissingRoute(home, destination, routeOptions).then(fetchedRoute => {
-      if (!fetchedRoute) return;
-      routesCache.current[routeKey] = fetchedRoute;
-      setRoute(fetchedRoute);
-    });
+    // Abort any in-flight request if home / destination / options change before it resolves
+    const controller = new AbortController();
 
-  }, [home, destination, routeOptions]) 
+    fetchMissingRoute(home, destination, routeOptions, controller.signal)
+      .then(fetchedRoute => {
+        if (controller.signal.aborted || !fetchedRoute) return;
+        routesCache.current[routeKey] = fetchedRoute;
+        setRoute(fetchedRoute);
+      })
+      .catch(err => {
+        if (controller.signal.aborted || err?.name === 'AbortError') return;
+        logError(err, {
+          hook: 'useRouteCache',
+          homeId: home?.placeId,
+          destId: destination?.placeId,
+        });
+      });
 
-  return {route};
+    return () => {
+      controller.abort();
+    };
+  }, [home, destination, routeOptions, routesCache])
+
+  return { route };
 }
