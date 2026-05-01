@@ -1,6 +1,6 @@
+import { apiRequest } from './lib/apiRequest';
 
-
-// options for request: 
+// options for request:
 // https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRouteMatrix
 
 const ROUTES_MATRIX_API_ENDPOINT =
@@ -8,7 +8,7 @@ const ROUTES_MATRIX_API_ENDPOINT =
 
 export class RoutesMatrixAPI {
   constructor(apiKey){
-    if (!apiKey) throw new Error("API key is needed")
+    if (!apiKey) throw new Error("RoutesMatrixAPI: API key is required")
     this.apiKey = apiKey;
   }
 
@@ -17,11 +17,12 @@ export class RoutesMatrixAPI {
    * @param {{lat:number, lng:number}} from
    * @param {Array<{lat:number, lng:number}>} to
    * @param {"DRIVE"|"WALK"|"TRANSIT"} travelMode
+   * @param {{ signal?: AbortSignal }} [requestOptions]
    * @returns {Promise<Array<{destinationIndex:number, duration:number, distance:number}>>}
    */
-  async computeMatrix(from, to, travelMode = "DRIVE"){
+  async computeMatrix(from, to, travelMode = "DRIVE", requestOptions = {}){
     if (!from || !to || to.length === 0) {
-      throw new Error("Origin and at least one destination are required");
+      throw new Error("RoutesMatrixAPI.computeMatrix: origin and at least one destination are required");
     }
 
     const body = {
@@ -37,7 +38,7 @@ export class RoutesMatrixAPI {
           }
         },
       ],
-    
+
       destinations: to.map(destination => ({
         waypoint: {
           location: {
@@ -52,7 +53,7 @@ export class RoutesMatrixAPI {
       travelMode,
     }
 
-    const response = await fetch(ROUTES_MATRIX_API_ENDPOINT, {
+    return apiRequest(ROUTES_MATRIX_API_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -60,12 +61,8 @@ export class RoutesMatrixAPI {
         "X-Goog-FieldMask": "originIndex,destinationIndex,duration,distanceMeters,condition",
       },
       body: JSON.stringify(body),
+      signal: requestOptions.signal,
+      label: `RoutesMatrix:${travelMode}`,
     });
-
-    if (!response.ok) {
-      throw new Error(`Routes MATRIX API error: ${response.status} ${response.statusText}`);
-    }
-    
-    return response.json();
   }
 }
