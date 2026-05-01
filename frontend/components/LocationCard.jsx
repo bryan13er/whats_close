@@ -50,6 +50,11 @@ const weatherColors = {
  */
 export default function LocationCard({place}) {
   const { deleteFromHistory, setDestination, toggleActiveRoute, activeRoutes } = useMapFeatures();
+
+  // for name of place
+  const [mainName, ...rest] = place.name.split(",");
+  const restOfAddress = rest.join(",").trim() 
+
   console.log(place)
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
@@ -72,7 +77,10 @@ export default function LocationCard({place}) {
         {/* EDITED: Header now has distance pinned top-right in monospace, matching v4 layout */}
         <div className="card-header">
           <div className="card-title-group">
-            <h2 className="card-title">{place.name}</h2>
+            <div className="card-title">
+              <div className='card-main-name'>{mainName}</div>
+              <div className='card-rest-of-address'>{restOfAddress}</div>
+            </div>
             {/* <WeatherIcon className={`weather-icon ${weatherColors[weather]}`} /> */}
           </div>
           <div className="card-distance">
