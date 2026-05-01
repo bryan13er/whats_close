@@ -49,7 +49,7 @@ const weatherColors = {
  * @param {{ place: place }} props
  */
 export default function LocationCard({place}) {
-  const { deleteFromHistory, setDestination, toggleActiveRoute } = useMapFeatures();
+  const { deleteFromHistory, setDestination, toggleActiveRoute, activeRoutes } = useMapFeatures();
   console.log(place)
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
@@ -118,7 +118,9 @@ export default function LocationCard({place}) {
             Set Route
           </button>
           <button className="btn-show-route" onClick={() => { toggleActiveRoute(place.destObj) }}>
-            Show Route
+            {activeRoutes.some(r => r.placeId === place.destObj.placeId)
+              ? "Hide Route"
+              : "Highlight Route"}
           </button>
           <button className="btn-delete" onClick={() => { deleteFromHistory(place.desPlaceId) }}>
             <Trash2 className="btn-icon" />

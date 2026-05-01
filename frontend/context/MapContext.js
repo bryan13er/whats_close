@@ -66,6 +66,10 @@ export function MapFeatureProvider({ children }) {
 
   const deleteFromHistory = useCallback((placeId) => {
     setDestHistory((prev) => prev.filter(dest => dest.placeId !== placeId));
+
+    setActiveRoutes((prev) =>
+      prev.filter(route => route.placeId !== placeId)
+    );
   }, []);
 
   const toggleMapType = useCallback(() => {

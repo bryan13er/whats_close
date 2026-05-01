@@ -1,7 +1,13 @@
+import { Inter } from 'next/font/google'; //
 import "./globals.css";
 import { StyledEngineProvider } from '@mui/material/styles';
 
-
+// Initialize Inter and link it to the CSS variable name
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter', // This links to var(--font-inter) in your CSS
+  display: 'swap', 
+});
 
 export const metadata = {
   title: "whats_close",
@@ -10,18 +16,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <StyledEngineProvider injectFirst> 
-        <body>{children}</body>
+        <body className={inter.className}>{children}</body>
       </StyledEngineProvider>
     </html>
   );
 }
 
-// trying to prevent zooms on mobile especially
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,    // Prevents the browser from zooming in on focus
-  userScalable: false, // Prevents users from accidentally pinching the UI
+  maximumScale: 1,    //
+  userScalable: false, 
 };
