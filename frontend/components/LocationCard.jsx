@@ -1,6 +1,6 @@
 'use client'
 
-import { Trash2, Navigation, Star, DollarSign, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle } from 'lucide-react';
+import { Trash2, Navigation, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle } from 'lucide-react';
 import { formatDurationFromSeconds } from '../utils/time';
 import { getImperialDist } from '../utils/distance';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
@@ -52,66 +52,79 @@ export default function LocationCard({place}) {
   const { deleteFromHistory, setDestination, toggleActiveRoute } = useMapFeatures();
   console.log(place)
 
+  /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
+  const StarRow = ({ rating }) => (
+    <div className="star-row">
+      {[1, 2, 3, 4, 5].map(i => (
+        <span key={i} className={`star ${i <= Math.round(rating) ? 'star--filled' : 'star--empty'}`}>
+          ★
+        </span>
+      ))}
+      <span className="rating-number">{rating.toFixed(1)}</span>
+    </div>
+  );
+
   return (
+    /* EDITED: Removed card shadow/bg — now a flat row with bottom border divider (v4 PlaceRow style) */
     <div className="location-card">
-      <div className="card-header">
-        <h2 className="card-title">{place.name}</h2>
-        {/* <WeatherIcon className={`weather-icon ${weatherColors[weather]}`} /> */}
-      </div>
+      <div className="card-inner">
 
-      <div className="card-meta">
-        {place.ratings !== 'N/A' && (
-          <div className="rating">
-            <Star className="star-icon" />
-            <span>{place.ratings.toFixed(1)}</span>
+        {/* EDITED: Header now has distance pinned top-right in monospace, matching v4 layout */}
+        <div className="card-header">
+          <div className="card-title-group">
+            <h2 className="card-title">{place.name}</h2>
+            {/* <WeatherIcon className={`weather-icon ${weatherColors[weather]}`} /> */}
           </div>
-        )}
-        {place.cost !== 'N/A' && (
-          <div className="price">
-            {[...Array(place.cost.length)].map((_, i) => (
-              <DollarSign key={i} className="dollar active" />
-            ))}
-            {[...Array(4 - place.cost.length)].map((_, i) => (
-              <DollarSign key={i + place.cost.length} className="dollar inactive" />
-            ))}
-          </div>
-        )}
-        {/*TODO: think about where distance should go will leave it here for now maybe make it a button to see km like the other */}
-        <div>
-          {getImperialDist(place.distance)}
-        </div>
-      </div>
-
-      <div className="transport-section">
-        <div className="transport-options">
-          <div className="transport-option">
-            <DriveEtaIcon className="transport-icon"/>
-            <span>{formatDurationFromSeconds(place.driveTime)}</span>
-          </div>
-          <div className="transport-option">
-            <DirectionsWalkIcon className="transport-icon"/>
-            <span>{formatDurationFromSeconds(place.walkTime)}</span>
-          </div>
-          <div className="transport-option">
-            <DirectionsTransitFilledIcon className="transport-icon"/>
-            <span>{formatDurationFromSeconds(place.transitTime)}</span>
+          <div className="card-distance">
+            {getImperialDist(place.distance)}
           </div>
         </div>
-      </div>
 
-      {/* TODO: set up button handlers */}
-      <div className="card-actions">
-        <button className="btn-route" onClick={() => {setDestination(place.destObj)}}>
-          <Navigation className="btn-icon" />
-          Set Route
-        </button>
-        <button className="btn-show-route" onClick={() => {toggleActiveRoute(place.destObj)}}>
-          Show Route
-        </button>
-        <button className="btn-delete" onClick={() => {deleteFromHistory(place.desPlaceId)}}>
-          <Trash2 className="btn-icon" />
-          Delete
-        </button>
+        {/* EDITED: Meta row — rating stars + price side by side, matching v4 info-line style */}
+        <div className="card-meta">
+          {place.ratings !== 'N/A' && (
+            <StarRow rating={place.ratings} />
+          )}
+          {place.cost !== 'N/A' && (
+            <span className="price-label">{place.cost}</span>
+          )}
+        </div>
+
+        {/* EDITED: Transport changed from pill chips to 3-column stacked layout (icon / time / label) matching v4 */}
+        <div className="transport-section">
+          <div className="transport-options">
+            <div className="transport-option">
+              <DriveEtaIcon className="transport-icon"/>
+              <span className="transport-time">{formatDurationFromSeconds(place.driveTime)}</span>
+              <span className="transport-label">Drive</span>
+            </div>
+            <div className="transport-option">
+              <DirectionsWalkIcon className="transport-icon"/>
+              <span className="transport-time">{formatDurationFromSeconds(place.walkTime)}</span>
+              <span className="transport-label">Walk</span>
+            </div>
+            <div className="transport-option">
+              <DirectionsTransitFilledIcon className="transport-icon"/>
+              <span className="transport-time">{formatDurationFromSeconds(place.transitTime)}</span>
+              <span className="transport-label">Transit</span>
+            </div>
+          </div>
+        </div>
+
+        {/* EDITED: Actions redesigned — Set Route fills remaining space, Show Route is bordered, Delete is icon-only bordered danger (v4 style) */}
+        <div className="card-actions">
+          <button className="btn-route" onClick={() => { setDestination(place.destObj) }}>
+            <Navigation className="btn-icon" />
+            Set Route
+          </button>
+          <button className="btn-show-route" onClick={() => { toggleActiveRoute(place.destObj) }}>
+            Show Route
+          </button>
+          <button className="btn-delete" onClick={() => { deleteFromHistory(place.desPlaceId) }}>
+            <Trash2 className="btn-icon" />
+          </button>
+        </div>
+
       </div>
     </div>
   );
