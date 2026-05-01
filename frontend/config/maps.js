@@ -7,20 +7,26 @@ import { PlacesApi } from '../place-api';
  * Fail-fast env validation. Throws at module-load time with a clear, actionable
  * message instead of letting `undefined` keys propagate into API calls and surface
  * as cryptic 400s deep in the call stack.
+ *
+ * IMPORTANT: Next.js inlines `process.env.NEXT_PUBLIC_*` at build time only when
+ * accessed via static literal (e.g. `process.env.NEXT_PUBLIC_FOO`). Dynamic access
+ * like `process.env[name]` is NOT inlined and resolves to undefined in the client
+ * bundle. So requireEnv takes the already-resolved value as an argument.
+ * See: https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables
  */
-function requireEnv(name) {
-  const v = process.env[name];
-  if (!v) {
+function requireEnv(name, value) {
+  if (!value) {
     throw new Error(
       `[config/maps] Missing required env var: ${name}. ` +
-      `Add it to frontend/.env (browser-exposed vars must use the NEXT_PUBLIC_ prefix).`
+      `Add it to frontend/.env (browser-exposed vars must use the NEXT_PUBLIC_ prefix), ` +
+      `then restart the dev server.`
     );
   }
-  return v;
+  return value;
 }
 
-const GOOGLE_MAPS_KEY = requireEnv('NEXT_PUBLIC_GOOGLE_MAPS_KEY');
-const GOOGLE_MAPS_MAP_ID = requireEnv('NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID');
+const GOOGLE_MAPS_KEY = requireEnv('NEXT_PUBLIC_GOOGLE_MAPS_KEY', process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY);
+const GOOGLE_MAPS_MAP_ID = requireEnv('NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID', process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID);
 
 export const MAP_CONFIG = {
   apiKey: GOOGLE_MAPS_KEY,
