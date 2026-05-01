@@ -1,5 +1,5 @@
 
-import "./MapWithBox.css";
+import "./MapView.css";
 import { useMapFeatures } from "../context/MapContext"
 import { ControlPosition, MapControl, useMap } from "@vis.gl/react-google-maps"
 import { MAP_CONFIG } from '../config/maps';

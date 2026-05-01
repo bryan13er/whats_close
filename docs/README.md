@@ -100,7 +100,7 @@ No test suite is wired up.
             ┌───────────────────┼───────────────────┐
             ▼                   ▼                   ▼
        ┌────────┐         ┌──────────┐       ┌─────────────┐
-       │ NavPill│         │MapWithBox│       │LocationDrawer│
+       │ NavPill│         │MapView│       │LocationDrawer│
        └────┬───┘         └────┬─────┘       └──────┬───────┘
             │                  │                    │
    place autocomplete   GoogleMap + markers   list of LocationCards
@@ -150,7 +150,7 @@ Memoized handlers (`useCallback`) keep the context value stable so `React.memo`'
    - Identifies which destinations are missing from its **internal cache** (`places + routes`) for the current home.
    - Concurrently fetches missing place details (Places API) + missing matrix data for DRIVE/WALK/TRANSIT (Routes Matrix API).
    - Writes results into the cache, then assembles `rows` via `prepRowData()`.
-4. **`MapWithBox`** renders the `<GoogleMap>`, overlays (`NavPill`, controls, drawer), markers for home/destination, and polylines via `<MultiRoutes>`.
+4. **`MapView`** renders the `<GoogleMap>`, overlays (`NavPill`, controls, drawer), markers for home/destination, and polylines via `<MultiRoutes>`.
 5. **`LocationCard`** lets the user "Set Route" (`setDestination` → primary route) or "Highlight Route" (`toggleActiveRoute` → adds to `activeRoutes`).
 6. **`MultiRoutes` → `RouteEntry` → `useRouteCache`** fetches polylines from the Routes API, caching results in `routesCache` (different cache from `useDestinations`).
 

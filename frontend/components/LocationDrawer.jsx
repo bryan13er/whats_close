@@ -9,7 +9,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import LocationCard from "./LocationCard";
 import { useMapFeatures } from "../context/MapContext";
 import './LocationDrawer.css';
-import "./MapWithBox.css";
+import "./MapView.css";
 
 
 const drawerWidth = 460;

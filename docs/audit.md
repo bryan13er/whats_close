@@ -114,7 +114,7 @@ The comment is wrong — `tableStateBeforeOverlay` is still declared and used at
 
 ### 🟡 Geolocation effect has empty deps + no cleanup
 
-`frontend/components/MapWithBox.jsx:49-59`
+`frontend/components/MapView.jsx:49-59`
 
 `navigator.geolocation.getCurrentPosition` is fire-and-forget. If the user navigates away before it resolves, `setMapCenter` runs on an unmounted provider. React 19 won't crash but warnings and stale state writes are possible.
 
@@ -249,7 +249,7 @@ const cache = useRef({
 
 ### 🟡 Console.log statements scattered through hot paths
 
-- `MapWithBox.jsx:37` — `console.log("🛠️ MapWithBox Rendered")`
+- `MapView.jsx:37` — `console.log("🛠️ MapView Rendered")`
 - `LocationCard.jsx:53` — `console.log(place)`
 - `DestInfoTable.jsx:81` — `console.log("ROWS", rows)`
 - `useDestinations.js:21,49,117` — fetched-data logs

@@ -1,6 +1,6 @@
 import { useMapFeatures } from "../context/MapContext";
 import { ControlPosition, MapControl } from "@vis.gl/react-google-maps"
-import "./MapWithBox.css";
+import "./MapView.css";
 import TrafficIcon from '@mui/icons-material/Traffic';
 import PublicIcon from '@mui/icons-material/Public';
 
