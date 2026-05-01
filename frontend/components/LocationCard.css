@@ -151,7 +151,6 @@
   font-size: 12px;
   font-weight: 700;
   color: #111;
-  font-family: 'Geist Mono', 'Courier New', monospace;
   white-space: nowrap;
 }
 
@@ -172,7 +171,7 @@
 
 .btn-route,
 .btn-delete,
-.btn-show-route {
+.btn-highlight-route {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,17 +199,24 @@
 }
 
 /* EDITED: Show Route — bordered style with accent tones (v4 highlight/secondary action) */
-.btn-show-route {
+.btn-highlight-route {
   padding: 9px 12px;
   background: transparent;
   color: #888;
   border: 1.5px solid #eaeaea;
 }
 
-.btn-show-route:hover {
+.btn-highlight-route:hover {
   background: rgba(255, 92, 53, 0.08);
-  color: #ff5c35;
-  border-color: #ff5c35;
+  color: #c6950e;
+  border-color: #f0d895;
+}
+
+/* Stays colored while the route is active */
+.btn-highlight-route--active {
+  background: rgba(255, 92, 53, 0.1);
+  color: #edb211;
+  border-color: #dbab26;
 }
 
 /* EDITED: Delete — icon-only, bordered danger (v4 trash button style) */

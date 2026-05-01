@@ -47,24 +47,52 @@ No test suite is configured.
    - Fetches route data (distance, duration per travel mode) via Routes Matrix API
    - Uses `useRef`-based caches to avoid redundant API calls when the user switches origins or destinations
 
-3. **Map** — `MapWithBox` is the central map container using `@vis.gl/react-google-maps`. It renders home/destination markers, route polylines (`MultiRoutes`), a street view panel, map type toggle, and a recenter button.
+3. **Map** — `MapWithBox` is the central map container using `@vis.gl/react-google-maps`. It renders home/destination markers, route polylines via `MultiRoutes → RouteEntry`, a street view panel, map type toggle, and a recenter button.
 
 4. **Table** — `DestInfoTable` displays the fetched route/place data in a comparison table.
+
+5. **History drawer** — `LocationDrawer` renders a `LocationCard` per entry in `destHistory`. On desktop it is a persistent right-side panel; on mobile it is a swipeable bottom drawer.
+
+### Two Caches — Don't Confuse Them
+
+There are two independent caches that serve different data:
+
+| Cache | Lives in | Stores | Used by |
+|---|---|---|---|
+| `cache` ref | `useDestinations` (local) | Places details + Routes Matrix results (distance, duration, ratings) | `DestInfoTable` rows |
+| `routesCache` ref | `MapContext` (shared) | Full polyline route objects from the Routes API | `useRouteCache` → `RouteEntry` |
+
+They use the same key format (`homeId_destId`) but are completely separate objects.
+
+### `destination` vs `activeRoutes`
+
+Both live in `MapContext`:
+
+- `destination` — the single primary route set by the user ("Set Route"). Intended to receive `TRAFFIC_AWARE` routing (expensive). Only one at a time.
+- `activeRoutes` — array of all destinations currently drawn as polylines on the map. Includes `destination` plus any additionally highlighted routes that use standard (non-traffic) routing.
 
 ### Key Files
 
 | File | Purpose |
 |---|---|
 | `frontend/context/MapContext.js` | Global state provider |
-| `frontend/hooks/useDestinations.js` | Route + place data fetching with caching |
-| `frontend/components/NavPill/` | Origin/destination input (desktop + mobile) |
-| `frontend/components/MapWithBox/` | Map container and route rendering |
-| `frontend/components/DestInfoTable/` | Travel comparison table |
-| `frontend/config/maps.js` | Centralized Google Maps config (center, zoom, libraries) |
+| `frontend/hooks/useDestinations.js` | Matrix data fetching with internal places+routes cache |
+| `frontend/hooks/useRouteCache.js` | Polyline fetching with `routesCache` from context |
+| `frontend/components/NavPill.jsx` | Origin/destination input (desktop + mobile overlay) |
+| `frontend/components/MapWithBox.jsx` | Map container and route rendering |
+| `frontend/components/MultiRoutes.jsx` | Renders one `RouteEntry` per active route |
+| `frontend/components/RouteEntry.jsx` | Single route polyline, reads from `useRouteCache` |
+| `frontend/components/LocationDrawer.jsx` | History drawer (desktop panel / mobile bottom sheet) |
+| `frontend/components/LocationCard.jsx` | Per-destination card with actions |
+| `frontend/components/DestInfoTable.jsx` | Travel comparison table |
+| `frontend/config/maps.js` | Centralized Google Maps config + API client instances |
 | `frontend/lib/AutoCompleteAPI.js` | Google Places autocomplete + geocoding client |
-| `frontend/routes-api.ts` | Computes detailed route polylines and legs |
-| `frontend/routes-matrix-api.js` | Computes distance/time for multiple destination pairs |
+| `frontend/routes-api.ts` | Raw Routes API wrapper (polylines) — see note below |
+| `frontend/routes-matrix-api.js` | Raw Routes Matrix API wrapper (distance/time) |
+| `frontend/place-api.js` | Raw Places API wrapper (ratings, price) |
 | `frontend/utils/places.js` | Data transformation helpers for Places API responses |
+
+> **Note:** `route.tsx` is the current renderer for the primary route but is planned for retirement — see `docs/route-unification.md`. Do not build new features on top of it.
 
 ### Conventions
 

@@ -111,13 +111,17 @@ export default function LocationCard({place}) {
           </div>
         </div>
 
-        {/* EDITED: Actions redesigned — Set Route fills remaining space, Show Route is bordered, Delete is icon-only bordered danger (v4 style) */}
+        {/* EDITED: Actions redesigned — Set Route fills remaining space, Highlight Route is bordered, Delete is icon-only bordered danger (v4 style) */}
         <div className="card-actions">
           <button className="btn-route" onClick={() => { setDestination(place.destObj) }}>
             <Navigation className="btn-icon" />
             Set Route
           </button>
-          <button className="btn-show-route" onClick={() => { toggleActiveRoute(place.destObj) }}>
+          {/* btn-highlight-route--active keeps the button colored while the route is on */}
+          <button
+            className={`btn-highlight-route${activeRoutes.some(r => r.placeId === place.destObj.placeId) ? ' btn-highlight-route--active' : ''}`}
+            onClick={() => { toggleActiveRoute(place.destObj) }}
+          >
             {activeRoutes.some(r => r.placeId === place.destObj.placeId)
               ? "Hide Route"
               : "Highlight Route"}
