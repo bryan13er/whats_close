@@ -4,11 +4,20 @@ helper functions for workign with the places api and grouping data into the tabl
 
 import { cleanTimeRes } from './time';
 
-/*
-takes the out of order output from the route matrix api
-and converts it into an object keyed by destination index
-so that the table is filled correctly 
-*/
+/**
+ * @typedef {import('../types').Place} Place
+ * @typedef {import('../types').Row} Row
+ * @typedef {import('../types').MatrixCell} MatrixCell
+ * @typedef {import('../types').PlaceDetails} PlaceDetails
+ */
+
+/**
+ * Takes the out-of-order output from the Routes Matrix API and converts it
+ * into an object keyed by `destinationIndex` so rows can be filled correctly.
+ *
+ * @param {MatrixCell[]} res
+ * @returns {Object<number, MatrixCell>}
+ */
 export function createDataLookup(res){
   if (!res || !Array.isArray(res)) return {};
 
@@ -29,16 +38,14 @@ export const priceMap = {
 };
 
 /**
- * @typedef {Object} DestinationPlace
- * @property {'dest'} field i.e. input type origin or dest
- * @property {string} label i.e. name of locaiton
- * @property {string} placeId gogole place id
- * @property {number} lat
- * @property {number} lng
- */
-
-/**
- * @param {DestinationPlace} dest
+ * Build a single Row from a Place + matrix data + place details.
+ *
+ * @param {Place} dest
+ * @param {MatrixCell} driveData
+ * @param {MatrixCell} walkData
+ * @param {MatrixCell} transitData
+ * @param {PlaceDetails} [placeInfo]
+ * @returns {Row}
  */
 export function prepRowData(dest, driveData, walkData, transitData, placeInfo){
   return {

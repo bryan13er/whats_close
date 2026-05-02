@@ -2,6 +2,21 @@ import { useState, useEffect, useRef } from 'react';
 import { routesApiClient } from '../config/maps';
 import { useMapFeatures } from '../context/MapContext';
 
+/**
+ * @typedef {import('../types').Place} Place
+ * @typedef {import('../types').GoogleRoute} GoogleRoute
+ * @typedef {import('../types').RouteOptions} RouteOptions
+ */
+
+/**
+ * Fetch a single route from the Routes API, with the "no path found" case
+ * returning null instead of throwing.
+ *
+ * @param {Place} home
+ * @param {Place} dest
+ * @param {RouteOptions} routeOptions
+ * @returns {Promise<GoogleRoute|null>}
+ */
 async function fetchMissingRoute(home, dest, routeOptions) {
   try {
     // 1. Declare with 'const' to keep it local
@@ -23,6 +38,14 @@ async function fetchMissingRoute(home, dest, routeOptions) {
   }
 }
 
+/**
+ * Returns the polyline route for a given destination. Reads from `routesCache`
+ * in MapContext on hit, fetches from the Routes API on miss and writes back.
+ *
+ * @param {Place} destination
+ * @param {RouteOptions} routeOptions
+ * @returns {{ route: GoogleRoute|null }}
+ */
 export function useRouteCache(destination, routeOptions) {
   const { home, routesCache } = useMapFeatures();
   const [route, setRoute] = useState(null);

@@ -7,6 +7,10 @@ import {
   AdvancedMarker,
 } from '@vis.gl/react-google-maps';
 
+/**
+ * @typedef {import('../types').Place} Place
+ * @typedef {import('../types').RouteOptions} RouteOptions
+ */
 
 const defaultAppearance = {
   walkingPolylineColor: '#1E90FF',  // Dodger Blue for walking
@@ -17,6 +21,14 @@ const defaultAppearance = {
 
 };
 
+/**
+ * Renders a single route's polyline + destination marker.
+ *
+ * @param {Object} props
+ * @param {Place} props.destination
+ * @param {number} props.index               - position in `activeRoutes`; used to pick a color from `defaultColors`
+ * @param {RouteOptions} props.routeOptions
+ */
 export default function RouteEntry({destination, index:routeIndex, routeOptions}) {
   const { home } = useMapFeatures();
   const { route } = useRouteCache(destination, routeOptions)

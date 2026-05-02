@@ -2,6 +2,21 @@ import { useState, useEffect, useRef } from 'react';
 import { createDataLookup, prepRowData } from '../utils/places';
 import { routesMatrixApi, placesApi } from '../config/maps';
 
+/**
+ * @typedef {import('../types').Place} Place
+ * @typedef {import('../types').Row} Row
+ * @typedef {import('../types').PlaceDetails} PlaceDetails
+ * @typedef {import('../types').MatrixCell} MatrixCell
+ */
+
+/**
+ * @typedef {Object} DestinationsCache
+ * Internal cache shared across calls within one provider lifetime.
+ *
+ * @property {Object<string, PlaceDetails>} places                                 - keyed by placeId
+ * @property {Object<string, {drive: MatrixCell, walk: MatrixCell, transit: MatrixCell}>} routes - keyed by `${homeId}_${destId}`
+ */
+
 // TODO: 3/20 think about a simple cache garabage collection strategy
 
 // Helper 1: Fetches only missing place details and mutates the cache object
@@ -60,6 +75,15 @@ async function fetchMissingRoutes(home, missingDests, cacheRef) {
 //   }
 // }
 
+/**
+ * Fetches matrix data + place details for `destinations` relative to `home`,
+ * caching results across renders so changing `home` or adding destinations
+ * only fetches what's missing. Returns rows ready for the table/cards.
+ *
+ * @param {Place|null} home
+ * @param {Place[]} destinations
+ * @returns {{ rows: Row[] }}
+ */
 export function useDestinations(home, destinations) {
   const [rows, setRows] = useState([]);
 
