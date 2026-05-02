@@ -29,25 +29,11 @@ const weatherColors = {
 };
 
 /**
- * @typedef {Object} place
- * @property {string} name - "Chipotle Mexican Grill, Munras Avenue, Monterey, CA, USA"
- * @property {string} desPlaceId - "ChIJl28xQCTkjYAR48CoQtJ6pb4"
- * @property {object} destObj
- * @property {string} destObj.field - "dest"
- * @property {string} destObj.label - "Chipotle Mexican Grill, Munras Avenue, Monterey, CA, USA"
- * @property {string} destObj.placeId - "ChIJl28xQCTkjYAR48CoQtJ6pb4"
- * @property {number} destObj.lat - 36.5969267
- * @property {number} destObj.lng - -121.8944817
- * @property {number} distance - 30353 (meters)
- * @property {number} driveTime - 1595 (seconds)
- * @property {number} transitTime - 3471 (seconds)
- * @property {number} walkTime - 23688 (seconds)
- * @property {number} ratings - 3.8 or 'N/A'
- * @property {string} cost - "$" or 'N/A'
+ * @typedef {import('../types').Row} Row
  */
 
 /**
- * @param {{ place: place }} props
+ * @param {{ place: Row }} props
  */
 export default function LocationCard({place}) {
   const { deleteFromHistory, setDestination, toggleActiveRoute, activeRoutes } = useMapFeatures();

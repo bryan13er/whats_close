@@ -5,16 +5,54 @@ import React, { createContext, useContext, useState, useCallback, useMemo, useRe
 import { MAP_CONFIG } from '../config/maps';
 import { useDestinations } from '../hooks/useDestinations';
 
-/* Shape of 'home' / 'destination' objects:
-  {
-    field:   string, // 'origin' | 'destination'
-    label:   string, // name of place, i.e. full address
-    placeId: string, // 'ChIJ4-Rmg...'
-    lat:     number, // 36.618...
-    lng:     number  // -121.901...
-  }
-*/
+/**
+ * @typedef {import('../types').Place} Place
+ * @typedef {import('../types').Row} Row
+ * @typedef {import('../types').GoogleRoute} GoogleRoute
+ */
 
+/**
+ * @typedef {Object} MapFeatures
+ * The full surface of state and actions exposed by `useMapFeatures()`.
+ * Every component that calls the hook gets this object.
+ *
+ * @property {Place|null}                          home                   - origin / "where from"
+ * @property {(loc: Place) => void}                handleHomeSelect       - sets home + recenters map
+ * @property {() => void}                          handleHomeClear        - clears home, destination, route bounds
+ *
+ * @property {Place|null}                          destination            - active route (Set Route target)
+ * @property {(loc: Place|null) => void}           setDestination
+ * @property {(loc: Place) => void}                addDestination         - sets destination + appends to destHistory if new
+ * @property {() => void}                          clearRoute             - clears destination + route bounds, recenters on home
+ *
+ * @property {Place[]}                             destHistory            - all searched destinations (drives drawer + table)
+ * @property {(placeId: string) => void}           deleteFromHistory      - removes from destHistory + activeRoutes
+ * @property {(history: Place[]) => void}          setDestHistory
+ *
+ * @property {Place[]}                             activeRoutes           - destinations currently drawn as polylines
+ * @property {(loc: Place) => void}                toggleActiveRoute      - add/remove a route from the map
+ *
+ * @property {{north: number, south: number, east: number, west: number}|null} routeBounds
+ * @property {(b: any) => void}                    setRouteBounds
+ *
+ * @property {React.MutableRefObject<Object<string, GoogleRoute>>} routesCache - polyline cache, key = `${homeId}_${destId}`
+ *
+ * @property {{lat: number, lng: number}}          mapCenter
+ * @property {(c: {lat: number, lng: number}) => void} setMapCenter
+ *
+ * @property {boolean}                             isStreetViewVisible
+ * @property {(v: boolean) => void}                setIsStreetViewVisible
+ *
+ * @property {boolean}                             mapType                - true = roadmap, false = hybrid
+ * @property {() => void}                          toggleMapType
+ *
+ * @property {boolean}                             showDataTable
+ * @property {(v: boolean) => void}                setShowDataTable
+ *
+ * @property {Row[]}                               rows                   - prepared data for table/cards (built by useDestinations)
+ */
+
+/** @type {React.Context<MapFeatures|null>} */
 const MapContext = createContext(null);
 
 export function MapFeatureProvider({ children }) {
@@ -144,4 +182,8 @@ export function MapFeatureProvider({ children }) {
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>;
 }
 
+/**
+ * Access global map/route state. See the `MapFeatures` typedef above for the full shape.
+ * @returns {MapFeatures}
+ */
 export const useMapFeatures = () => useContext(MapContext);
