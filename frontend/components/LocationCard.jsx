@@ -8,6 +8,7 @@ import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
 import './LocationCard.css'
 import { useMapFeatures } from "../context/MapContext";
+import { defaultColors } from '../MapStyling/RouteColors';
 
 
 //TODO: add weather
@@ -55,6 +56,12 @@ export default function LocationCard({place}) {
   const [mainName, ...rest] = place.name.split(",");
   const restOfAddress = rest.join(",").trim() 
 
+  const routeAcitveIndex = activeRoutes.findIndex(
+    r => r.placeId === place.destObj.placeId
+  );
+  
+  const isActive = routeAcitveIndex !== -1;
+  
   console.log(place)
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
@@ -127,10 +134,10 @@ export default function LocationCard({place}) {
           </button>
           {/* btn-highlight-route--active keeps the button colored while the route is on */}
           <button
-            className={`btn-highlight-route${activeRoutes.some(r => r.placeId === place.destObj.placeId) ? ' btn-highlight-route--active' : ''}`}
+            className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
             onClick={() => { toggleActiveRoute(place.destObj) }}
           >
-            {activeRoutes.some(r => r.placeId === place.destObj.placeId)
+            {isActive
               ? "Hide Route"
               : "Highlight Route"}
           </button>

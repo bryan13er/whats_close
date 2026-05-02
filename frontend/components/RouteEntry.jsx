@@ -1,6 +1,7 @@
 import { useRouteCache } from '../hooks/useRouteCache';
 import { useMapFeatures } from '../context/MapContext';
 import { Polyline } from './polyline';
+import { defaultColors } from '../MapStyling/RouteColors';
 
 import {
   AdvancedMarker,
@@ -12,9 +13,11 @@ const defaultAppearance = {
   defaultPolylineColor: '#007BFF',  // Slightly darker blue for transit / default
   stepMarkerFillColor: '#FFFFFF',   // White markers for steps
   stepMarkerBorderColor: '#1E90FF', // Blue border to match walking polyline
+  test: '#ffff66'
+
 };
 
-export default function RouteEntry({destination, routeOptions}) {
+export default function RouteEntry({destination, index:routeIndex, routeOptions}) {
   const { home } = useMapFeatures();
   const { route } = useRouteCache(destination, routeOptions)
 
@@ -28,8 +31,8 @@ export default function RouteEntry({destination, routeOptions}) {
   const polylines = routeSteps.map((step, index) => {
     const isWalking = step.travelMode === 'WALK';
     const color = isWalking
-      ? appearance.walkingPolylineColor
-      : (step?.transitDetails?.transitLine?.color ?? appearance.defaultPolylineColor);
+      ? appearance.test
+      : (step?.transitDetails?.transitLine?.color ?? defaultColors[routeIndex]);
 
     return (
       <Polyline

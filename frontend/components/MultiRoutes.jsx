@@ -13,10 +13,11 @@ if(activeRoutes.length === 0){
   return null;
 }
 
-return activeRoutes.map(dest => (
+return activeRoutes.map((dest,index) => (
     <RouteEntry
       key={dest.placeId}
       destination={dest}
+      index={index}
       routeOptions={routeOptions}
     />
 ));
