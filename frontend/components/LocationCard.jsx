@@ -8,8 +8,6 @@ import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
 import './LocationCard.css'
 import { useMapFeatures } from "../context/MapContext";
-import { defaultColors } from '../MapStyling/RouteColors';
-
 
 //TODO: add weather
 const weatherIcons = {
@@ -36,18 +34,16 @@ const weatherColors = {
  * @param {{ place: Row }} props
  */
 export default function LocationCard({place}) {
-  const { deleteFromHistory, setDestination, toggleActiveRoute, activeRoutes } = useMapFeatures();
+  const { deleteFromHistory, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef} = useMapFeatures();
 
   // for name of place
   const [mainName, ...rest] = place.name.split(",");
-  const restOfAddress = rest.join(",").trim() 
+  const restOfAddress = rest.join(",").trim() ;
 
-  const routeAcitveIndex = activeRoutes.findIndex(
-    r => r.placeId === place.destObj.placeId
-  );
-  
-  const isActive = routeAcitveIndex !== -1;
-  
+  // TODO: clean up too
+  const isActive = !!activeRoutes[place.destObj.placeId];
+  const routeColor = isActive ? activeRoutes[place.destObj.placeId] : '';
+  const highlightLimit = routeColorsPoolRef.current.length === 0;
   console.log(place)
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
@@ -118,15 +114,21 @@ export default function LocationCard({place}) {
             <Navigation className="btn-icon" />
             Set Route
           </button>
-          {/* btn-highlight-route--active keeps the button colored while the route is on */}
-          <button
-            className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
-            onClick={() => { toggleActiveRoute(place.destObj) }}
-          >
-            {isActive
-              ? "Hide Route"
-              : "Highlight Route"}
-          </button>
+          {(!highlightLimit || isActive) &&
+            <button
+              className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
+              onClick={() => { toggleActiveRoute(place.destObj) }}
+              style={isActive ? { 
+                backgroundColor: routeColor, 
+                borderColor: routeColor,
+                color: '#fff' // Ensures text is readable against the background
+              } : {}}
+            >
+              {isActive
+                ? "Hide Route"
+                : "Highlight Route"}
+            </button>
+          }
           <button className="btn-delete" onClick={() => { deleteFromHistory(place.desPlaceId) }}>
             <Trash2 className="btn-icon" />
           </button>

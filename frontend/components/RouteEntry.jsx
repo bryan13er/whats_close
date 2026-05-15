@@ -1,11 +1,11 @@
 import { useRouteCache } from '../hooks/useRouteCache';
 import { useMapFeatures } from '../context/MapContext';
 import { Polyline } from './polyline';
-import { defaultColors } from '../MapStyling/RouteColors';
 
 import {
-  AdvancedMarker,
+  AdvancedMarker, Pin
 } from '@vis.gl/react-google-maps';
+
 
 /**
  * @typedef {import('../types').Place} Place
@@ -18,7 +18,6 @@ const defaultAppearance = {
   stepMarkerFillColor: '#FFFFFF',   // White markers for steps
   stepMarkerBorderColor: '#1E90FF', // Blue border to match walking polyline
   test: '#ffff66'
-
 };
 
 /**
@@ -29,8 +28,8 @@ const defaultAppearance = {
  * @param {number} props.index               - position in `activeRoutes`; used to pick a color from `defaultColors`
  * @param {RouteOptions} props.routeOptions
  */
-export default function RouteEntry({destination, index:routeIndex, routeOptions}) {
-  const { home } = useMapFeatures();
+//TODO: fix this prop name difference
+export default function RouteEntry({destination, index:routeIndex, color:activeColor, routeOptions}) {
   const { route } = useRouteCache(destination, routeOptions)
 
   if (!route){
@@ -44,7 +43,7 @@ export default function RouteEntry({destination, index:routeIndex, routeOptions}
     const isWalking = step.travelMode === 'WALK';
     const color = isWalking
       ? appearance.test
-      : (step?.transitDetails?.transitLine?.color ?? defaultColors[routeIndex]);
+      : (step?.transitDetails?.transitLine?.color ?? activeColor);
 
     return (
       <Polyline
@@ -52,6 +51,7 @@ export default function RouteEntry({destination, index:routeIndex, routeOptions}
         encodedPath={step.polyline.encodedPolyline}
         strokeWeight={isWalking ? 2 : 6}
         strokeColor={color}
+        zIndex={routeIndex}
       />
     );
   });
@@ -62,7 +62,10 @@ export default function RouteEntry({destination, index:routeIndex, routeOptions}
         need to render at least home point but if i render for all routes 
         there will be too many markers on top of home
        <AdvancedMarker position={home} /> */}
-      <AdvancedMarker position={destination} />
+      <AdvancedMarker position={destination}>
+        <Pin background={activeColor} borderColor={'	#686868'} glyphColor={'	#686868'}/>
+      </AdvancedMarker>
+
       {polylines}
     </>
   )

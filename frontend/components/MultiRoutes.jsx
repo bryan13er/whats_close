@@ -7,17 +7,35 @@ const routeOptions = {
 };
 
 export default function MultiRoutes() {
-const {activeRoutes} = useMapFeatures();
+const {activeRoutes, destHistory, rows} = useMapFeatures();
+// TODO: revist turning destHistory into a object although I remeber that proved to be quite challenging
+const activeDests = destHistory.filter(dest => dest.placeId in activeRoutes);
 
-if(activeRoutes.length === 0){
-  return null;
-}
+if(activeDests.length === 0) return null;
 
-return activeRoutes.map((dest,index) => (
+console.log(rows);
+
+const activeDestsDist = rows.filter(row => row.desPlaceId in activeRoutes);
+
+console.log(activeDestsDist);
+const distByPlaceId = activeDestsDist.reduce((acc, row) => {
+  acc[row.desPlaceId] = row.distance;
+  return acc;
+}, {});
+
+console.log(distByPlaceId);
+console.log("before sort", activeDests);
+
+activeDests.sort((a, b) => distByPlaceId[b.placeId] - distByPlaceId[a.placeId]);
+
+console.log("after sort", activeDests)
+  
+return activeDests.map((dest,index) => (
     <RouteEntry
       key={dest.placeId}
       destination={dest}
       index={index}
+      color={activeRoutes[dest.placeId]}
       routeOptions={routeOptions}
     />
 ));

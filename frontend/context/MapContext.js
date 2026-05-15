@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
 import { MAP_CONFIG } from '../config/maps';
 import { useDestinations } from '../hooks/useDestinations';
+import { defaultColors } from '../MapStyling/RouteColors';
 
 /**
  * @typedef {import('../types').Place} Place
@@ -25,11 +26,11 @@ import { useDestinations } from '../hooks/useDestinations';
  * @property {(loc: Place) => void}                addDestination         - sets destination + appends to destHistory if new
  * @property {() => void}                          clearRoute             - clears destination + route bounds, recenters on home
  *
- * @property {Place[]}                             destHistory            - all searched destinations (drives drawer + table)
+ * @property {Place[]}                             destHistory            - array of all searched destinations (drives drawer + table)
  * @property {(placeId: string) => void}           deleteFromHistory      - removes from destHistory + activeRoutes
  * @property {(history: Place[]) => void}          setDestHistory
  *
- * @property {Place[]}                             activeRoutes           - destinations currently drawn as polylines
+ * @property {Place.placeId:color}                 activeRoutes           - destIds pointing at color from colors map
  * @property {(loc: Place) => void}                toggleActiveRoute      - add/remove a route from the map
  *
  * @property {{north: number, south: number, east: number, west: number}|null} routeBounds
@@ -62,7 +63,7 @@ export function MapFeatureProvider({ children }) {
   const [destHistory, setDestHistory] = useState([]);
   const [routeBounds, setRouteBounds] = useState(null);
   const routesCache = useRef ({});
-  const [activeRoutes, setActiveRoutes] = useState([]);
+  const [activeRoutes, setActiveRoutes] = useState({});
 
   // --- UI/Map Control State ---
   const [mapCenter, setMapCenter] = useState(MAP_CONFIG.defaultCenter);
@@ -70,9 +71,10 @@ export function MapFeatureProvider({ children }) {
   const [mapType, setMapType] = useState(true); // true = roadmap, false = hybrid
   const [showDataTable, setShowDataTable] = useState(true)
 
-
+  // -- Additonal Route Colors
+  const routeColorsPoolRef  = useRef([...defaultColors]);
+  
   // --- Logic Handlers (Memoized) ---
-
   const handleHomeSelect = useCallback((location) => {
     setHome(location);
     setMapCenter({ lat: location.lat, lng: location.lng });
@@ -114,20 +116,35 @@ export function MapFeatureProvider({ children }) {
     setMapType(prev => !prev);
   }, []);
 
+  // LESSON LEARNED NEVER HAVE NESTED SETTERS
   const toggleActiveRoute = useCallback((dest) => {
+    console.log("color pool", routeColorsPoolRef.current);
     setActiveRoutes((prev) => {
-      // 1. Check if it's already there
-      const isAlreadyActive = prev.some(route => route.placeId === dest.placeId);
-  
-      if (isAlreadyActive) {
-        // 2. It's a duplicate? Remove it (Toggle OFF)
-        return prev.filter(route => route.placeId !== dest.placeId);
-      } 
-      
-      // 3. Not there? Add it (Toggle ON)
-      return [...prev, dest];
+      const isActive = Object.hasOwn(prev, dest.placeId);
+
+      // --- CASE: TURN OFF ---
+      if (isActive) {
+        const colorToRelease = prev[dest.placeId];
+        routeColorsPoolRef.current.push(colorToRelease);
+        
+        const { [dest.placeId]: _, ...rest } = prev; // Omit the specific ID
+        return rest;
+      }
+
+      // --- CASE: TURN ON ---
+      // Check if we actually have colors left in the pool
+      if (routeColorsPoolRef.current.length === 0) {
+        console.warn("Max routes reached: No colors available in the pool.");
+        return prev;
+      }
+
+      const colorToAssign = routeColorsPoolRef.current.pop();
+      return { 
+        ...prev, 
+        [dest.placeId]: colorToAssign 
+      };
     });
-  }, []);
+  }, []); // Dependencies: empty, because we use the functional update 'prev => ...'
 
   // rows holds the data that fills the datatable
   // I need it to persist even when the table is unmounted
@@ -159,6 +176,7 @@ export function MapFeatureProvider({ children }) {
     routeBounds, setRouteBounds,
     routesCache,
     activeRoutes, toggleActiveRoute,
+    routeColorsPoolRef,
     mapCenter, setMapCenter,
     isStreetViewVisible, setIsStreetViewVisible,
     mapType, toggleMapType,
@@ -171,6 +189,7 @@ export function MapFeatureProvider({ children }) {
     routeBounds,
     routesCache, 
     activeRoutes,
+    routeColorsPoolRef,
     mapCenter,
     isStreetViewVisible,
     mapType,
