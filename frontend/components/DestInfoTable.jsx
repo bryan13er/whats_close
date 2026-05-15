@@ -119,7 +119,7 @@ export default function StickyHeadTable() {
                   {column.id === 'name' ? (
                     <Box className="clearAll-box">
                       {column.label}
-                      <IconButton className='clearAll-btn' size="small" aria-label="clear all" onClick={() => setDestHistory([])}>
+                      <IconButton className='clearAll-btn' size="small" aria-label="clear all" onClick={() => setDestHistory({})}>
                         <Box component="span" className="clearAll">Clear All</Box>
                       </IconButton>
                       <IconButton 

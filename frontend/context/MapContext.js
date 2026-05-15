@@ -60,7 +60,7 @@ export function MapFeatureProvider({ children }) {
   // --- Data State ---
   const [home, setHome] = useState(null);
   const [destination, setDestination] = useState(null);
-  const [destHistory, setDestHistory] = useState([]);
+  const [destHistory, setDestHistory] = useState({});
   const [routeBounds, setRouteBounds] = useState(null);
   const routesCache = useRef ({});
   const [activeRoutes, setActiveRoutes] = useState({});
@@ -89,8 +89,8 @@ export function MapFeatureProvider({ children }) {
     setDestination(location);
     // Functional update avoids needing destHistory in the dependency array
     setDestHistory((prev) => {
-      const isDuplicate = prev.some((d) => d.placeId === location.placeId);
-      return isDuplicate ? prev : [...prev, location];
+      const isDuplicate = location.placeId in prev;
+      return isDuplicate ? prev : {...prev, [location.placeId]:location};
     });
   }, []);
 
@@ -103,12 +103,32 @@ export function MapFeatureProvider({ children }) {
     }
   }, [home]);
 
-  const deleteFromHistory = useCallback((placeId) => {
-    setDestHistory((prev) => prev.filter(dest => dest.placeId !== placeId));
+  // pertain to activeRoute i.e. for multiRoute
+  const deactivateRoute = (prev, placeId) => {
+    const colorToRelease = prev[placeId];
+    routeColorsPoolRef.current.push(colorToRelease);
+    
+    const { [placeId]: _, ...rest } = prev; // Omit the specific ID
+    return rest;
+  };
 
-    setActiveRoutes((prev) =>
-      prev.filter(route => route.placeId !== placeId)
-    );
+  const activateRoute = (prev, placeId) => {
+    const colorToAssign = routeColorsPoolRef.current.pop();
+    return { 
+      ...prev, 
+      [placeId]: colorToAssign 
+    };
+  }
+
+  const deleteFromHistory = useCallback((placeId) => {
+    setDestHistory((prev) => {
+      const { [placeId] : _, ...rest } = prev;
+      return rest;
+    });
+
+    setActiveRoutes((prev) => {
+      return deactivateRoute(prev, placeId);
+    });
   }, []);
 
   const toggleMapType = useCallback(() => {
@@ -122,11 +142,7 @@ export function MapFeatureProvider({ children }) {
 
       // --- CASE: TURN OFF ---
       if (isActive) {
-        const colorToRelease = prev[dest.placeId];
-        routeColorsPoolRef.current.push(colorToRelease);
-        
-        const { [dest.placeId]: _, ...rest } = prev; // Omit the specific ID
-        return rest;
+        return deactivateRoute(prev, dest.placeId);
       }
 
       // --- CASE: TURN ON ---
@@ -136,11 +152,7 @@ export function MapFeatureProvider({ children }) {
         return prev;
       }
 
-      const colorToAssign = routeColorsPoolRef.current.pop();
-      return { 
-        ...prev, 
-        [dest.placeId]: colorToAssign 
-      };
+      return activateRoute(prev, dest.placeId);
     });
   }, []); // Dependencies: empty, because we use the functional update 'prev => ...'
 

@@ -67,7 +67,7 @@ export default function LocationDrawer() {
           <IconButton onClick={handleClose}>
             <ChevronRightIcon />
           </IconButton>
-          <button className="btn-clear-all" onClick={() => setDestHistory([])}>
+          <button className="btn-clear-all" onClick={() => setDestHistory({})}>
             Clear All
           </button>
         </div>
@@ -99,7 +99,7 @@ export default function LocationDrawer() {
         </div>
         <div className="mobile-drawer-inner">
           <div className="drawer-header">
-            <button className="btn-clear-all" onClick={() => setDestHistory([])}>
+            <button className="btn-clear-all" onClick={() => setDestHistory({})}>
               Clear All
             </button>
           </div>

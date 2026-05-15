@@ -8,11 +8,12 @@ const routeOptions = {
 
 export default function MultiRoutes() {
 const {activeRoutes, destHistory, rows} = useMapFeatures();
-// TODO: revist turning destHistory into a object although I remeber that proved to be quite challenging
-const activeDests = destHistory.filter(dest => dest.placeId in activeRoutes);
+
+const activeDests = Object.keys(activeRoutes).map(placeId => destHistory[placeId])
 
 if(activeDests.length === 0) return null;
 
+// TODO: come back to converting rows into being hashed by placeId as well
 const activeDestsDist = rows.filter(row => row.desPlaceId in activeRoutes);
 
 const distByPlaceId = activeDestsDist.reduce((acc, row) => {
