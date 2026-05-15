@@ -26,7 +26,7 @@ import { defaultColors } from '../MapStyling/RouteColors';
  * @property {(loc: Place) => void}                addDestination         - sets destination + appends to destHistory if new
  * @property {() => void}                          clearRoute             - clears destination + route bounds, recenters on home
  *
- * @property {Place[]}                             destHistory            - array of all searched destinations (drives drawer + table)
+ * @property {Place.placeId:Place}                 destHistory            - object of all searched destinations keyed by destation id (drives drawer + table)
  * @property {(placeId: string) => void}           deleteFromHistory      - removes from destHistory + activeRoutes
  * @property {(history: Place[]) => void}          setDestHistory
  *
