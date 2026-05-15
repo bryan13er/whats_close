@@ -139,6 +139,7 @@ function MobileOverlay({ field, input, suggestions, onClose, onChange, onSelect,
   );
 }
 
+// TODO: get rid of this onSelect
 export default function NavPill({ onSelect }) {
   const [fieldState, setFieldState] = useState({
     origin: { input: '', label: '' },
@@ -152,13 +153,10 @@ export default function NavPill({ onSelect }) {
     handleHomeSelect, handleHomeClear,
     destination, addDestination, clearRoute,
     isStreetViewVisible,
-    showDataTable, setShowDataTable
   } = useMapFeatures();
 
-  const tableStateBeforeOverlay = useRef(null);
-
   // SIMPLIFIED: Kept pillRef (for click-outside), timer, and requestSeq. 
-  // Deleted inputRefs, mobileInputRef, and tableStateBeforeOverlay!
+  // Deleted inputRefs, mobileInputRef
   const pillRef = useRef(null);
   const timer = useRef(null);
   const requestSeq = useRef(0);
@@ -222,22 +220,13 @@ export default function NavPill({ onSelect }) {
   }
 
   function handleMobileOpen(fieldId, value) {
-    // SIMPLIFIED: Removed manual table state toggling (handled by the new useEffect above)
-    tableStateBeforeOverlay.current = showDataTable;
-    setShowDataTable(false);
-
     setMobileOverlay(fieldId);
     value.length >= 3 ? fetchSuggestions(value) : invalidateSuggestions();
-
   }
 
   function closeOverlay() {
     setMobileOverlay(null);
     invalidateSuggestions();
-
-    if (tableStateBeforeOverlay.current !== null) {
-      setShowDataTable(tableStateBeforeOverlay.current);
-    }
   }
 
   function handleSelect(suggestion) {
@@ -257,7 +246,7 @@ export default function NavPill({ onSelect }) {
         lat: location.latitude,
         lng: location.longitude,
       };
-      console.log(place);
+
       onSelect?.(place);
 
       if(fieldId === 'origin'){

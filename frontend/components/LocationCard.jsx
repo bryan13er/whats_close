@@ -44,7 +44,6 @@ export default function LocationCard({place}) {
   const isActive = !!activeRoutes[place.destObj.placeId];
   const routeColor = isActive ? activeRoutes[place.destObj.placeId] : '';
   const highlightLimit = routeColorsPoolRef.current.length === 0;
-  console.log(place)
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
   const StarRow = ({ rating }) => (

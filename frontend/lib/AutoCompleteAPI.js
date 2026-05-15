@@ -75,7 +75,6 @@ export class PlacesAPI {
     }
   
     const data = await response.json();
-    console.log('Geocode raw response:', data);
 
     const loc = data.results?.[0]?.geometry?.location;
   

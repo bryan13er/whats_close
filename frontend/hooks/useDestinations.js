@@ -31,8 +31,6 @@ async function fetchMissingPlaces(missingDests, cacheRef) {
   results.forEach((res, i) => {
     cacheRef.current.places[missingDests[i].placeId] = res;
   });
-
-  console.log("Fetched PLACES", missingDests);
 }
 
 // Helper 2: Fetches only missing routes for the current home and mutates the cache object
@@ -60,8 +58,6 @@ async function fetchMissingRoutes(home, missingDests, cacheRef) {
       transit: transitLookUp[index]
     };
   });
-
-  console.log("Fetched ROUTES", missingDests)
 }
 
 // TODO: cache garbaage collection
@@ -137,8 +133,6 @@ export function useDestinations(home, destinations) {
             // read the cahce here 
             const placeData = cache.current.places[dest.placeId];
             const routeData = cache.current.routes[`${currentHomeId}_${dest.placeId}`];
-            
-            console.log(dest);
 
             return prepRowData(
               dest,

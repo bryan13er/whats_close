@@ -78,8 +78,6 @@ export default function StickyHeadTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  console.log("ROWS", rows);
-
   const maxPage = Math.max(0, Math.ceil(rows.length / rowsPerPage) - 1);
   const pageClamped = Math.min(page, maxPage);
 

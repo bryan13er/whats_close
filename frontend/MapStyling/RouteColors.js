@@ -1,5 +1,5 @@
 /* controls the route colors when displaying ideally need to set up a 10 route limit */
-
+/* WHEN STICT MODE IS ON IN PROD it does not work with useRef so it will pop more colors than normal*/
 export const defaultColors = [
   // "#1E90FF", TODO: this hex is dodger blue when multi route is allowed again i can allow it 
   "#FF5C35",

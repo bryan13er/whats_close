@@ -13,22 +13,14 @@ const activeDests = destHistory.filter(dest => dest.placeId in activeRoutes);
 
 if(activeDests.length === 0) return null;
 
-console.log(rows);
-
 const activeDestsDist = rows.filter(row => row.desPlaceId in activeRoutes);
 
-console.log(activeDestsDist);
 const distByPlaceId = activeDestsDist.reduce((acc, row) => {
   acc[row.desPlaceId] = row.distance;
   return acc;
 }, {});
 
-console.log(distByPlaceId);
-console.log("before sort", activeDests);
-
 activeDests.sort((a, b) => distByPlaceId[b.placeId] - distByPlaceId[a.placeId]);
-
-console.log("after sort", activeDests)
   
 return activeDests.map((dest,index) => (
     <RouteEntry
