@@ -94,13 +94,15 @@ export function useDestinations(home, destinations) {
 
     const loadTableData = async () => {
       try {
-        if (!home || destinations.length === 0) {
+        if (!home || Object.keys(destinations).length === 0) {
           if (isMounted) setRows([]);
           return;
         }
 
         // FILTER: Remove any destination that matches the current home/origin ID i.e. Salinas to Salinas filter that out
-        const filteredDests = destinations.filter(d => d.placeId !== home.placeId);
+        // TODO: updating to use map 
+        const cleanIds = Object.keys(destinations).filter(destId => destId !== home.placeId);
+        const filteredDests = cleanIds.map(cleanId => destinations[cleanId]);
 
         // If after filtering there are no destinations left, clear the table
         if (filteredDests.length === 0) {

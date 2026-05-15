@@ -99,7 +99,7 @@ export default function MapView() {
             <AdvancedMarker position={home} />
           )}
         </GoogleMap>
-        {destHistory.length > 0 &&
+        {Object.keys(destHistory).length > 0 &&
           <LocationDrawer/>
         }
       </div>
