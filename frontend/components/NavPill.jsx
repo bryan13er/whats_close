@@ -150,7 +150,7 @@ export default function NavPill({ onSelect }) {
   const [mobileOverlay, setMobileOverlay] = useState(null);
 
   const {
-    handleHomeSelect, handleHomeClear,
+    addHome, handleHomeClear,
     destination, addDestination, clearRoute,
     isStreetViewVisible,
   } = useMapFeatures();
@@ -250,7 +250,7 @@ export default function NavPill({ onSelect }) {
       onSelect?.(place);
 
       if(fieldId === 'origin'){
-        handleHomeSelect(place);
+        addHome(place);
       } else {
         addDestination(place);
       }

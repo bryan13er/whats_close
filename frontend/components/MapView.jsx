@@ -14,7 +14,6 @@ import DestInfoTable from "./DestInfoTable";
 
 import { MAP_CONFIG } from '../config/maps';
 import { useMapFeatures } from "../context/MapContext";
-import MapOverlays from "./MapOverlays";
 import MapTypeButton from "./MapTypeButton";
 import StreetViewWatcher from "./StreetViewWatcher";
 import MapCenterControl from "./MapCenterControl";
@@ -64,7 +63,6 @@ export default function MapView() {
   return (
     <APIProvider apiKey={MAP_CONFIG.apiKey} libraries={MAP_CONFIG.libraries}>
       <div className="map-container">
-        {/* <MapOverlays/> */}
         <div className="nav-pill-overlay">
           <NavPill/>
         </div>

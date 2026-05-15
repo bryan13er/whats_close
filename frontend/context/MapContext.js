@@ -61,6 +61,7 @@ export function MapFeatureProvider({ children }) {
   const [home, setHome] = useState(null);
   const [destination, setDestination] = useState(null);
   const [destHistory, setDestHistory] = useState({});
+  const [homeHistory, setHomeHistory] = useState({});
   const [routeBounds, setRouteBounds] = useState(null);
   const routesCache = useRef ({});
   const [activeRoutes, setActiveRoutes] = useState({});
@@ -74,8 +75,14 @@ export function MapFeatureProvider({ children }) {
   const routeColorsPoolRef  = useRef([...defaultColors]);
   
   // --- Logic Handlers (Memoized) ---
-  const handleHomeSelect = useCallback((location) => {
+  const addHome = useCallback((location) => {
     setHome(location);
+
+    setHomeHistory((prev) => {
+      const isDuplicate = location.placeId in prev;
+      return isDuplicate ? prev : {...prev, [location.placeId]:location};
+    });
+
     setMapCenter({ lat: location.lat, lng: location.lng });
   }, []);
 
@@ -103,7 +110,7 @@ export function MapFeatureProvider({ children }) {
     }
   }, [home]);
 
-  // pertain to activeRoute i.e. for multiRoute
+  // pertain to setActiveRoute i.e. for multiRoute
   const deactivateRoute = (prev, placeId) => {
     const colorToRelease = prev[placeId];
     routeColorsPoolRef.current.push(colorToRelease);
@@ -180,7 +187,7 @@ export function MapFeatureProvider({ children }) {
   // the props will never be the same so useCallback allows
   // me to keep the same function reference 
   const value = useMemo(() => ({
-    home, handleHomeSelect, handleHomeClear,
+    home, addHome, handleHomeClear,
     destination, setDestination, addDestination, clearRoute,
     destHistory, deleteFromHistory, setDestHistory,
     routeBounds, setRouteBounds,
@@ -192,7 +199,7 @@ export function MapFeatureProvider({ children }) {
     mapType, toggleMapType,
     rows
   }), [
-    home, handleHomeSelect, handleHomeClear,
+    home, addHome, handleHomeClear,
     destination, addDestination, clearRoute,
     destHistory, deleteFromHistory,
     routeBounds,
