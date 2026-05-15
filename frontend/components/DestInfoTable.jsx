@@ -74,7 +74,7 @@ const stickyLeftOffsets = (() => {
 const tableMinWidth = columns.reduce((sum, column) => sum + (column.minWidth ?? 0), 0);
 
 export default function StickyHeadTable() {
-  const { deleteFromHistory:destDelete, setDestination, setDestHistory, rows, setShowDataTable} = useMapFeatures();
+  const { deleteFromDestHistory:destDelete, setDestination, setDestHistory, rows, setShowDataTable} = useMapFeatures();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 

@@ -18,7 +18,9 @@ import { defaultColors } from '../MapStyling/RouteColors';
  * Every component that calls the hook gets this object.
  *
  * @property {Place|null}                          home                   - origin / "where from"
- * @property {(loc: Place) => void}                handleHomeSelect       - sets home + recenters map
+ * @property {{Place.placeId: Place}}              homeHistory            - object keyed by placeId that holds home history
+ * @property {(loc: Place) => void}                addHome                - sets home value + sets map center + adds to homeHistory
+ * @property {(placeId:Place) => void}             deleteFromHomeHistory  - removes placeId from home history
  * @property {() => void}                          handleHomeClear        - clears home, destination, route bounds
  *
  * @property {Place|null}                          destination            - active route (Set Route target)
@@ -26,8 +28,8 @@ import { defaultColors } from '../MapStyling/RouteColors';
  * @property {(loc: Place) => void}                addDestination         - sets destination + appends to destHistory if new
  * @property {() => void}                          clearRoute             - clears destination + route bounds, recenters on home
  *
- * @property {Place.placeId:Place}                 destHistory            - object of all searched destinations keyed by destation id (drives drawer + table)
- * @property {(placeId: string) => void}           deleteFromHistory      - removes from destHistory + activeRoutes
+ * @property {{Place.placeId:Place}}               destHistory            - object of all searched destinations keyed by destation id (drives drawer + table)
+ * @property {(placeId: string) => void}           deleteFromDestHistory  - removes from destHistory + activeRoutes
  * @property {(history: Place[]) => void}          setDestHistory
  *
  * @property {Place.placeId:color}                 activeRoutes           - destIds pointing at color from colors map
@@ -86,6 +88,13 @@ export function MapFeatureProvider({ children }) {
     setMapCenter({ lat: location.lat, lng: location.lng });
   }, []);
 
+  const deleteFromHomeHistory = useCallback((placeId) => {
+    setHomeHistory((prev) => {
+      const { [placeId] : _, ...rest } = prev;
+      return rest;
+    })
+  }, []);
+
   const handleHomeClear = useCallback(() => {
     setHome(null);
     setDestination(null);
@@ -127,7 +136,7 @@ export function MapFeatureProvider({ children }) {
     };
   }
 
-  const deleteFromHistory = useCallback((placeId) => {
+  const deleteFromDestHistory = useCallback((placeId) => {
     setDestHistory((prev) => {
       const { [placeId] : _, ...rest } = prev;
       return rest;
@@ -188,8 +197,8 @@ export function MapFeatureProvider({ children }) {
   // me to keep the same function reference 
   const value = useMemo(() => ({
     home, addHome, handleHomeClear,
-    destination, setDestination, addDestination, clearRoute,
-    destHistory, deleteFromHistory, setDestHistory,
+    destination, setDestination, addDestination, deleteFromHomeHistory, clearRoute,
+    destHistory, deleteFromDestHistory, setDestHistory,
     routeBounds, setRouteBounds,
     routesCache,
     activeRoutes, toggleActiveRoute,
@@ -200,8 +209,8 @@ export function MapFeatureProvider({ children }) {
     rows
   }), [
     home, addHome, handleHomeClear,
-    destination, addDestination, clearRoute,
-    destHistory, deleteFromHistory,
+    destination, addDestination, deleteFromHomeHistory, clearRoute,
+    destHistory, deleteFromDestHistory,
     routeBounds,
     routesCache, 
     activeRoutes,

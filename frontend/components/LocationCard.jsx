@@ -34,7 +34,7 @@ const weatherColors = {
  * @param {{ place: Row }} props
  */
 export default function LocationCard({place}) {
-  const { deleteFromHistory, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef} = useMapFeatures();
+  const { deleteFromDestHistory, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef} = useMapFeatures();
 
   // for name of place
   const [mainName, ...rest] = place.name.split(",");
@@ -128,7 +128,7 @@ export default function LocationCard({place}) {
                 : "Highlight Route"}
             </button>
           }
-          <button className="btn-delete" onClick={() => { deleteFromHistory(place.desPlaceId) }}>
+          <button className="btn-delete" onClick={() => { deleteFromDestHistory(place.desPlaceId) }}>
             <Trash2 className="btn-icon" />
           </button>
         </div>
