@@ -7,14 +7,14 @@ const routeOptions = {
 };
 
 export default function MultiRoutes() {
-const {activeRoutes, destHistory, rows} = useMapFeatures();
+const {activeRoutes, destHistory, destRows} = useMapFeatures();
 
 const activeDests = Object.keys(activeRoutes).map(placeId => destHistory[placeId])
 
 if(activeDests.length === 0) return null;
 
-// TODO: come back to converting rows into being hashed by placeId as well
-const activeDestsDist = rows.filter(row => row.desPlaceId in activeRoutes);
+// TODO: come back to converting destRows into being hashed by placeId as well
+const activeDestsDist = destRows.filter(row => row.desPlaceId in activeRoutes);
 
 const distByPlaceId = activeDestsDist.reduce((acc, row) => {
   acc[row.desPlaceId] = row.distance;

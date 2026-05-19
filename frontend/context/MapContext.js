@@ -52,7 +52,7 @@ import { defaultColors } from '../MapStyling/RouteColors';
  * @property {boolean}                             showDataTable
  * @property {(v: boolean) => void}                setShowDataTable
  *
- * @property {Row[]}                               rows                   - prepared data for table/cards (built by useDestinations)
+ * @property {Row[]}                               destRows                   - prepared data for table/cards (built by useDestinations)
  */
 
 /** @type {React.Context<MapFeatures|null>} */
@@ -72,6 +72,7 @@ export function MapFeatureProvider({ children }) {
   const [mapCenter, setMapCenter] = useState(MAP_CONFIG.defaultCenter);
   const [isStreetViewVisible, setIsStreetViewVisible] = useState(false);
   const [mapType, setMapType] = useState(true); // true = roadmap, false = hybrid
+  const [historyType, setHistoryType] = useState("destination");
 
   // -- Additonal Route Colors
   const routeColorsPoolRef  = useRef([...defaultColors]);
@@ -147,6 +148,10 @@ export function MapFeatureProvider({ children }) {
     });
   }, []);
 
+  const toggleHistoryType = useCallback(() => {
+    setHistoryType(prev => prev === 'destination' ? 'home' : 'destination');
+  }, []);
+
   const toggleMapType = useCallback(() => {
     setMapType(prev => !prev);
   }, []);
@@ -172,16 +177,16 @@ export function MapFeatureProvider({ children }) {
     });
   }, []); // Dependencies: empty, because we use the functional update 'prev => ...'
 
-  // rows holds the data that fills the datatable
+  // destRows holds the data that fills the datatable
   // I need it to persist even when the table is unmounted
   // so it needs to exist here
   // fetch the data with custom hook
   // basically pretend the code is getting
   // brought over 
-  // ROWS DEFAUTL VALUE is []
-  // MapFeatureProvider   ← useDestinations() called here, rows persist
-  // └── DestInfoTable    ← just reads rows from context
-  const { rows } = useDestinations(home, destHistory);
+  // destRows DEFAUTL VALUE is []
+  // MapFeatureProvider   ← useDestinations() called here, destRows persist
+  // └── DestInfoTable    ← just reads destRows from context
+  const { destRows } = useDestinations(home, destHistory);
 
 
   // read about why in:
@@ -196,7 +201,7 @@ export function MapFeatureProvider({ children }) {
   // the props will never be the same so useCallback allows
   // me to keep the same function reference 
   const value = useMemo(() => ({
-    home, addHome, handleHomeClear,
+    home, addHome, homeHistory, handleHomeClear,
     destination, setDestination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory, setDestHistory,
     routeBounds, setRouteBounds,
@@ -206,9 +211,10 @@ export function MapFeatureProvider({ children }) {
     mapCenter, setMapCenter,
     isStreetViewVisible, setIsStreetViewVisible,
     mapType, toggleMapType,
-    rows
+    historyType, toggleHistoryType,
+    destRows
   }), [
-    home, addHome, handleHomeClear,
+    home, addHome, homeHistory, handleHomeClear,
     destination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory,
     routeBounds,
@@ -217,9 +223,9 @@ export function MapFeatureProvider({ children }) {
     routeColorsPoolRef,
     mapCenter,
     isStreetViewVisible,
-    mapType,
-    toggleMapType,
-    rows
+    mapType, toggleMapType,
+    historyType, toggleHistoryType,
+    destRows
   ]);
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>;

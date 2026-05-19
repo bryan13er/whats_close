@@ -1,6 +1,6 @@
 'use client'
 
-import { Trash2, Navigation, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle } from 'lucide-react';
+import { Trash2, Navigation, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle, House, MapPinPlus, MapPinX} from 'lucide-react';
 import { formatDurationFromSeconds } from '../utils/time';
 import { getImperialDist } from '../utils/distance';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
@@ -33,17 +33,42 @@ const weatherColors = {
 /**
  * @param {{ place: Row }} props
  */
-export default function LocationCard({place}) {
-  const { deleteFromDestHistory, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef} = useMapFeatures();
 
-  // for name of place
-  const [mainName, ...rest] = place.name.split(",");
+/*
+TODO: current home shape
+State(homeHistory):
+{ChIJkfu1cFLkjYARXj1K2AlJSO4: {…}}
+
+ChIJkfu1cFLkjYARXj1K2AlJSO4
+:
+{field: "origin", label: "Monterey, CA, USA", lat: …}
+field
+:
+"origin"
+label
+:
+"Monterey, CA, USA"
+placeId
+:
+"ChIJkfu1cFLkjYARXj1K2AlJSO4"
+lat
+:
+36.5972925
+lng
+:
+-121.8977688
+new entry
+: 
+
+*/
+export default function LocationHomeCard({place}) {
+  const { addHome, deleteFromHomeHistory} = useMapFeatures();
+
+  // for name of place TODO: using .lable tomporarily
+  const [mainName, ...rest] = place.label.split(",");
   const restOfAddress = rest.join(",").trim() ;
 
-  // TODO: clean up too
-  const isActive = !!activeRoutes[place.destObj.placeId];
-  const routeColor = isActive ? activeRoutes[place.destObj.placeId] : '';
-  const highlightLimit = routeColorsPoolRef.current.length === 0;
+ 
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
   const StarRow = ({ rating }) => (
@@ -71,23 +96,24 @@ export default function LocationCard({place}) {
             </div>
             {/* <WeatherIcon className={`weather-icon ${weatherColors[weather]}`} /> */}
           </div>
-          <div className="card-distance">
+          {/* TODO: sub with price in the future  */}
+          {/* <div className="card-distance">
             {getImperialDist(place.distance)}
-          </div>
+          </div> */}
         </div>
 
         {/* EDITED: Meta row — rating stars + price side by side, matching v4 info-line style */}
         <div className="card-meta">
-          {place.ratings !== 'N/A' && (
+          {place.ratings && place.ratings !== 'N/A' && (
             <StarRow rating={place.ratings} />
           )}
-          {place.cost !== 'N/A' && (
+          {place.cost && place.cost !== 'N/A' && (
             <span className="price-label">{place.cost}</span>
           )}
         </div>
 
         {/* EDITED: Transport changed from pill chips to 3-column stacked layout (icon / time / label) matching v4 */}
-        <div className="transport-section">
+        {/* <div className="transport-section">
           <div className="transport-options">
             <div className="transport-option">
               <DriveEtaIcon className="transport-icon"/>
@@ -105,30 +131,20 @@ export default function LocationCard({place}) {
               <span className="transport-label">Transit</span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* EDITED: Actions redesigned — Set Route fills remaining space, Highlight Route is bordered, Delete is icon-only bordered danger (v4 style) */}
         <div className="card-actions">
-          <button className="btn-route" onClick={() => { setDestination(place.destObj) }}>
-            <Navigation className="btn-icon" />
-            Set Route
+          <button className="btn-route btn-set-home" onClick={() => { addHome(place) }}>
+            <House className="btn-icon" />
+            Set Home 
           </button>
-          {(!highlightLimit || isActive) &&
-            <button
-              className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
-              onClick={() => { toggleActiveRoute(place.destObj) }}
-              style={isActive ? { 
-                backgroundColor: routeColor, 
-                borderColor: routeColor,
-                color: '#fff' // Ensures text is readable against the background
-              } : {}}
-            >
-              {isActive
-                ? "Hide Route"
-                : "Highlight Route"}
-            </button>
-          }
-          <button className="btn-delete" onClick={() => { deleteFromDestHistory(place.desPlaceId) }}>
+          {/* add react function that keeps track of marked pins and renders it*/}
+          <button className="btn-add-pin" onClick={() => { console.log("toggle mark pin ")}}>
+            <MapPinPlus/>
+          </button>
+          
+          <button className="btn-delete" onClick={() => { deleteFromHomeHistory(place.placeId) }}>
             <Trash2 className="btn-icon" />
           </button>
         </div>

@@ -74,14 +74,14 @@ async function fetchMissingRoutes(home, missingDests, cacheRef) {
 /**
  * Fetches matrix data + place details for `destinations` relative to `home`,
  * caching results across renders so changing `home` or adding destinations
- * only fetches what's missing. Returns rows ready for the table/cards.
+ * only fetches what's missing. Returns destRows ready for the table/cards.
  *
  * @param {Place|null} home
  * @param {Place[]} destinations
- * @returns {{ rows: Row[] }}
+ * @returns {{ destRows: Row[] }}
  */
 export function useDestinations(home, destinations) {
-  const [rows, setRows] = useState([]);
+  const [destRows, setRows] = useState([]);
 
   // The Cache: Persists for the lifetime of the component
   const cache = useRef({
@@ -129,7 +129,7 @@ export function useDestinations(home, destinations) {
           fetchMissingRoutes(home, missingRoutes, cache)
         ]);
 
-        // 3. Assemble the rows entirely from the local cache
+        // 3. Assemble the destRows entirely from the local cache
         if (isMounted) {
           const newRows = filteredDests.map(dest => {
             // read the cahce here 
@@ -159,5 +159,5 @@ export function useDestinations(home, destinations) {
     };
   }, [home, destinations]); // The effect now runs anytime home or dests change, but only fetches if cache is empty
 
-  return { rows };
+  return { destRows };
 }

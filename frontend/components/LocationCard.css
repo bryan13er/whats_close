@@ -181,6 +181,7 @@
 
 .btn-route,
 .btn-delete,
+.btn-add-pin,
 .btn-highlight-route {
   display: flex;
   align-items: center;
@@ -208,6 +209,14 @@
   background: #0e4aef;
 }
 
+.btn-set-home {
+  background: #7425eb;
+}
+
+.btn-set-home:hover {
+  background: #5d0eef;
+}
+
 /* EDITED: Show Route — bordered style with accent tones (v4 highlight/secondary action) */
 .btn-highlight-route {
   padding: 9px 12px;
@@ -227,6 +236,13 @@
   background: rgba(255, 92, 53, 0.1);
   color: #edb211;
   border-color: #dbab26;
+}
+
+.btn-add-pin {
+  padding: 9px 12px;
+  background: transparent;
+  color: #888;
+  border: 1.5px solid #eaeaea;
 }
 
 /* EDITED: Delete — icon-only, bordered danger (v4 trash button style) */
