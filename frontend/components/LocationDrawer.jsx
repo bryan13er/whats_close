@@ -84,9 +84,22 @@ export default function LocationDrawer() {
           <IconButton onClick={handleClose}>
             <ChevronRightIcon />
           </IconButton>
-          <button onClick={toggleHistoryType}>
-            {historyType === 'destination' ? 'Destinations' : 'Origins'}
-          </button>
+          <div className="history-pill-group">
+            <button 
+              type="button"
+              className={`history-pill-btn ${historyType === 'home' ? 'is-active' : ''}`}
+              onClick={() => historyType !== 'home' && toggleHistoryType()}
+            >
+              Origins
+            </button>
+            <button 
+              type="button"
+              className={`history-pill-btn ${historyType === 'destination' ? 'is-active' : ''}`}
+              onClick={() => historyType !== 'destination' && toggleHistoryType()}
+            >
+              Destinations
+            </button>
+          </div>
           <button className="btn-clear-all" onClick={() => setDestHistory({})}>
             Clear All
           </button>
