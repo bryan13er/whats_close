@@ -32,8 +32,11 @@ import { defaultColors } from '../MapStyling/RouteColors';
  * @property {(placeId: string) => void}           deleteFromDestHistory  - removes from destHistory + activeRoutes
  * @property {(history: Place[]) => void}          setDestHistory
  *
- * @property {Place.placeId:color}                 activeRoutes           - destIds pointing at color from colors map
+ * @property {Place.placeId: color}                activeRoutes           - destIds pointing at color from colors map
+ * @property {{Place.placeId: true}}               activePins             - set-like object of pinned placeIds; membership check via `placeId in activePins`
+ * 
  * @property {(loc: Place) => void}                toggleActiveRoute      - add/remove a route from the map
+ * @property {(placeId: string) => void}           toggleActivePins       - add/remove a placeId from activePins
  *
  * @property {{north: number, south: number, east: number, west: number}|null} routeBounds
  * @property {(b: any) => void}                    setRouteBounds
@@ -67,6 +70,7 @@ export function MapFeatureProvider({ children }) {
   const [routeBounds, setRouteBounds] = useState(null);
   const routesCache = useRef ({});
   const [activeRoutes, setActiveRoutes] = useState({});
+  const [activePins, setActivePins] = useState({})
 
   // --- UI/Map Control State ---
   const [mapCenter, setMapCenter] = useState(MAP_CONFIG.defaultCenter);
@@ -177,6 +181,21 @@ export function MapFeatureProvider({ children }) {
     });
   }, []); // Dependencies: empty, because we use the functional update 'prev => ...'
 
+  const toggleActivePins = useCallback((placeId, label) => {
+    setActivePins((prev) => {
+      const isActive = Object.hasOwn(prev, placeId);
+
+      if(isActive) {
+        // --- CASE: TURN OFF ---
+        const {[placeId]:_, ...rest} = prev;
+        return rest;
+      } else {
+      // --- CASE: TURN ON ---
+        return {...prev, [placeId]:label};
+      }
+    })
+  }, []);
+
   // destRows holds the data that fills the datatable
   // I need it to persist even when the table is unmounted
   // so it needs to exist here
@@ -207,6 +226,7 @@ export function MapFeatureProvider({ children }) {
     routeBounds, setRouteBounds,
     routesCache,
     activeRoutes, toggleActiveRoute,
+    activePins, toggleActivePins,
     routeColorsPoolRef,
     mapCenter, setMapCenter,
     isStreetViewVisible, setIsStreetViewVisible,
@@ -220,6 +240,7 @@ export function MapFeatureProvider({ children }) {
     routeBounds,
     routesCache, 
     activeRoutes,
+    activePins,
     routeColorsPoolRef,
     mapCenter,
     isStreetViewVisible,

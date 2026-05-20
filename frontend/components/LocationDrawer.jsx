@@ -19,7 +19,7 @@ const drawerBleeding = 20;
 export default function LocationDrawer() {
   const [open, setOpen] = useState(false);
   const menuButtonRef = useRef(null);
-  const { setDestHistory, destRows, homeHistory, historyType, toggleHistoryType} = useMapFeatures();
+  const { setDestHistory, destRows, homeHistory, historyType, toggleHistoryType, } = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;

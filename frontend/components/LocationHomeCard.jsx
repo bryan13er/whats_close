@@ -8,6 +8,7 @@ import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
 import './LocationCard.css'
 import { useMapFeatures } from "../context/MapContext";
+import { useEffect } from 'react';
 
 //TODO: add weather
 const weatherIcons = {
@@ -62,13 +63,18 @@ new entry
 
 */
 export default function LocationHomeCard({place}) {
-  const { addHome, deleteFromHomeHistory} = useMapFeatures();
+  const { addHome, deleteFromHomeHistory, toggleActivePins, activePins, } = useMapFeatures();
 
   // for name of place TODO: using .lable tomporarily
   const [mainName, ...rest] = place.label.split(",");
   const restOfAddress = rest.join(",").trim() ;
 
- 
+  const isActive = !!activePins[place.placeId];
+
+  useEffect(() => {
+    console.log(activePins);
+  }, [activePins]);
+
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
   const StarRow = ({ rating }) => (
@@ -140,8 +146,14 @@ export default function LocationHomeCard({place}) {
             Set Home 
           </button>
           {/* add react function that keeps track of marked pins and renders it*/}
-          <button className="btn-add-pin" onClick={() => { console.log("toggle mark pin ")}}>
-            <MapPinPlus/>
+          <button className={`btn-add-pin${isActive ? ' btn-add-pin--active' : ''}`} 
+            onClick={() => { 
+            toggleActivePins(place.placeId, place.label);
+          }}>
+            {isActive
+              ? <MapPinX strokeWidth={2.2}/>
+              : <MapPinPlus/>
+            }   
           </button>
           
           <button className="btn-delete" onClick={() => { deleteFromHomeHistory(place.placeId) }}>

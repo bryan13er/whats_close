@@ -21,6 +21,7 @@ import NavPill from "./NavPill";
 import ShowDataTableButton from "./ShowDataTableButton";
 import LocationDrawer from "./LocationDrawer";
 import MultiRoutes from "./MultiRoutes";
+import PinsOverlay from "./PinsOverlay";
 
 
 const routeOptions = {
@@ -42,6 +43,7 @@ export default function MapView() {
     setMapCenter,
     mapType, 
     destHistory,
+    activePins,
     showDataTable,
   } = useMapFeatures();
 
@@ -96,6 +98,10 @@ export default function MapView() {
           {home && (
             <AdvancedMarker position={home} />
           )}
+
+          {Object.keys(activePins).length > 0 && 
+            <PinsOverlay/>
+          }
         </GoogleMap>
         {Object.keys(destHistory).length > 0 &&
           <LocationDrawer/>

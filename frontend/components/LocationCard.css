@@ -242,7 +242,21 @@
   padding: 9px 12px;
   background: transparent;
   color: #888;
-  border: 1.5px solid #eaeaea;
+  border: 3px solid #eaeaea;
+  box-sizing: border-box;
+}
+
+.btn-add-pin--active {
+  background: rgba(103, 190, 217, 0.28);
+  color: #3aaecf;
+  border-color: #3aaecf;
+  border-width: 3px;
+}
+
+.btn-add-pin:hover {
+  background: rgba(103, 190, 217, 0.08);
+  color: #67bed9;
+  border-color: #a8d9e8;
 }
 
 /* EDITED: Delete — icon-only, bordered danger (v4 trash button style) */
