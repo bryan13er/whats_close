@@ -6,7 +6,7 @@ import { getImperialDist } from '../utils/distance';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
-import './LocationCard.css'
+import './LocationHomeCard.css'
 import { useMapFeatures } from "../context/MapContext";
 import { useEffect } from 'react';
 
@@ -20,11 +20,11 @@ const weatherIcons = {
 };
 
 const weatherColors = {
-  sunny: 'weather-sunny',
-  cloudy: 'weather-cloudy',
-  rainy: 'weather-rainy',
-  snowy: 'weather-snowy',
-  drizzle: 'weather-drizzle',
+  sunny: 'home-weather-sunny',
+  cloudy: 'home-weather-cloudy',
+  rainy: 'home-weather-rainy',
+  snowy: 'home-weather-snowy',
+  drizzle: 'home-weather-drizzle',
 };
 
 /**
@@ -34,36 +34,8 @@ const weatherColors = {
 /**
  * @param {{ place: Row }} props
  */
-
-/*
-TODO: current home shape
-State(homeHistory):
-{ChIJkfu1cFLkjYARXj1K2AlJSO4: {…}}
-
-ChIJkfu1cFLkjYARXj1K2AlJSO4
-:
-{field: "origin", label: "Monterey, CA, USA", lat: …}
-field
-:
-"origin"
-label
-:
-"Monterey, CA, USA"
-placeId
-:
-"ChIJkfu1cFLkjYARXj1K2AlJSO4"
-lat
-:
-36.5972925
-lng
-:
--121.8977688
-new entry
-: 
-
-*/
-export default function LocationHomeCard({place}) {
-  const { addHome, deleteFromHomeHistory, toggleActivePins, activePins, } = useMapFeatures();
+export default function LocationHomeCard({place, current = false}) {
+  const { addHome, deleteFromHomeHistory, home, toggleActivePins, activePins, } = useMapFeatures();
 
   // for name of place TODO: using .lable tomporarily
   const [mainName, ...rest] = place.label.split(",");
@@ -71,97 +43,112 @@ export default function LocationHomeCard({place}) {
 
   const isActive = !!activePins[place.placeId];
 
-  useEffect(() => {
-    console.log(activePins);
-  }, [activePins]);
-
-
-  /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
-  const StarRow = ({ rating }) => (
-    <div className="star-row">
-      {[1, 2, 3, 4, 5].map(i => (
-        <span key={i} className={`star ${i <= Math.round(rating) ? 'star--filled' : 'star--empty'}`}>
-          ★
-        </span>
-      ))}
-      <span className="rating-number">{rating.toFixed(1)}</span>
-    </div>
-  );
-
   return (
-    /* EDITED: Removed card shadow/bg — now a flat row with bottom border divider (v4 PlaceRow style) */
-    <div className="location-card">
-      <div className="card-inner">
+    <div className={`home-location-card ${current ? 'home-is-current' : ''}`}>
+      <div className="home-card-inner">
 
-        {/* EDITED: Header now has distance pinned top-right in monospace, matching v4 layout */}
-        <div className="card-header">
-          <div className="card-title-group">
-            <div className="card-title">
-              <div className='card-main-name'>{mainName}</div>
-              <div className='card-rest-of-address'>{restOfAddress}</div>
+        <div className="home-card-header">
+          <div className="home-card-title-group">
+            {current && (
+              <div className="home-current-badge">CURRENT ORIGIN</div>
+            )}
+            <div className="home-card-title">
+              <div className='home-card-main-name'>{mainName}</div>
+              <div className='home-card-rest-of-address'>{restOfAddress}</div>
             </div>
-            {/* <WeatherIcon className={`weather-icon ${weatherColors[weather]}`} /> */}
+            {/* <WeatherIcon className={`home-weather-icon ${weatherColors[weather]}`} /> */}
           </div>
           {/* TODO: sub with price in the future  */}
-          {/* <div className="card-distance">
+          {/* <div className="home-card-distance">
             {getImperialDist(place.distance)}
           </div> */}
         </div>
 
-        {/* EDITED: Meta row — rating stars + price side by side, matching v4 info-line style */}
-        <div className="card-meta">
+        <div className="home-card-meta">
           {place.ratings && place.ratings !== 'N/A' && (
             <StarRow rating={place.ratings} />
           )}
           {place.cost && place.cost !== 'N/A' && (
-            <span className="price-label">{place.cost}</span>
+            <span className="home-price-label">{place.cost}</span>
           )}
         </div>
 
-        {/* EDITED: Transport changed from pill chips to 3-column stacked layout (icon / time / label) matching v4 */}
-        {/* <div className="transport-section">
-          <div className="transport-options">
-            <div className="transport-option">
-              <DriveEtaIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(place.driveTime)}</span>
-              <span className="transport-label">Drive</span>
+        {/* Transport Section (Commented out like your original file) */}
+        {/* <div className="home-transport-section">
+          <div className="home-transport-options">
+            <div className="home-transport-option">
+              <DriveEtaIcon className="home-transport-icon"/>
+              <span className="home-transport-time">{formatDurationFromSeconds(place.driveTime)}</span>
+              <span className="home-transport-label">Drive</span>
             </div>
-            <div className="transport-option">
-              <DirectionsWalkIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(place.walkTime)}</span>
-              <span className="transport-label">Walk</span>
+            <div className="home-transport-option">
+              <DirectionsWalkIcon className="home-transport-icon"/>
+              <span className="home-transport-time">{formatDurationFromSeconds(place.walkTime)}</span>
+              <span className="home-transport-label">Walk</span>
             </div>
-            <div className="transport-option">
-              <DirectionsTransitFilledIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(place.transitTime)}</span>
-              <span className="transport-label">Transit</span>
+            <div className="home-transport-option">
+              <DirectionsTransitFilledIcon className="home-transport-icon"/>
+              <span className="home-transport-time">{formatDurationFromSeconds(place.transitTime)}</span>
+              <span className="home-transport-label">Transit</span>
             </div>
           </div>
         </div> */}
 
-        {/* EDITED: Actions redesigned — Set Route fills remaining space, Highlight Route is bordered, Delete is icon-only bordered danger (v4 style) */}
-        <div className="card-actions">
-          <button className="btn-route btn-set-home" onClick={() => { addHome(place) }}>
-            <House className="btn-icon" />
-            Set Home 
-          </button>
-          {/* add react function that keeps track of marked pins and renders it*/}
-          <button className={`btn-add-pin${isActive ? ' btn-add-pin--active' : ''}`} 
-            onClick={() => { 
-            toggleActivePins(place.placeId, place.label);
-          }}>
-            {isActive
-              ? <MapPinX strokeWidth={2.2}/>
-              : <MapPinPlus/>
-            }   
-          </button>
-          
-          <button className="btn-delete" onClick={() => { deleteFromHomeHistory(place.placeId) }}>
-            <Trash2 className="btn-icon" />
-          </button>
-        </div>
+        <div className="home-card-actions">
+          { current ? ( 
+            <>
+              <button 
+                className="home-btn-route home-btn-unset-home" 
+                onClick={() => { console.log("change to correct setter later") }}
+              >
+                <House className="home-btn-icon" />
+                Unset Home 
+              </button>
 
+              <button className="home-btn-delete" onClick={() => { deleteFromHomeHistory(place.placeId) }}>
+                <Trash2 className="home-btn-icon" />
+                Delete
+              </button>
+            </>
+          ):(
+            <>
+              <button 
+                className="home-btn-route home-btn-set-home" 
+                onClick={() => { addHome(place) }}
+              >
+                <House className="home-btn-icon" />
+                Set Home 
+              </button>
+      
+              <button className={`home-btn-add-pin${isActive ? ' home-btn-add-pin--active' : ''}`} 
+                onClick={() => { 
+                  toggleActivePins(place.placeId, place.label);
+                }}
+              >
+                {isActive
+                  ? <MapPinX className="home-btn-icon home-pins" strokeWidth={2.2}/>
+                  : <MapPinPlus className="home-btn-icon home-pins"/>
+                }   
+              </button>
+                   
+              <button className="home-btn-delete" onClick={() => { deleteFromHomeHistory(place.placeId) }}>
+                <Trash2 className="home-btn-icon home-delete" />
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
+const StarRow = ({ rating }) => (
+  <div className="home-star-row">
+    {[1, 2, 3, 4, 5].map(i => (
+      <span key={i} className={`home-star ${i <= Math.round(rating) ? 'home-star--filled' : 'home-star--empty'}`}>
+        ★
+      </span>
+    ))}
+    <span className="home-rating-number">{rating.toFixed(1)}</span>
+  </div>
+);

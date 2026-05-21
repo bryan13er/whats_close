@@ -1,0 +1,384 @@
+/* =========================================
+   LOCATION HOME CARD
+   ========================================= */
+
+   .home-location-card {
+    width: 100%;
+    color: #111;
+    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+    background: transparent;
+    transition: background 0.12s;
+  }
+  
+  .home-location-card:hover {
+    background: #f0efef;
+  }
+  
+  .home-location-card.home-is-current {
+    background: #fdfcff;
+    position: relative;
+    z-index: 10;
+  
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.08),
+      0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 1px 3px 0 rgba(0, 0, 0, 0.03);
+  }
+  
+  .home-location-card.home-is-current:hover {
+    background: #fdfcff;
+  }
+  
+  .home-location-card.home-is-current .home-card-inner {
+    border-left: 4px solid #7425eb;
+    border-bottom-color: transparent;
+    padding-left: 16px;
+  }
+  
+  .home-card-inner {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  /* =========================================
+      HEADER
+      ========================================= */
+  
+  .home-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .home-card-title-group {
+    min-width: 0;
+    flex: 1;
+  }
+  
+  .home-card-title {
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .home-card-main-name {
+    font-size: 16px;
+    margin-bottom: 3px;
+  }
+  
+  .home-card-rest-of-address {
+    font-size: 14px;
+    font-weight: 500;
+    color: #777;
+  }
+  
+  .home-card-distance {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: background 0.12s;
+  }
+  
+  .home-location-card:hover .home-card-distance {
+    background: #eaeaea;
+  }
+  
+  /* =========================================
+      WEATHER
+      ========================================= */
+  
+  .home-weather-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .home-weather-sunny { color: #eab308; }
+  .home-weather-cloudy { color: #6b7280; }
+  .home-weather-rainy { color: #3b82f6; }
+  .home-weather-snowy { color: #93c5fd; }
+  .home-weather-drizzle { color: #60a5fa; }
+  
+  /* =========================================
+      META
+      ========================================= */
+  
+  .home-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .home-star-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  
+  .home-star {
+    font-size: 13px;
+    line-height: 1;
+  }
+  
+  .home-star--filled {
+    color: #ff5c35;
+  }
+  
+  .home-star--empty {
+    color: #ff5c35;
+    opacity: 0.15;
+  }
+  
+  .home-rating-number {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ff5c35;
+    margin-left: 4px;
+  }
+  
+  .home-price-label {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #111;
+    font-family: 'Geist Mono', 'Courier New', monospace;
+  }
+  
+  /* =========================================
+      TRANSPORT
+      ========================================= */
+  
+  .home-transport-section {
+    margin-bottom: 14px;
+  }
+  
+  .home-transport-options {
+    display: flex;
+    gap: 0;
+  }
+  
+  .home-transport-option {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 0;
+    border-right: 1px solid #cecdcd;
+    background: transparent;
+  }
+  
+  .home-transport-option:last-child {
+    border-right: none;
+  }
+  
+  .home-transport-icon {
+    width: 16px !important;
+    height: 16px !important;
+    color: #888 !important;
+  }
+  
+  .home-transport-time {
+    font-size: 12px;
+    font-weight: 700;
+    color: #111;
+    white-space: nowrap;
+  }
+  
+  .home-transport-label {
+    font-size: 9.5px;
+    font-weight: 500;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  
+  /* =========================================
+      ACTIONS
+      ========================================= */
+  
+  .home-card-actions {
+    display: flex;
+    gap: 6px;
+  }
+  
+  /* Shared button base */
+  .home-btn-route,
+  .home-btn-delete,
+  .home-btn-add-pin,
+  .home-btn-highlight-route,
+  .home-btn-unset-home,
+  .home-btn-set-home {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  
+    height: 40px;
+  
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    transition: all 0.15s;
+  
+    box-sizing: border-box;
+    border: 1.5px solid transparent;
+  }
+  
+  /* =========================================
+      PRIMARY BUTTONS
+      ========================================= */
+  
+  .home-btn-route {
+    flex: 1;
+    padding: 0 12px;
+    background: #2563eb;
+    color: #fff;
+  }
+  
+  .home-btn-route:hover {
+    background: #0e4aef;
+  }
+  
+  .home-btn-set-home {
+    flex: 1;
+    padding: 0 12px;
+    background: #7425eb;
+    color: white;
+  }
+  
+  .home-btn-set-home:hover {
+    background: #5d0eef;
+  }
+  
+  .home-btn-unset-home {
+    padding: 0 12px;
+    background: #fae591;
+    border-color: #f59e0b;
+    color: #b45309;
+  }
+  
+  .home-btn-unset-home:hover {
+    background: #fae591;
+    border-color: #d97706;
+    color: #78350f;
+  }
+  
+  /* =========================================
+      SECONDARY BUTTONS
+      ========================================= */
+  
+  .home-btn-highlight-route {
+    padding: 0 12px;
+    background: transparent;
+    color: #888;
+    border-color: #eaeaea;
+  }
+  
+  .home-btn-highlight-route:hover {
+    background: rgba(255, 92, 53, 0.08);
+    color: #c6950e;
+    border-color: #f0d895;
+  }
+  
+  .home-btn-highlight-route--active {
+    background: rgba(255, 92, 53, 0.1);
+    color: #edb211;
+    border-color: #dbab26;
+  }
+  
+  .home-btn-add-pin {
+    padding: 0 12px;
+    background: transparent;
+    color: #888;
+    border-color: #eaeaea;
+  }
+  
+  .home-btn-add-pin:hover {
+    background: rgba(103, 190, 217, 0.08);
+    color: #67bed9;
+    border-color: #a8d9e8;
+  }
+  
+  .home-btn-add-pin--active {
+    background: rgba(103, 190, 217, 0.28);
+    color: #3aaecf;
+    border-color: #3aaecf;
+  }
+  
+  .home-btn-delete {
+    padding: 0 12px;
+    background: transparent;
+    color: #ff3b30;
+    border-color: #eaeaea;
+  }
+  
+  .home-btn-delete:hover {
+    background: #fff0f0;
+    border-color: #ff3b30;
+  }
+  
+  /* =========================================
+      BUTTON ICONS
+      ========================================= */
+  
+  .home-btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .home-pins{
+    width: 26px;
+    height: 26px;
+  }
+
+  .home-delete {
+    width: 22px;
+    height: 22px;
+  }
+  
+  /* =========================================
+      CURRENT HOME BADGE
+      ========================================= */
+  
+  .home-current-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #7425eb;
+    background: rgba(116, 37, 235, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  
+  /* =========================================
+      CURRENT CARD BUTTON LAYOUT
+      ========================================= */
+  
+  .home-btn-set-home,
+  .home-btn-unset-home {
+    flex: 0 0 65%;
+  }
+  
+  .home-btn-highlight-route,
+  .home-btn-add-pin,
+  .home-btn-delete {
+    flex: 1;
+    min-width: 44px;
+  }
