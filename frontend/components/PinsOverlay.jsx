@@ -60,7 +60,7 @@ export default function PinsOverlay({}) {
   return Object.keys(activePins).map((placeId) => {
     console.log(placeId, homeHistory[placeId]);
 
-    if(placeId === home.placeId) return null;
+    if(placeId === home?.placeId) return null;
 
     const historyItem = homeHistory[placeId];
     if (!historyItem) return null;
