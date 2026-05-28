@@ -42,8 +42,9 @@ I need to create a map that holds the average distance and average drive time le
 
 - currently there is no system for providing the data. 
 
-```markdown
+
 ## Alternatives Considered
+link to gemini discussion https://gemini.google.com/share/4a433041cb52
 
 ### Approach 1: Bounded On-Demand Synchronization (Selected Architecture)
 A dedicated background hook monitors the intersection of `homeHistory` and `activeRoutes`. It fetches only missing pairs into the global `useRef` cache and updates a lightweight primitive state map to trigger card re-renders.
@@ -65,5 +66,3 @@ A dedicated background hook monitors the intersection of `homeHistory` and `acti
 * **Cons:**
   * **The Matrix Cost Explosion:** Every added destination forces an automatic multi-element matrix charge, regardless of whether the user interacts with it.
   * **The New-Origin Penalty:** If a user builds up a large history of destinations and adds a single new origin, it triggers an immediate, unexpected billing spike for routes they may never highlight.
-
-```
