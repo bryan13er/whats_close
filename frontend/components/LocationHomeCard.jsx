@@ -5,10 +5,11 @@ import { formatDurationFromSeconds } from '../utils/time';
 import { getImperialDist } from '../utils/distance';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import LoopIcon from '@mui/icons-material/Loop';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
 import './LocationHomeCard.css'
 import { useMapFeatures } from "../context/MapContext";
-import { useEffect } from 'react';
 
 //TODO: add weather
 const weatherIcons = {
@@ -27,6 +28,43 @@ const weatherColors = {
   drizzle: 'home-weather-drizzle',
 };
 
+function DisplayMetric({ 
+  syncingMetrics, 
+  placeMetrics, 
+  mode,       // "drive", "walk", or "transit"
+  metricKey,  // "avgTime" or "avgDistance"
+  label,      // "avg. Drive", "avg. Drive Distance", etc.
+  Icon,       // Pass the Icon component directly (e.g., DriveEtaIcon)
+  formatter   // Pass the formatting function directly (e.g., formatDurationFromSeconds)
+}) {
+  
+  // Clean, defensive guard check inside the component
+  const modeData = placeMetrics?.[mode];
+  const hasData = modeData && modeData.count > 0;
+
+  return (
+    <div className="home-transport-option">
+      {/* Render the dynamic icon passed down as a component property */}
+      <Icon className="home-transport-icon" />
+      
+      {hasData ? (
+        <span className="home-transport-time">
+          {/* Dynamically invoke the correct formatter function passed in */}
+          {formatter(modeData[metricKey])}
+        </span>
+      ) : syncingMetrics ? (
+        <span className="home-transport-time loading">
+          <LoopIcon/>
+        </span>
+      ) : (
+        <span className="home-transport-time">-</span>
+      )}
+      
+      <span className="home-transport-label">{label}</span>
+    </div>
+  );
+}
+
 /**
  * @typedef {import('../types').Row} Row
  */
@@ -35,13 +73,21 @@ const weatherColors = {
  * @param {{ place: Row }} props
  */
 export default function LocationHomeCard({place, current = false}) {
-  const { addHome, deleteFromHomeHistory, home, toggleActivePins, activePins, } = useMapFeatures();
+  const { addHome, deleteFromHomeHistory, home, toggleActivePins, activePins, syncingMetrics, originMetrics } = useMapFeatures();
 
   // for name of place TODO: using .lable tomporarily
   const [mainName, ...rest] = place.label.split(",");
   const restOfAddress = rest.join(",").trim() ;
 
   const isActive = !!activePins[place.placeId];
+
+  // get metrics on the particalar placeid 
+  const placeMetrics = originMetrics?.[place.placeId];
+
+  // help determine if the data is present 
+  const hasDrive = originMetrics?.drive && originMetrics.drive.count > 0;
+  const hasWalk  = originMetrics?.walk  && originMetrics.walk.count > 0;
+  const hasTransit = originMetrics?.transit && originMetrics.transit.count > 0;
 
   return (
     <div className={`home-location-card ${current ? 'home-is-current' : ''}`}>
@@ -73,26 +119,42 @@ export default function LocationHomeCard({place, current = false}) {
           )}
         </div>
 
-        {/* Transport Section (Commented out like your original file) */}
-        {/* <div className="home-transport-section">
+        <div className="home-transport-section">
           <div className="home-transport-options">
-            <div className="home-transport-option">
-              <DriveEtaIcon className="home-transport-icon"/>
-              <span className="home-transport-time">{formatDurationFromSeconds(place.driveTime)}</span>
-              <span className="home-transport-label">Drive</span>
-            </div>
-            <div className="home-transport-option">
-              <DirectionsWalkIcon className="home-transport-icon"/>
-              <span className="home-transport-time">{formatDurationFromSeconds(place.walkTime)}</span>
-              <span className="home-transport-label">Walk</span>
-            </div>
-            <div className="home-transport-option">
-              <DirectionsTransitFilledIcon className="home-transport-icon"/>
-              <span className="home-transport-time">{formatDurationFromSeconds(place.transitTime)}</span>
-              <span className="home-transport-label">Transit</span>
-            </div>
+            {/* 1. DRIVE TIME */}
+            <DisplayMetric 
+              syncingMetrics={syncingMetrics}
+              placeMetrics={placeMetrics}
+              mode="drive"
+              metricKey="avgTime"
+              label=" avg. Drive Time"
+              Icon={DriveEtaIcon}
+              formatter={formatDurationFromSeconds}
+            />
+
+            {/* 2. DRIVE DISTANCE */}
+            <DisplayMetric 
+              syncingMetrics={syncingMetrics}
+              placeMetrics={placeMetrics}
+              mode="drive"
+              metricKey="avgDistance"
+              label="avg. Drive Distance"
+              Icon={AccessTimeIcon} // Swap to a ruler or landscape icon if you want to distinguish it from walking rows
+              formatter={getImperialDist}
+            />
+
+            {/* 3. TRANSIT TIME */}
+            {/* <DisplayMetric 
+              syncingMetrics={syncingMetrics}
+              placeMetrics={placeMetrics}
+              mode="transit"
+              metricKey="avgTime"
+              label="avg. Transit"
+              Icon={DirectionsTransitFilledIcon}
+              formatter={formatDurationFromSeconds}
+            /> */}
           </div>
-        </div> */}
+        </div>
 
         <div className="home-card-actions">
           { current ? ( 

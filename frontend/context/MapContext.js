@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useCallback, useMemo, useRe
 import { MAP_CONFIG } from '../config/maps';
 import { useDestinations } from '../hooks/useDestinations';
 import { defaultColors } from '../MapStyling/RouteColors';
+import { useOriginMetrics } from '../hooks/useOriginMetrics';
 
 /**
  * @typedef {import('../types').Place} Place
@@ -80,6 +81,12 @@ export function MapFeatureProvider({ children }) {
 
   // -- Additonal Route Colors
   const routeColorsPoolRef  = useRef([...defaultColors]);
+
+  // -- data cache 
+  const travelCache = useRef({
+    places: {}, // { "placeId": placeData }
+    routes: {}, // { "homeId": destId: { drive, walk, transit } }
+  });
   
   // --- Logic Handlers (Memoized) ---
   const addHome = useCallback((location) => {
@@ -205,7 +212,8 @@ export function MapFeatureProvider({ children }) {
   // destRows DEFAUTL VALUE is []
   // MapFeatureProvider   ← useDestinations() called here, destRows persist
   // └── DestInfoTable    ← just reads destRows from context
-  const { destRows } = useDestinations(home, destHistory);
+  const { destRows } = useDestinations(home, destHistory, travelCache);
+  const { syncingMetrics, originMetrics } = useOriginMetrics(homeHistory, destHistory, activeRoutes, travelCache);
 
 
   // read about why in:
@@ -225,6 +233,7 @@ export function MapFeatureProvider({ children }) {
     destHistory, deleteFromDestHistory, setDestHistory,
     routeBounds, setRouteBounds,
     routesCache,
+    travelCache,
     activeRoutes, toggleActiveRoute,
     activePins, toggleActivePins,
     routeColorsPoolRef,
@@ -232,13 +241,15 @@ export function MapFeatureProvider({ children }) {
     isStreetViewVisible, setIsStreetViewVisible,
     mapType, toggleMapType,
     historyType, toggleHistoryType,
-    destRows
+    destRows,
+    syncingMetrics, originMetrics
   }), [
     home, addHome, homeHistory, handleHomeClear,
     destination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory,
     routeBounds,
     routesCache, 
+    travelCache,
     activeRoutes,
     activePins,
     routeColorsPoolRef,
@@ -246,7 +257,8 @@ export function MapFeatureProvider({ children }) {
     isStreetViewVisible,
     mapType, toggleMapType,
     historyType, toggleHistoryType,
-    destRows
+    destRows,
+    syncingMetrics, originMetrics
   ]);
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>;

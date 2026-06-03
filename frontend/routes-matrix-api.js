@@ -1,7 +1,7 @@
 
 
 // options for request: 
-// https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRouteMatrix
+// https://developers.google.com/maps/documentation/routes/reference/rest/v2/destinationspLevel/computeRouteMatrix
 
 const ROUTES_MATRIX_API_ENDPOINT =
   "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix";
@@ -14,40 +14,39 @@ export class RoutesMatrixAPI {
 
   /**
    * Compute a matrix for a single travel mode
-   * @param {{lat:number, lng:number}} from
-   * @param {Array<{lat:number, lng:number}>} to
+   * @param {Array<{lat:number, lng:number}>} origins
+   * @param {Array<{lat:number, lng:number}>} destinations
    * @param {"DRIVE"|"WALK"|"TRANSIT"} travelMode
    * @returns {Promise<Array<{destinationIndex:number, duration:number, distance:number}>>}
    */
-  async computeMatrix(from, to, travelMode = "DRIVE"){
-    if (!from || !to || to.length === 0) {
+  async computeMatrix(origins, destinations, travelMode = "DRIVE"){
+    if (!origins || !destinations || destinations.length === 0) {
       throw new Error("Origin and at least one destination are required");
     }
 
     const body = {
-      origins: [
-        {
-          waypoint: {
-            location: {
-                  latLng:{
-                    longitude: from.lng,
-                    latitude: from.lat
-                  }
-            }
-          }
-        },
-      ],
-    
-      destinations: to.map(destination => ({
+
+      origins: origins.map(origin => ({
         waypoint: {
           location: {
-                latLng: {
-                  longitude: destination.lng,
-                  latitude: destination.lat
-                }
+              latLng:{
+                longitude: origin.lng,
+                latitude: origin.lat
+              }
+          }
+        }
+      })),
+      
+      destinations: destinations.map(destination => ({
+        waypoint: {
+          location: {
+            latLng: {
+              longitude: destination.lng,
+              latitude: destination.lat
             }
           }
-        })),
+        }
+      })),
 
       travelMode,
     }

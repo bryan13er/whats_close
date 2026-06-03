@@ -52,7 +52,7 @@ export function useRouteCache(destination, routeOptions) {
 
   useEffect(() => {
     if (!home || !destination) return;  // missing this
-
+    // TODO: need to update to object type key now because of underscores
     const routeKey = `${home.placeId}_${destination.placeId}`;
     const cachedRoute = routesCache.current[routeKey];
 
