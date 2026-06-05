@@ -83,7 +83,7 @@ export default function LocationHomeCard({place, current = false}) {
 
   // get metrics on the particalar placeid 
   const placeMetrics = originMetrics?.[place.placeId];
-  
+
   return (
     <div className={`home-location-card ${current ? 'home-is-current' : ''}`}>
       <div className="home-card-inner">
@@ -123,7 +123,7 @@ export default function LocationHomeCard({place, current = false}) {
               mode="drive"
               metricKey="avgTime"
               label=" avg. Drive Time"
-              Icon={DriveEtaIcon}
+              Icon={AccessTimeIcon}
               formatter={formatDurationFromSeconds}
             />
 
@@ -134,7 +134,7 @@ export default function LocationHomeCard({place, current = false}) {
               mode="drive"
               metricKey="avgDistance"
               label="avg. Drive Distance"
-              Icon={AccessTimeIcon} // Swap to a ruler or landscape icon if you want to distinguish it from walking rows
+              Icon={DriveEtaIcon } // Swap to a ruler or landscape icon if you want to distinguish it from walking rows
               formatter={getImperialDist}
             />
 
