@@ -203,7 +203,7 @@ missingDests.forEach((dest, index) => {
 });
 ```
 
-The lookup is keyed by `destinationIndex` (which the API returns), and the loop reads it by the *iteration* `index`. These usually align (you sent destinations in this order, the API echoes the index), but if the API ever returns fewer rows than requested or sparse indices, the alignment silently breaks.
+The lookup is keyed by `destinationIndex` (which the API returns), and the loop reads it by the *iteration* `index`. These usually align (you sent destinations in this order, the API echoes the index), but if the API ever returns fewer destRows than requested or sparse indices, the alignment silently breaks.
 
 **Fix:** Be explicit — assign each result by the destinationIndex it carries, then assemble per `missingDests`:
 ```js
@@ -225,7 +225,7 @@ Every consumer subscribes to all of context. A re-render of any field causes eve
 
 **Refactor option:** Split into multiple contexts:
 - `OriginContext` — `home`, `handleHomeSelect`, `handleHomeClear`
-- `DestinationsContext` — `destination`, `addDestination`, `destHistory`, `deleteFromHistory`
+- `DestinationsContext` — `destination`, `addDestination`, `destHistory`, `deleteFromDestHistory`
 - `MapViewContext` — `mapCenter`, `mapType`, `isStreetViewVisible`, `showDataTable`
 - `RoutesContext` — `activeRoutes`, `toggleActiveRoute`, `routesCache`, `routeBounds`
 
@@ -251,7 +251,7 @@ const cache = useRef({
 
 - `MapView.jsx:37` — `console.log("🛠️ MapView Rendered")`
 - `LocationCard.jsx:53` — `console.log(place)`
-- `DestInfoTable.jsx:81` — `console.log("ROWS", rows)`
+- `DestInfoTable.jsx:81` — `console.log("destRows", destRows)`
 - `useDestinations.js:21,49,117` — fetched-data logs
 - `AutoCompleteAPI.js:78` — geocode raw response
 - `NavPill.jsx:260` — selected place

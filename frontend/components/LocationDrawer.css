@@ -16,6 +16,46 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
+.history-pill-group {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e5e7eb; /* Matches .btn-clear-all default background exactly */
+  border-radius: 9999px;      /* Perfect capsule shape */
+  padding: 3px;               /* Small internal padding for the active item */
+  width: 210px;               /* Kept fixed so header elements stay stable */
+  height: 34px;               /* Matches the newly sized clear-all button */
+  box-sizing: border-box;
+}
+
+.history-pill-btn {
+  flex: 1;
+  height: 100%;
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;            /* Matches .btn-clear-all default text color */
+  cursor: pointer;
+  text-align: center;
+  border-radius: 9999px;      
+  padding: 0;
+}
+
+/* Hover state for the unselected option */
+.history-pill-btn:not(.is-active):hover {
+  color: #111827;            /* Slightly darker text on hover */
+  background-color: #d1d5db; /* Distinct darker gray block to invite the click */
+}
+
+/* Active State: The solid standout selection */
+.history-pill-btn.is-active {
+  background-color: #ffffff; /* Crisp white island stands out cleanly against the gray track */
+  color: #0f172a;            /* Bold, prominent text for active mode */
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+
 .card-list {
   display: flex;
   flex-direction: column;
@@ -39,14 +79,19 @@
   border: none;
   color: #374151;
   font-weight: 500;
+  font-size: 0.85rem;        /* Matched to the toggle typography sizing */
   cursor: pointer;
-  padding: 6px 14px;
-  border-radius: 400px;
+  padding: 0 16px;           /* Adjusted to let the height rule govern vertical alignment */
+  height: 34px;              /* Exact matching height with the pill group */
+  display: inline-flex;
+  align-items: center;       /* Centers text vertically */
+  border-radius: 9999px;     /* Changed from 400px to standard full-rounded value */
+  box-sizing: border-box;
   transition: background 0.2s;
 }
 
 .btn-clear-all:hover {
-  background: #f3f4f6;
+  background: #d1d5db;       /* Adjusted hover to match the toggle button track texture */
 }
 
 .puller-tab {

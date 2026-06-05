@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useCallback, useMemo, useRe
 import { MAP_CONFIG } from '../config/maps';
 import { useDestinations } from '../hooks/useDestinations';
 import { defaultColors } from '../MapStyling/RouteColors';
+import { useOriginMetrics } from '../hooks/useOriginMetrics';
 
 /**
  * @typedef {import('../types').Place} Place
@@ -18,7 +19,9 @@ import { defaultColors } from '../MapStyling/RouteColors';
  * Every component that calls the hook gets this object.
  *
  * @property {Place|null}                          home                   - origin / "where from"
- * @property {(loc: Place) => void}                handleHomeSelect       - sets home + recenters map
+ * @property {{Place.placeId: Place}}              homeHistory            - object keyed by placeId that holds home history
+ * @property {(loc: Place) => void}                addHome                - sets home value + sets map center + adds to homeHistory
+ * @property {(placeId:Place) => void}             deleteFromHomeHistory  - removes placeId from home history
  * @property {() => void}                          handleHomeClear        - clears home, destination, route bounds
  *
  * @property {Place|null}                          destination            - active route (Set Route target)
@@ -26,12 +29,15 @@ import { defaultColors } from '../MapStyling/RouteColors';
  * @property {(loc: Place) => void}                addDestination         - sets destination + appends to destHistory if new
  * @property {() => void}                          clearRoute             - clears destination + route bounds, recenters on home
  *
- * @property {Place.placeId:Place}                 destHistory            - object of all searched destinations keyed by destation id (drives drawer + table)
- * @property {(placeId: string) => void}           deleteFromHistory      - removes from destHistory + activeRoutes
+ * @property {{Place.placeId:Place}}               destHistory            - object of all searched destinations keyed by destation id (drives drawer + table)
+ * @property {(placeId: string) => void}           deleteFromDestHistory  - removes from destHistory + activeRoutes
  * @property {(history: Place[]) => void}          setDestHistory
  *
- * @property {Place.placeId:color}                 activeRoutes           - destIds pointing at color from colors map
+ * @property {Place.placeId: color}                activeRoutes           - destIds pointing at color from colors map
+ * @property {{Place.placeId: true}}               activePins             - set-like object of pinned placeIds; membership check via `placeId in activePins`
+ * 
  * @property {(loc: Place) => void}                toggleActiveRoute      - add/remove a route from the map
+ * @property {(placeId: string) => void}           toggleActivePins       - add/remove a placeId from activePins
  *
  * @property {{north: number, south: number, east: number, west: number}|null} routeBounds
  * @property {(b: any) => void}                    setRouteBounds
@@ -50,7 +56,7 @@ import { defaultColors } from '../MapStyling/RouteColors';
  * @property {boolean}                             showDataTable
  * @property {(v: boolean) => void}                setShowDataTable
  *
- * @property {Row[]}                               rows                   - prepared data for table/cards (built by useDestinations)
+ * @property {Row[]}                               destRows                   - prepared data for table/cards (built by useDestinations)
  */
 
 /** @type {React.Context<MapFeatures|null>} */
@@ -61,22 +67,44 @@ export function MapFeatureProvider({ children }) {
   const [home, setHome] = useState(null);
   const [destination, setDestination] = useState(null);
   const [destHistory, setDestHistory] = useState({});
+  const [homeHistory, setHomeHistory] = useState({});
   const [routeBounds, setRouteBounds] = useState(null);
   const routesCache = useRef ({});
   const [activeRoutes, setActiveRoutes] = useState({});
+  const [activePins, setActivePins] = useState({})
 
   // --- UI/Map Control State ---
   const [mapCenter, setMapCenter] = useState(MAP_CONFIG.defaultCenter);
   const [isStreetViewVisible, setIsStreetViewVisible] = useState(false);
   const [mapType, setMapType] = useState(true); // true = roadmap, false = hybrid
+  const [historyType, setHistoryType] = useState("destination");
 
   // -- Additonal Route Colors
   const routeColorsPoolRef  = useRef([...defaultColors]);
+
+  // -- data cache 
+  const travelCache = useRef({
+    places: {}, // { "placeId": placeData }
+    routes: {}, // { "homeId": destId: { drive, walk, transit } }
+  });
   
   // --- Logic Handlers (Memoized) ---
-  const handleHomeSelect = useCallback((location) => {
+  const addHome = useCallback((location) => {
     setHome(location);
+
+    setHomeHistory((prev) => {
+      const isDuplicate = location.placeId in prev;
+      return isDuplicate ? prev : {...prev, [location.placeId]:location};
+    });
+
     setMapCenter({ lat: location.lat, lng: location.lng });
+  }, []);
+
+  const deleteFromHomeHistory = useCallback((placeId) => {
+    setHomeHistory((prev) => {
+      const { [placeId] : _, ...rest } = prev;
+      return rest;
+    })
   }, []);
 
   const handleHomeClear = useCallback(() => {
@@ -103,7 +131,7 @@ export function MapFeatureProvider({ children }) {
     }
   }, [home]);
 
-  // pertain to activeRoute i.e. for multiRoute
+  // pertain to setActiveRoute i.e. for multiRoute
   const deactivateRoute = (prev, placeId) => {
     const colorToRelease = prev[placeId];
     routeColorsPoolRef.current.push(colorToRelease);
@@ -120,7 +148,7 @@ export function MapFeatureProvider({ children }) {
     };
   }
 
-  const deleteFromHistory = useCallback((placeId) => {
+  const deleteFromDestHistory = useCallback((placeId) => {
     setDestHistory((prev) => {
       const { [placeId] : _, ...rest } = prev;
       return rest;
@@ -129,6 +157,10 @@ export function MapFeatureProvider({ children }) {
     setActiveRoutes((prev) => {
       return deactivateRoute(prev, placeId);
     });
+  }, []);
+
+  const toggleHistoryType = useCallback(() => {
+    setHistoryType(prev => prev === 'destination' ? 'home' : 'destination');
   }, []);
 
   const toggleMapType = useCallback(() => {
@@ -156,16 +188,32 @@ export function MapFeatureProvider({ children }) {
     });
   }, []); // Dependencies: empty, because we use the functional update 'prev => ...'
 
-  // rows holds the data that fills the datatable
+  const toggleActivePins = useCallback((placeId, label) => {
+    setActivePins((prev) => {
+      const isActive = Object.hasOwn(prev, placeId);
+
+      if(isActive) {
+        // --- CASE: TURN OFF ---
+        const {[placeId]:_, ...rest} = prev;
+        return rest;
+      } else {
+      // --- CASE: TURN ON ---
+        return {...prev, [placeId]:label};
+      }
+    })
+  }, []);
+
+  // destRows holds the data that fills the datatable
   // I need it to persist even when the table is unmounted
   // so it needs to exist here
   // fetch the data with custom hook
   // basically pretend the code is getting
   // brought over 
-  // ROWS DEFAUTL VALUE is []
-  // MapFeatureProvider   ← useDestinations() called here, rows persist
-  // └── DestInfoTable    ← just reads rows from context
-  const { rows } = useDestinations(home, destHistory);
+  // destRows DEFAUTL VALUE is []
+  // MapFeatureProvider   ← useDestinations() called here, destRows persist
+  // └── DestInfoTable    ← just reads destRows from context
+  const { destRows } = useDestinations(home, destHistory, travelCache);
+  const { syncingMetrics, originMetrics } = useOriginMetrics(homeHistory, destHistory, activeRoutes, travelCache);
 
 
   // read about why in:
@@ -180,30 +228,37 @@ export function MapFeatureProvider({ children }) {
   // the props will never be the same so useCallback allows
   // me to keep the same function reference 
   const value = useMemo(() => ({
-    home, handleHomeSelect, handleHomeClear,
-    destination, setDestination, addDestination, clearRoute,
-    destHistory, deleteFromHistory, setDestHistory,
+    home, addHome, homeHistory, handleHomeClear,
+    destination, setDestination, addDestination, deleteFromHomeHistory, clearRoute,
+    destHistory, deleteFromDestHistory, setDestHistory,
     routeBounds, setRouteBounds,
     routesCache,
+    travelCache,
     activeRoutes, toggleActiveRoute,
+    activePins, toggleActivePins,
     routeColorsPoolRef,
     mapCenter, setMapCenter,
     isStreetViewVisible, setIsStreetViewVisible,
     mapType, toggleMapType,
-    rows
+    historyType, toggleHistoryType,
+    destRows,
+    syncingMetrics, originMetrics
   }), [
-    home, handleHomeSelect, handleHomeClear,
-    destination, addDestination, clearRoute,
-    destHistory, deleteFromHistory,
+    home, addHome, homeHistory, handleHomeClear,
+    destination, addDestination, deleteFromHomeHistory, clearRoute,
+    destHistory, deleteFromDestHistory,
     routeBounds,
     routesCache, 
+    travelCache,
     activeRoutes,
+    activePins,
     routeColorsPoolRef,
     mapCenter,
     isStreetViewVisible,
-    mapType,
-    toggleMapType,
-    rows
+    mapType, toggleMapType,
+    historyType, toggleHistoryType,
+    destRows,
+    syncingMetrics, originMetrics
   ]);
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>;

@@ -74,11 +74,11 @@ const stickyLeftOffsets = (() => {
 const tableMinWidth = columns.reduce((sum, column) => sum + (column.minWidth ?? 0), 0);
 
 export default function StickyHeadTable() {
-  const { deleteFromHistory:destDelete, setDestination, setDestHistory, rows, setShowDataTable} = useMapFeatures();
+  const { deleteFromDestHistory:destDelete, setDestination, setDestHistory, destRows, setShowDataTable} = useMapFeatures();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const maxPage = Math.max(0, Math.ceil(rows.length / rowsPerPage) - 1);
+  const maxPage = Math.max(0, Math.ceil(destRows.length / rowsPerPage) - 1);
   const pageClamped = Math.min(page, maxPage);
 
   const handleChangePage = (event, newPage) => {
@@ -139,7 +139,7 @@ export default function StickyHeadTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {destRows
               .slice(pageClamped * rowsPerPage, pageClamped * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (
@@ -194,7 +194,7 @@ export default function StickyHeadTable() {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={rows.length}
+        count={destRows.length}
         rowsPerPage={rowsPerPage}
         page={pageClamped}
         onPageChange={handleChangePage}

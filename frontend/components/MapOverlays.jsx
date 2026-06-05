@@ -1,4 +1,4 @@
-
+// TODO: Remove this file not used for searching anymore
 import { useMapFeatures } from "../context/MapContext";
 import Autocomplete from "./Autocomplete";
 import "./MapView.css";

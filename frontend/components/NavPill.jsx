@@ -9,8 +9,8 @@ const DELAY = 600;
 const INPUT_CHAR_MIN = 5;
 
 const FIELDS = [
-  { id: 'origin', label: 'From', placeholder: 'Where from?', icon: HomeIcon },
-  { id: 'dest',   label: 'To', placeholder: 'Where to?', icon: DestIcon },
+  { id: 'origin', label: 'Origin', placeholder: 'Where from?', icon: HomeIcon },
+  { id: 'dest',   label: 'Destination', placeholder: 'Where to?', icon: DestIcon },
 ];
 
 function useIsMobile(breakpoint = 768) {
@@ -150,7 +150,7 @@ export default function NavPill({ onSelect }) {
   const [mobileOverlay, setMobileOverlay] = useState(null);
 
   const {
-    handleHomeSelect, handleHomeClear,
+    addHome, handleHomeClear,
     destination, addDestination, clearRoute,
     isStreetViewVisible,
   } = useMapFeatures();
@@ -250,7 +250,7 @@ export default function NavPill({ onSelect }) {
       onSelect?.(place);
 
       if(fieldId === 'origin'){
-        handleHomeSelect(place);
+        addHome(place);
       } else {
         addDestination(place);
       }

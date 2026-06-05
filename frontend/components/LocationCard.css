@@ -1,249 +1,250 @@
 /* EDITED: Removed card shadow, background, and border-radius — now a flat transparent row that
    sits inside the panel list (matches v4 PlaceRow approach: border-bottom divider only) */
-.location-card {
-  width: 100%;
-  color: #111;
-  font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
-  background: transparent;
-  transition: background 0.12s;
-}
-
-.location-card:hover {
-  background: #f0efef;
-}
-
-/* EDITED: Inner wrapper adds vertical padding + bottom border divider (v4 uses 16px 0 / 1px border) */
-.card-inner {
-  padding: 16px 20px;
-  border-bottom: 1px solid #eaeaea;
-}
-
-/* EDITED: Header is now space-between with distance pinned top-right */
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.card-title-group {
-  min-width: 0;
-  flex: 1;
-}
-
-/* EDITED: Smaller, tighter title to match v4's 14px 700 weight style */
-.card-title {
-  font-weight: 700;
-  color: #111;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-main-name {
-  font-size: 16px;
-  margin-bottom: 3px;
-}
-
-.card-rest-of-address {
-  font-size: 14px;
-  font-weight: 500;
-  color: #777;
-}
-
-/* EDITED: Distance badge — monospace, bold, top-right, gets a subtle bg on hover */
-.card-distance {
-  font-size: 14px;
-  font-weight: 700;
-  color: #111;
-  white-space: nowrap;
-  flex-shrink: 0;
-  border-radius: 4px;
-  padding: 2px 6px;
-  transition: background 0.12s;
-}
-
-.location-card:hover .card-distance {
-  background: #eaeaea;
-}
-
-.weather-icon {
-  width: 32px;
-  height: 32px;
-}
-
-.weather-sunny  { color: #eab308; }
-.weather-cloudy { color: #6b7280; }
-.weather-rainy  { color: #3b82f6; }
-.weather-snowy  { color: #93c5fd; }
-.weather-drizzle{ color: #60a5fa; }
-
-/* EDITED: Meta row — rating and price side by side with gap, smaller and tighter */
-.card-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-/* EDITED: Star row replaces single Star icon — 5 individual stars + numeric rating in monospace (v4 RatingBar) */
-.star-row {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.star {
-  font-size: 13px;
-  line-height: 1;
-}
-
-.star--filled  { color: #ff5c35; }
-.star--empty   { color: #ff5c35; opacity: 0.15; }
-
-/* EDITED: Rating number is monospace bold accent color to match v4 */
-.rating-number {
-  font-size: 13px;
-  font-weight: 700;
-  color: #ff5c35;
-  margin-left: 4px;
-}
-
-/* EDITED: Price now renders as a plain text label (e.g. "$$$") matching v4's mono price tag */
-.price-label {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #111;
-  font-family: 'Geist Mono', 'Courier New', monospace;
-}
-
-.transport-section {
-  margin-bottom: 14px;
-}
-
-/* EDITED: Transport options now use equal-flex columns, centered, divided by 1px right borders (v4 style) */
-.transport-options {
-  display: flex;
-  gap: 0;
-}
-
-/* EDITED: Each transport option stacks icon / time / label vertically, centered, with right border divider */
-.transport-option {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 0;
-  border-right: 1px solid #cecdcd;
-  background: transparent;
-  border-radius: 0;
-}
-
-.transport-option:last-child {
-  border-right: none;
-}
-
-/* EDITED: Transport icon smaller and muted to match v4's secondary color icons */
-.transport-icon {
-  width: 16px !important;
-  height: 16px !important;
-  color: #888 !important;
-}
-
-/* EDITED: Time value in monospace bold to match v4's mono time display */
-.transport-time {
-  font-size: 12px;
-  font-weight: 700;
-  color: #111;
-  white-space: nowrap;
-}
-
-/* EDITED: Label is tiny uppercase secondary text, matching v4's "Drive / Walk / Transit" labels */
-.transport-label {
-  font-size: 9.5px;
-  font-weight: 500;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-/* EDITED: Actions row redesigned — route fills, show-route is bordered, delete is icon-only bordered danger */
-.card-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.btn-route,
-.btn-delete,
-.btn-highlight-route {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 12px;
-  letter-spacing: 0.01em;
-  transition: all 0.15s;
-}
-
-/* EDITED: Set Route — fills available space, dark filled background (v4 primary action) */
-.btn-route {
-  flex: 1;
-  padding: 9px 0;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-}
-
-.btn-route:hover {
-  background: #0e4aef;
-}
-
-/* EDITED: Show Route — bordered style with accent tones (v4 highlight/secondary action) */
-.btn-highlight-route {
-  padding: 9px 12px;
-  background: transparent;
-  color: #888;
-  border: 1.5px solid #eaeaea;
-}
-
-.btn-highlight-route:hover {
-  background: rgba(255, 92, 53, 0.08);
-  color: #c6950e;
-  border-color: #f0d895;
-}
-
-/* Stays colored while the route is active */
-.btn-highlight-route--active {
-  background: rgba(255, 92, 53, 0.1);
-  color: #edb211;
-  border-color: #dbab26;
-}
-
-/* EDITED: Delete — icon-only, bordered danger (v4 trash button style) */
-.btn-delete {
-  padding: 9px 10px;
-  background: transparent;
-  color: #ff3b30;
-  border: 1.5px solid #eaeaea;
-}
-
-.btn-delete:hover {
-  background: #fff0f0;
-  border-color: #ff3b30;
-}
-
-/* EDITED: Button icon scaled down to match v4's 12px icon size */
-.btn-icon {
-  width: 14px;
-  height: 14px;
-}
+   .location-card {
+    width: 100%;
+    color: #111;
+    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+    background: transparent;
+    transition: background 0.12s;
+  }
+  
+  .location-card:hover {
+    background: #f0efef;
+  }
+  
+  /* EDITED: Inner wrapper adds vertical padding + bottom border divider (v4 uses 16px 0 / 1px border) */
+  .card-inner {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  /* EDITED: Header is now space-between with distance pinned top-right */
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .card-title-group {
+    min-width: 0;
+    flex: 1;
+  }
+  
+  /* EDITED: Smaller, tighter title to match v4's 14px 700 weight style */
+  .card-title {
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .card-main-name {
+    font-size: 16px;
+    margin-bottom: 3px;
+  }
+  
+  .card-rest-of-address {
+    font-size: 14px;
+    font-weight: 500;
+    color: #777;
+  }
+  
+  /* EDITED: Distance badge — monospace, bold, top-right, gets a subtle bg on hover */
+  .card-distance {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: background 0.12s;
+  }
+  
+  .location-card:hover .card-distance {
+    background: #eaeaea;
+  }
+  
+  .weather-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .weather-sunny  { color: #eab308; }
+  .weather-cloudy { color: #6b7280; }
+  .weather-rainy  { color: #3b82f6; }
+  .weather-snowy  { color: #93c5fd; }
+  .weather-drizzle{ color: #60a5fa; }
+  
+  /* EDITED: Meta row — rating and price side by side with gap, smaller and tighter */
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  
+  /* EDITED: Star row replaces single Star icon — 5 individual stars + numeric rating in monospace (v4 RatingBar) */
+  .star-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  
+  .star {
+    font-size: 13px;
+    line-height: 1;
+  }
+  
+  .star--filled  { color: #ff5c35; }
+  .star--empty   { color: #ff5c35; opacity: 0.15; }
+  
+  /* EDITED: Rating number is monospace bold accent color to match v4 */
+  .rating-number {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ff5c35;
+    margin-left: 4px;
+  }
+  
+  /* EDITED: Price now renders as a plain text label (e.g. "$$$") matching v4's mono price tag */
+  .price-label {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #111;
+    font-family: 'Geist Mono', 'Courier New', monospace;
+  }
+  
+  .transport-section {
+    margin-bottom: 14px;
+  }
+  
+  /* EDITED: Transport options now use equal-flex columns, centered, divided by 1px right borders (v4 style) */
+  .transport-options {
+    display: flex;
+    gap: 0;
+  }
+  
+  /* EDITED: Each transport option stacks icon / time / label vertically, centered, with right border divider */
+  .transport-option {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 0;
+    border-right: 1px solid #cecdcd;
+    background: transparent;
+    border-radius: 0;
+  }
+  
+  .transport-option:last-child {
+    border-right: none;
+  }
+  
+  /* EDITED: Transport icon smaller and muted to match v4's secondary color icons */
+  .transport-icon {
+    width: 16px !important;
+    height: 16px !important;
+    color: #888 !important;
+  }
+  
+  /* EDITED: Time value in monospace bold to match v4's mono time display */
+  .transport-time {
+    font-size: 12px;
+    font-weight: 700;
+    color: #111;
+    white-space: nowrap;
+  }
+  
+  /* EDITED: Label is tiny uppercase secondary text, matching v4's "Drive / Walk / Transit" labels */
+  .transport-label {
+    font-size: 9.5px;
+    font-weight: 500;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  
+  /* EDITED: Actions row redesigned — route fills, show-route is bordered, delete is icon-only bordered danger */
+  .card-actions {
+    display: flex;
+    gap: 6px;
+  }
+  
+  .btn-route,
+  .btn-delete,
+  .btn-add-pin,
+  .btn-highlight-route {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    transition: all 0.15s;
+  }
+  
+  /* EDITED: Set Route — fills available space, dark filled background (v4 primary action) */
+  .btn-route {
+    flex: 1;
+    padding: 9px 0;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+  }
+  
+  .btn-route:hover {
+    background: #0e4aef;
+  }
+  
+  /* EDITED: Show Route — bordered style with accent tones (v4 highlight/secondary action) */
+  .btn-highlight-route {
+    padding: 9px 12px;
+    background: transparent;
+    color: #888;
+    border: 1.5px solid #eaeaea;
+  }
+  
+  .btn-highlight-route:hover {
+    background: rgba(255, 92, 53, 0.08);
+    color: #c6950e;
+    border-color: #f0d895;
+  }
+  
+  /* Stays colored while the route is active */
+  .btn-highlight-route--active {
+    background: rgba(255, 92, 53, 0.1);
+    color: #edb211;
+    border-color: #dbab26;
+  }
+  
+  /* EDITED: Delete — icon-only, bordered danger (v4 trash button style) */
+  .btn-delete {
+    padding: 9px 10px;
+    background: transparent;
+    color: #ff3b30;
+    border: 1.5px solid #eaeaea;
+  }
+  
+  .btn-delete:hover {
+    background: #fff0f0;
+    border-color: #ff3b30;
+  }
+  
+  /* EDITED: Button icon scaled down to match v4's 12px icon size */
+  .btn-icon {
+    width: 14px;
+    height: 14px;
+  }

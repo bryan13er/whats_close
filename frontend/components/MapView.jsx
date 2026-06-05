@@ -14,7 +14,6 @@ import DestInfoTable from "./DestInfoTable";
 
 import { MAP_CONFIG } from '../config/maps';
 import { useMapFeatures } from "../context/MapContext";
-import MapOverlays from "./MapOverlays";
 import MapTypeButton from "./MapTypeButton";
 import StreetViewWatcher from "./StreetViewWatcher";
 import MapCenterControl from "./MapCenterControl";
@@ -22,6 +21,7 @@ import NavPill from "./NavPill";
 import ShowDataTableButton from "./ShowDataTableButton";
 import LocationDrawer from "./LocationDrawer";
 import MultiRoutes from "./MultiRoutes";
+import PinsOverlay from "./PinsOverlay";
 
 
 const routeOptions = {
@@ -43,6 +43,7 @@ export default function MapView() {
     setMapCenter,
     mapType, 
     destHistory,
+    activePins,
     showDataTable,
   } = useMapFeatures();
 
@@ -64,7 +65,6 @@ export default function MapView() {
   return (
     <APIProvider apiKey={MAP_CONFIG.apiKey} libraries={MAP_CONFIG.libraries}>
       <div className="map-container">
-        {/* <MapOverlays/> */}
         <div className="nav-pill-overlay">
           <NavPill/>
         </div>
@@ -98,6 +98,10 @@ export default function MapView() {
           {home && (
             <AdvancedMarker position={home} />
           )}
+
+          {Object.keys(activePins).length > 0 && 
+            <PinsOverlay/>
+          }
         </GoogleMap>
         {Object.keys(destHistory).length > 0 &&
           <LocationDrawer/>

@@ -13,7 +13,7 @@ import { cleanTimeRes } from './time';
 
 /**
  * Takes the out-of-order output from the Routes Matrix API and converts it
- * into an object keyed by `destinationIndex` so rows can be filled correctly.
+ * into an object keyed by `destinationIndex` so destRows can be filled correctly.
  *
  * @param {MatrixCell[]} res
  * @returns {Object<number, MatrixCell>}

@@ -6,7 +6,8 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import LocationCard from "./LocationCard";
+import LocationDestCard from "./LocationDestCard";
+import LocationHomeCard from "./LocationHomeCard";
 import { useMapFeatures } from "../context/MapContext";
 import './LocationDrawer.css';
 import "./MapView.css";
@@ -18,7 +19,7 @@ const drawerBleeding = 20;
 export default function LocationDrawer() {
   const [open, setOpen] = useState(false);
   const menuButtonRef = useRef(null);
-  const { setDestHistory, rows} = useMapFeatures();
+  const { setDestHistory, destRows, home, homeHistory, historyType, toggleHistoryType, } = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;
@@ -30,13 +31,35 @@ export default function LocationDrawer() {
     setOpen(false);
   };
 
+  //TODO: REMEBER THAT THE INPUT TO DATA DRAWER is an array not an object
+  // CURRENT VERSION IS BAD I GUESS
+  //  GOOD: Only creates a new reference if the underlying rows object actually changes
+  // const sortedRows = useMemo(() => {
+  //   return Object.values(rows);
+  // }, [rows]);
+  const rowData = historyType === "destination" ? destRows : Object.values(homeHistory);
+  console.log("row data:", rowData);
+
   const cards = (
     <div className="card-list">
-      {rows.map((row) => {
-        return(
-          <LocationCard key={row.desPlaceId} place={row}/>
-        );
-      })}
+      {historyType === 'destination' ? (
+        rowData.map((row) => (
+          <LocationDestCard key={row.desPlaceId} place={row} />
+        ))
+      ) : (
+        <>
+          {/* Special card for the current home */}
+          {home?.placeId && (
+            <LocationHomeCard key={home.placeId} place={home} current={true} />
+          )}
+
+          {/* Rest of home history, excluding the current home */}
+          {rowData.map((row) => {
+            if (row.placeId === home?.placeId) return null;
+            return <LocationHomeCard key={row.placeId} place={row} />;
+          })}
+        </>
+      )}
     </div>
   );
 
@@ -67,6 +90,22 @@ export default function LocationDrawer() {
           <IconButton onClick={handleClose}>
             <ChevronRightIcon />
           </IconButton>
+          <div className="history-pill-group">
+            <button 
+              type="button"
+              className={`history-pill-btn ${historyType === 'home' ? 'is-active' : ''}`}
+              onClick={() => historyType !== 'home' && toggleHistoryType()}
+            >
+              Origins
+            </button>
+            <button 
+              type="button"
+              className={`history-pill-btn ${historyType === 'destination' ? 'is-active' : ''}`}
+              onClick={() => historyType !== 'destination' && toggleHistoryType()}
+            >
+              Destinations
+            </button>
+          </div>
           <button className="btn-clear-all" onClick={() => setDestHistory({})}>
             Clear All
           </button>
