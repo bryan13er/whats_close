@@ -111,6 +111,7 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
     );
   }, [homeHistory, activeRoutes]);
 
+  //TODO: something about the data possibly becomeing stale need to look into this warning
   const missingCrossProductKeys = useMemo(() => {
 
     if(!crossProductKeys.length) return [];

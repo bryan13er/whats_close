@@ -99,8 +99,8 @@ No test suite is wired up.
                                 │ useMapFeatures()
             ┌───────────────────┼───────────────────┐
             ▼                   ▼                   ▼
-       ┌────────┐         ┌──────────┐       ┌─────────────┐
-       │ NavPill│         │MapView│       │LocationDrawer│
+       ┌────────┐         ┌──────────┐       ┌──────────────┐
+       │ NavPill│         │MapView   │       │LocationDrawer│
        └────┬───┘         └────┬─────┘       └──────┬───────┘
             │                  │                    │
    place autocomplete   GoogleMap + markers   list of LocationCards
@@ -110,10 +110,10 @@ No test suite is wired up.
                                 │
               ┌─────────────────┼─────────────────┐
               ▼                 ▼                 ▼
-        ┌──────────┐      ┌──────────┐      ┌──────────────┐
-        │  Route   │      │MultiRoutes│      │useDestinations│
-        │ (legacy) │      │ ─→ RouteEntry│   │   (hook)     │
-        └────┬─────┘      └─────┬────┘      └──────┬───────┘
+        ┌──────────┐      ┌──────────────┐  ┌───────────────┐
+        │  Route   │      │MultiRoutes   │  │useDestinations│
+        │ (legacy) │      │ ─→ RouteEntry│  │   (hook)      │
+        └────┬─────┘      └─────┬────────┘  └──────┬────────┘
              │                  │                  │
              ▼                  ▼                  ▼
         Routes API     useRouteCache hook    Routes Matrix API
@@ -129,7 +129,7 @@ Single context holds everything; no Redux/Zustand. Components read via `useMapFe
 |---|---|---|
 | `home` | place \| null | Origin (set via NavPill) |
 | `destination` | place \| null | The "active" route — destined to be the only route with `TRAFFIC_AWARE` once `route.tsx` is retired |
-| `destHistory` | place[] | All searched destinations (drives the drawer + table) |
+| `destHistory` | {place.placeId:place} | All searched destinations (drives the drawer + table) |
 | `activeRoutes` | place[] | Destinations currently drawn as polylines on the map |
 | `routesCache` | useRef({}) | Polyline cache keyed `${homeId}_${destId}` (used by `useRouteCache`) |
 | `routeBounds` | LatLngBoundsLiteral | Last fitted bounds for recenter |
@@ -137,7 +137,7 @@ Single context holds everything; no Redux/Zustand. Components read via `useMapFe
 | `isStreetViewVisible` | boolean | Hides UI when in street view |
 | `mapType` | boolean | true = roadmap, false = hybrid |
 | `showDataTable` | boolean | Toggles `DestInfoTable` visibility |
-| `rows` | row[] | Table data — produced by `useDestinations` and re-exposed through context |
+| `destRows` | row[] | Table data — produced by `useDestinations` and re-exposed through context |
 
 Memoized handlers (`useCallback`) keep the context value stable so `React.memo`'d consumers don't re-render on every state change.
 
@@ -149,7 +149,7 @@ Memoized handlers (`useCallback`) keep the context value stable so `React.memo`'
    - Filters out destinations equal to the home placeId.
    - Identifies which destinations are missing from its **internal cache** (`places + routes`) for the current home.
    - Concurrently fetches missing place details (Places API) + missing matrix data for DRIVE/WALK/TRANSIT (Routes Matrix API).
-   - Writes results into the cache, then assembles `rows` via `prepRowData()`.
+   - Writes results into the cache, then assembles `destRows` via `prepRowData()`.
 4. **`MapView`** renders the `<GoogleMap>`, overlays (`NavPill`, controls, drawer), markers for home/destination, and polylines via `<MultiRoutes>`.
 5. **`LocationCard`** lets the user "Set Route" (`setDestination` → primary route) or "Highlight Route" (`toggleActiveRoute` → adds to `activeRoutes`).
 6. **`MultiRoutes` → `RouteEntry` → `useRouteCache`** fetches polylines from the Routes API, caching results in `routesCache` (different cache from `useDestinations`).
@@ -212,7 +212,7 @@ Consumers should always import these — never instantiate their own.
 - **`route.tsx`** still renders the primary route but is planned for retirement — see `docs/route-unification.md`. Don't add features to it.
 - **No tests.**
 - **Backend is a placeholder.** Single `/test` endpoint, no real routes wired up.
-- **Console logging** is sprinkled through hot paths (table rows, fetched payloads). Useful while debugging, noise in production.
+- **Console logging** is sprinkled through hot paths (table destRows, fetched payloads). Useful while debugging, noise in production.
 - **`@react-google-maps/api`** is in `package.json` but unused (only `@vis.gl/react-google-maps` is imported).
 - **No accessibility audit** — the viewport meta locks `userScalable=false`, which blocks pinch-zoom for low-vision users.
 

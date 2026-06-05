@@ -59,7 +59,7 @@ There are two independent caches that serve different data:
 
 | Cache | Lives in | Stores | Used by |
 |---|---|---|---|
-| `cache` ref | `useDestinations` (local) | Places details + Routes Matrix results (distance, duration, ratings) | `DestInfoTable` rows |
+| `cache` ref | `useDestinations` (local) | Places details + Routes Matrix results (distance, duration, ratings) | `DestInfoTable` destRows |
 | `routesCache` ref | `MapContext` (shared) | Full polyline route objects from the Routes API | `useRouteCache` → `RouteEntry` |
 
 They use the same key format (`homeId_destId`) but are completely separate objects.

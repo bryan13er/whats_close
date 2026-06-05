@@ -153,7 +153,7 @@ No new context state is needed. All changes are derived from existing fields:
 | `components/RouteEntry.jsx` | Accept `isPrimary` prop, render info pill when true |
 | `components/LocationCard.jsx` | Remove "Set Route" / "Highlight Route" from active card; rename button on history cards |
 | `components/LocationDrawer.jsx` | Sort `destHistory` with active route first; pass `isActive` prop to `LocationCard` |
-| `context/MapContext.js` | Add optional `setPrimaryRoute` helper; update `deleteFromHistory` to also clear `destination` if placeIds match |
+| `context/MapContext.js` | Add optional `setPrimaryRoute` helper; update `deleteFromDestHistory` to also clear `destination` if placeIds match |
 | `hooks/useRouteCache.js` | Accept `routeOptions` so primary can pass `TRAFFIC_AWARE` |
 
 ---

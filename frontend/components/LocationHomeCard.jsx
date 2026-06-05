@@ -83,12 +83,7 @@ export default function LocationHomeCard({place, current = false}) {
 
   // get metrics on the particalar placeid 
   const placeMetrics = originMetrics?.[place.placeId];
-
-  // help determine if the data is present 
-  const hasDrive = originMetrics?.drive && originMetrics.drive.count > 0;
-  const hasWalk  = originMetrics?.walk  && originMetrics.walk.count > 0;
-  const hasTransit = originMetrics?.transit && originMetrics.transit.count > 0;
-
+  
   return (
     <div className={`home-location-card ${current ? 'home-is-current' : ''}`}>
       <div className="home-card-inner">

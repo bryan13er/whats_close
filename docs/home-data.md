@@ -66,3 +66,9 @@ A dedicated background hook monitors the intersection of `homeHistory` and `acti
 * **Cons:**
   * **The Matrix Cost Explosion:** Every added destination forces an automatic multi-element matrix charge, regardless of whether the user interacts with it.
   * **The New-Origin Penalty:** If a user builds up a large history of destinations and adds a single new origin, it triggers an immediate, unexpected billing spike for routes they may never highlight.
+
+
+# Update 5/28/26
+Decided to use approach 2 for now because when a user swithces mode i have to disllay that information anways.
+
+My solution is in the futre you can only get time data if its been highlighted otherwise you won't see that info just a -
