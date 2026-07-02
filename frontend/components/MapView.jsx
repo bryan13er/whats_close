@@ -43,6 +43,7 @@ export default function MapView() {
     setMapCenter,
     mapType, 
     destHistory,
+    homeHistory,
     activePins,
     showDataTable,
   } = useMapFeatures();
@@ -89,7 +90,8 @@ export default function MapView() {
             />
           }
 
-          {home && <MultiRoutes />}
+          {home && Object.keys(destHistory).length > 0
+            && <MultiRoutes />}
 
           <RecenterRouteButton/>
           <MapTypeButton/>
@@ -103,7 +105,8 @@ export default function MapView() {
             <PinsOverlay/>
           }
         </GoogleMap>
-        {Object.keys(destHistory).length > 0 &&
+
+        {(Object.keys(destHistory).length > 0 || Object.keys(homeHistory).length > 0) &&
           <LocationDrawer/>
         }
       </div>

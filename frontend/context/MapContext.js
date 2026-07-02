@@ -100,13 +100,6 @@ export function MapFeatureProvider({ children }) {
     setMapCenter({ lat: location.lat, lng: location.lng });
   }, []);
 
-  const deleteFromHomeHistory = useCallback((placeId) => {
-    setHomeHistory((prev) => {
-      const { [placeId] : _, ...rest } = prev;
-      return rest;
-    })
-  }, []);
-
   const handleHomeClear = useCallback(() => {
     setHome(null);
     setDestination(null);
@@ -132,7 +125,10 @@ export function MapFeatureProvider({ children }) {
   }, [home]);
 
   // pertain to setActiveRoute i.e. for multiRoute
-  const deactivateRoute = (prev, placeId) => {
+  const deactivateRoute = (prev, placeId, notSafe = true) => {
+    // not active skip 
+    if (notSafe && !Object.hasOwn(prev, placeId)) return prev; 
+
     const colorToRelease = prev[placeId];
     routeColorsPoolRef.current.push(colorToRelease);
     
@@ -148,6 +144,28 @@ export function MapFeatureProvider({ children }) {
     };
   }
 
+  const deactivatePin = (prev, placeId, notSafe = true) => {
+    // not active skip 
+    if (notSafe && !Object.hasOwn(prev, placeId)) return prev; 
+    // --- CASE: TURN OFF PIN ---
+    const {[placeId]:_, ...rest} = prev;
+    return rest;
+  };
+
+
+  const deleteFromHomeHistory = useCallback((placeId) => {
+    setHomeHistory((prev) => {
+      const { [placeId] : _, ...rest } = prev;
+      return rest;
+    })
+
+    setActivePins((prev) => {
+      return deactivatePin(prev, placeId);
+    });
+
+    setHome((prevHome) => (prevHome?.placeId === placeId ? null : prevHome));
+  }, []);
+
   const deleteFromDestHistory = useCallback((placeId) => {
     setDestHistory((prev) => {
       const { [placeId] : _, ...rest } = prev;
@@ -157,7 +175,10 @@ export function MapFeatureProvider({ children }) {
     setActiveRoutes((prev) => {
       return deactivateRoute(prev, placeId);
     });
+
+    setDestination((prevDest) => (prevDest?.placeId === placeId ? null : prevDest));
   }, []);
+  
 
   const toggleHistoryType = useCallback(() => {
     setHistoryType(prev => prev === 'destination' ? 'home' : 'destination');
@@ -168,13 +189,14 @@ export function MapFeatureProvider({ children }) {
   }, []);
 
   // LESSON LEARNED NEVER HAVE NESTED SETTERS
+  // TODO: pass placeId only
   const toggleActiveRoute = useCallback((dest) => {
     setActiveRoutes((prev) => {
       const isActive = Object.hasOwn(prev, dest.placeId);
 
       // --- CASE: TURN OFF ---
       if (isActive) {
-        return deactivateRoute(prev, dest.placeId);
+        return deactivateRoute(prev, dest.placeId, false);
       }
 
       // --- CASE: TURN ON ---
@@ -192,16 +214,33 @@ export function MapFeatureProvider({ children }) {
     setActivePins((prev) => {
       const isActive = Object.hasOwn(prev, placeId);
 
+      // --- CASE: TURN OFF ---
       if(isActive) {
-        // --- CASE: TURN OFF ---
-        const {[placeId]:_, ...rest} = prev;
-        return rest;
+        return deactivatePin(prev, placeId, false);
       } else {
       // --- CASE: TURN ON ---
         return {...prev, [placeId]:label};
       }
     })
   }, []);
+
+
+  // TODO: refactor the clear funcition to release all resources
+  // Wipes history in single atomic batch updates with zero loops
+  const clearHistory = useCallback(() => {
+    if (historyType === 'destination') {
+      setDestHistory({});
+      setDestination(null);
+
+      // chosing to only remove active routes if destHistory is reset 
+      routeColorsPoolRef.current = [...defaultColors];
+      setActiveRoutes({});
+    } else {
+      setHomeHistory({});
+      setHome(null);
+      setActivePins({});
+    }
+  }, [historyType]);
 
   // destRows holds the data that fills the datatable
   // I need it to persist even when the table is unmounted
@@ -231,6 +270,7 @@ export function MapFeatureProvider({ children }) {
     home, addHome, homeHistory, handleHomeClear,
     destination, setDestination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory, setDestHistory,
+    clearHistory,
     routeBounds, setRouteBounds,
     routesCache,
     travelCache,
@@ -247,6 +287,7 @@ export function MapFeatureProvider({ children }) {
     home, addHome, homeHistory, handleHomeClear,
     destination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory,
+    clearHistory,
     routeBounds,
     routesCache, 
     travelCache,

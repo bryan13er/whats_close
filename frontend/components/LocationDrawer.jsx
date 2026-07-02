@@ -19,7 +19,7 @@ const drawerBleeding = 20;
 export default function LocationDrawer() {
   const [open, setOpen] = useState(false);
   const menuButtonRef = useRef(null);
-  const { setDestHistory, destRows, home, homeHistory, historyType, toggleHistoryType, } = useMapFeatures();
+  const {  destRows, home, homeHistory, historyType, toggleHistoryType, clearHistory} = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;
@@ -106,7 +106,7 @@ export default function LocationDrawer() {
               Destinations
             </button>
           </div>
-          <button className="btn-clear-all" onClick={() => setDestHistory({})}>
+          <button className="btn-clear-all" onClick={() => clearHistory()}>
             Clear All
           </button>
         </div>
@@ -138,7 +138,7 @@ export default function LocationDrawer() {
         </div>
         <div className="mobile-drawer-inner">
           <div className="drawer-header">
-            <button className="btn-clear-all" onClick={() => setDestHistory({})}>
+            <button className="btn-clear-all" onClick={() => clearHistory()}>
               Clear All
             </button>
           </div>

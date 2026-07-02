@@ -73,7 +73,7 @@ function DisplayMetric({
  * @param {{ place: Row }} props
  */
 export default function LocationHomeCard({place, current = false}) {
-  const { addHome, deleteFromHomeHistory, home, toggleActivePins, activePins, syncingMetrics, originMetrics } = useMapFeatures();
+  const { addHome, handleHomeClear, deleteFromHomeHistory, toggleActivePins, activePins, syncingMetrics, originMetrics } = useMapFeatures();
 
   // for name of place TODO: using .lable tomporarily
   const [mainName, ...rest] = place.label.split(",");
@@ -156,7 +156,7 @@ export default function LocationHomeCard({place, current = false}) {
             <>
               <button 
                 className="home-btn-route home-btn-unset-home" 
-                onClick={() => { console.log("change to correct setter later") }}
+                onClick={() => { handleHomeClear() }}
               >
                 <House className="home-btn-icon" />
                 Unset Home 

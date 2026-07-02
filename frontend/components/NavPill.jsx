@@ -150,7 +150,7 @@ export default function NavPill({ onSelect }) {
   const [mobileOverlay, setMobileOverlay] = useState(null);
 
   const {
-    addHome, handleHomeClear,
+    home, addHome, handleHomeClear,
     destination, addDestination, clearRoute,
     isStreetViewVisible,
   } = useMapFeatures();
@@ -188,13 +188,40 @@ export default function NavPill({ onSelect }) {
   }
 
   useEffect(() => {
-    if (!destination) return;
-    const label = destination.label ?? destination.name ?? '';
+    if (!destination){
+      setFieldState(prev => ({
+        ...prev,
+        dest: {input: '', label: ''}
+      }));
+      invalidateSuggestions();
+      return; 
+    }
+
+    const label = destination.label ?? '';
     setFieldState(prev => ({
       ...prev,
       dest: { input: label, label },
     }));
+    invalidateSuggestions();
   }, [destination]);
+
+  useEffect(() => {
+    if (!home){
+      setFieldState(prev => ({
+        ...prev,
+        origin: {input: '', label: ''}
+      }));
+      invalidateSuggestions();
+      return 
+    }
+
+    const label = home.label ?? '';
+    setFieldState(prev => ({
+      ...prev,
+      origin: {input:label, label}
+    }));
+    invalidateSuggestions();
+  }, [home]);
 
   async function fetchSuggestions(value) {
     if (value.length < INPUT_CHAR_MIN) { invalidateSuggestions(); return; }
@@ -238,6 +265,7 @@ export default function NavPill({ onSelect }) {
     setActiveField(null);
     closeOverlay();
     
+    // this is where the actual place value for either home or destination gets created
     places.getGeocodeV3(placeId).then(({ location }) => {
       const place = {
         field: fieldId,
