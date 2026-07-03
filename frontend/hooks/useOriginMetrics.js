@@ -98,12 +98,16 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
   const [syncingMetrics, setSyncingMetrics] = useState(false);
   const [originMetrics, setOriginMetrics] = useState({}); // keyed by orign id 
 
+  // upon review I find that given the maximum size of homeHistoyr and activeRoutes
+  // its okay for the crossProductKeys to be recreated otherwise I would have to 
+  // do some garabage collection or figure out how to create only the newest pairs
   const crossProductKeys = useMemo(() => {
     const homeIds = Object.keys(homeHistory);
     const destIds = Object.keys(activeRoutes);
 
     if (!homeIds.length || !destIds.length) return [];
 
+    // creates cross product of homeIds and destIds
     return homeIds.flatMap(homeId =>
       destIds
         .filter(destId => destId !== homeId)
@@ -139,9 +143,12 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
   }, [missingCrossProductKeys]);
 
   useEffect(() => {
-    let isMounted = true;
+    // flag to preven race conditons when fetching data in 
+    // useEffect https://react.dev/reference/react/useEffect#fetching-data-with-effects
+    let isCurrentEffect = true;
 
     const writeMetrics = () => {
+      if (!isCurrentEffect) return;
       const newMetrics = {};
 
       for(const crossProductKey of crossProductKeys){
@@ -164,6 +171,7 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
 
       console.log("newMetrics", newMetrics);
       setOriginMetrics(newMetrics);
+      setSyncingMetrics(false);
     };
 
     const loadOriginMetrics = async () => {
@@ -175,7 +183,7 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
       }
 
       try {
-        if (isMounted) setSyncingMetrics(true);
+        setSyncingMetrics(true);
 
         // Execute the external network calls
         await fetchMultipleMissingRoutes(
@@ -187,14 +195,12 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
 
         // The background thread is done and the cache is full.
         // Toggle state to force the UI to re-render and read the fresh metrics.
-        if (isMounted) setSyncingMetrics(false);
         console.log("finished multi fetch");
         // write data after network requests
         writeMetrics();
-        
       } catch (err) {
         console.error("Origin Metrics network batch failed", err);
-        if (isMounted) setSyncingMetrics(false);
+        if (isCurrentEffect) setSyncingMetrics(false);
       }
     };
 
@@ -202,7 +208,7 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
     loadOriginMetrics();
 
     return () => {
-      isMounted = false;
+      isCurrentEffect = false;
     };
   }, [originToDests]); 
     // Expose the syncing status so the UI can render spinners if necessary

@@ -86,26 +86,22 @@ async function fetchMissingRoutes(home, missingDests, travelCacheRef) {
  * @returns {{ destRows: Row[] }}
  */
 export function useDestinations(home, destinations, travelCache) {
-  const [destRows, setRows] = useState([]);
-  
-  useEffect(() => {
-    let isMounted = true;
+  const [syncingDestData, setSyncingDestData] = useState(false);
 
-    const loadTableData = async () => {
+  useEffect(() => {
+    let isCurrentRequest = true;
+
+    const fetchDestData = async () => {
       try {
-        if (!home || Object.keys(destinations).length === 0) {
-          if (isMounted) setRows([]);
-          return;
-        }
+        if (!home || Object.keys(destinations).length === 0) return;
 
         // FILTER: Remove any destination that matches the current home/origin ID i.e. Salinas to Salinas filter that out
-        // TODO: updating to use map 
         const cleanIds = Object.keys(destinations).filter(destId => destId !== home.placeId);
         const filteredDests = cleanIds.map(cleanId => destinations[cleanId]);
 
         // If after filtering there are no destinations left, clear the table
         if (filteredDests.length === 0) {
-          if (isMounted) setRows([]);
+          setSyncingDestData(false);
           return;
         }
 
@@ -117,14 +113,22 @@ export function useDestinations(home, destinations, travelCache) {
           d => !travelCache.current.places[d.placeId]
         );
 
+        // set up a homeId history in useRef if there is none
         if (!travelCache.current.routes[currentHomeId]) {
           travelCache.current.routes[currentHomeId] = {};
         }
-        //TODO: VERY IMPORTANT some ids have _ we can't use _ for the key anymore
+
         // routes travelCache i.e distance and time 
         const missingRoutes = filteredDests.filter(
           d => !travelCache.current.routes[currentHomeId][d.placeId]
         );
+
+        if (missingPlaces.length === 0 && missingRoutes.length === 0){ 
+          setSyncingDestData(false);
+          return;
+        }
+        
+        setSyncingDestData(true);
 
         // 2. Fetch only the missing pieces concurrently
         await Promise.all([
@@ -132,35 +136,22 @@ export function useDestinations(home, destinations, travelCache) {
           fetchMissingRoutes(home, missingRoutes, travelCache)
         ]);
 
-        // 3. Assemble the destRows entirely from the local travelCache
-        if (isMounted) {
-          const newRows = filteredDests.map(dest => {
-            // read the cahce here 
-            const placeData = travelCache.current.places[dest.placeId];
-            const routeData = travelCache.current.routes[currentHomeId][dest.placeId];
-
-            return prepRowData(
-              dest,
-              routeData.drive,
-              routeData.walk,
-              routeData.transit,
-              placeData
-            );
-          });
-
-          setRows(newRows);
+        if(isCurrentRequest){
+          setSyncingDestData(false);
         }
+
       } catch (err) {
         console.error("Destination initialization failed:", err);
+        if (isCurrentRequest) setSyncingDestData(false);
       }
     };
 
-    loadTableData();
+    fetchDestData();
 
     return () => {
-      isMounted = false;
+      isCurrentRequest = false;
     };
   }, [home, destinations]); // The effect now runs anytime home or dests change, but only fetches if travelCache is empty
 
-  return { destRows };
+  return { syncingDestData };
 }
