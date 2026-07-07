@@ -11,7 +11,24 @@
   .location-card:hover {
     background: #f0efef;
   }
+
+  .location-card.location-is-current {
+    background: #fdfcff;
+    position: relative;
+    z-index: 10;
   
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.08),
+      0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 1px 3px 0 rgba(0, 0, 0, 0.03);
+  }
+
+  .location-card.location-is-current .card-inner{
+    border-left: 4px solid #7425eb;
+    border-bottom-color: transparent;
+    padding-left: 16px;
+  }
+
   /* EDITED: Inner wrapper adds vertical padding + bottom border divider (v4 uses 16px 0 / 1px border) */
   .card-inner {
     padding: 16px 20px;
@@ -208,6 +225,20 @@
   .btn-route:hover {
     background: #0e4aef;
   }
+
+  .btn-unset-destination {
+    padding: 0 12px;
+    background: #fae591;
+    color: #b45309;
+    border: 1.5px solid;
+    border-color: #f59e0b;
+  }
+  
+  .btn-unset-destination:hover {
+    background: #fae591;
+    border-color: #d97706;
+    color: #78350f;
+  }
   
   /* EDITED: Show Route — bordered style with accent tones (v4 highlight/secondary action) */
   .btn-highlight-route {
@@ -247,4 +278,20 @@
   .btn-icon {
     width: 14px;
     height: 14px;
+  }
+
+  /* =========================================
+    CURRENT HOME BADGE
+    ========================================= */
+
+  .current-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #7425eb;
+    background: rgba(116, 37, 235, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
   }

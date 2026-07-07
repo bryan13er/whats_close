@@ -19,7 +19,7 @@ const drawerBleeding = 20;
 export default function LocationDrawer() {
   const [open, setOpen] = useState(false);
   const menuButtonRef = useRef(null);
-  const {  destHistory, home, homeHistory, historyType, toggleHistoryType, clearHistory} = useMapFeatures();
+  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearHistory} = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;
@@ -43,9 +43,16 @@ export default function LocationDrawer() {
   const cards = (
     <div className="card-list">
       {historyType === 'destination' ? (
-        rowData.map((row) => (
-          <LocationDestCard key={row.placeId} place={row} />
-        ))
+        <>
+          {destination?.placeId && (
+            <LocationDestCard key={destHistory.placeId} place={destination} current={true} />
+          )}
+
+          {rowData.map((row) => {
+            if (row.placeId === destination?.placeId) return null;
+            return <LocationDestCard key={row.placeId} place={row} />;
+          })}
+        </>
       ) : (
         <>
           {/* Special card for the current home */}

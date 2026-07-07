@@ -9,6 +9,7 @@ import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFi
 import './LocationCard.css'
 import { useMapFeatures } from "../context/MapContext";
 import { priceMap } from '../utils/places';
+import FlagIcon from '@mui/icons-material/Flag';
 
 //TODO: add weather
 const weatherIcons = {
@@ -76,8 +77,8 @@ function gatherEntryData(home, place, syncingDestData, travelCache) {
  */
 
 // TODO: convert to consume and creat its own row
-export default function LocationDestCard({place}) {
-  const { home, syncingDestData, travelCache, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef,  deleteFromDestHistory } = useMapFeatures();
+export default function LocationDestCard({place, current = false}) {
+  const { home, clearRoute, syncingDestData, travelCache, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef,  deleteFromDestHistory } = useMapFeatures();
   const destData = gatherEntryData(home, place, syncingDestData, travelCache);
 
   // for name of place
@@ -102,12 +103,15 @@ export default function LocationDestCard({place}) {
 
   return (
     /* EDITED: Removed card shadow/bg — now a flat row with bottom border divider (v4 PlaceRow style) */
-    <div className="location-card">
+    <div className={`location-card ${current ? 'location-is-current' : ''}`}>
       <div className="card-inner">
 
         {/* EDITED: Header now has distance pinned top-right in monospace, matching v4 layout */}
         <div className="card-header">
           <div className="card-title-group">
+            {current && (
+              <div className="current-badge">CURRENT DESTINATION</div>
+            )}
             <div className="card-title">
               <div className='card-main-name'>{mainName}</div>
               <div className='card-rest-of-address'>{restOfAddress}</div>
@@ -152,29 +156,62 @@ export default function LocationDestCard({place}) {
 
         {/* EDITED: Actions redesigned — Set Route fills remaining space, Highlight Route is bordered, Delete is icon-only bordered danger (v4 style) */}
         <div className="card-actions">
-          <button className="btn-route" onClick={() => { setDestination(destData.destObj) }}>
-            <Navigation className="btn-icon" />
-            Set Route
-          </button>
-          {(!highlightLimit || isActive) &&
-            <button
-              className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
-              onClick={() => { toggleActiveRoute(destData.placeId) }}
-              style={isActive ? { 
-                backgroundColor: routeColor, 
-                borderColor: routeColor,
-                color: '#fff' // Ensures text is readable against the background
-              } : {}}
-            >
-              {isActive
-                ? "Hide Route"
-                : "Highlight Route"}
-            </button>
-          }
-          <button className="btn-delete" onClick={() => { deleteFromDestHistory(destData.placeId) }}>
-            <Trash2 className="btn-icon" />
-          </button>
+          { current ? (
+            <>
+              <button
+                className='btn-route btn-unset-destination'
+                onClick={() => {clearRoute()}}
+              >
+                <FlagIcon className='btn-icon'/>
+                Unset Destination
+              </button>
+              {(!highlightLimit || isActive) &&
+                <button
+                  className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
+                  onClick={() => { toggleActiveRoute(destData.placeId) }}
+                  style={isActive ? { 
+                    backgroundColor: routeColor, 
+                    borderColor: routeColor,
+                    color: '#fff' // Ensures text is readable against the background
+                  } : {}}
+                >
+                  {isActive
+                    ? "Hide Route"
+                    : "Highlight Route"}
+                </button>
+              }
+              <button className="btn-delete" onClick={() => { deleteFromDestHistory(destData.placeId) }}>
+                <Trash2 className="btn-icon" />
+              </button>
+            </>
+          ):(
+            <>
+              <button className="btn-route" onClick={() => { setDestination(destData.destObj) }}>
+                <Navigation className="btn-icon" />
+                Set Route
+              </button>
+              {(!highlightLimit || isActive) &&
+                <button
+                  className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
+                  onClick={() => { toggleActiveRoute(destData.placeId) }}
+                  style={isActive ? { 
+                    backgroundColor: routeColor, 
+                    borderColor: routeColor,
+                    color: '#fff' // Ensures text is readable against the background
+                  } : {}}
+                >
+                  {isActive
+                    ? "Hide Route"
+                    : "Highlight Route"}
+                </button>
+              }
+              <button className="btn-delete" onClick={() => { deleteFromDestHistory(destData.placeId) }}>
+                <Trash2 className="btn-icon" />
+              </button>
+            </>
+          )}
         </div>
+        
 
       </div>
     </div>
