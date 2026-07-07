@@ -7,30 +7,31 @@ const routeOptions = {
 };
 
 export default function MultiRoutes() {
-const {activeRoutes, destHistory, destRows} = useMapFeatures();
+  const {home, destHistory, activeRoutes, travelCache} = useMapFeatures();
 
-const activeDests = Object.keys(activeRoutes).map(placeId => destHistory[placeId])
+  const activeDests = Object.keys(activeRoutes).map(placeId => destHistory[placeId])
 
-if(activeDests.length === 0) return null;
+  if(activeDests.length === 0 || home === null) return null;
 
-// TODO: come back to converting destRows into being hashed by placeId as well
-const activeDestsDist = destRows.filter(row => row.desPlaceId in activeRoutes);
+  // TODO: clean this up
+  // order by distance in order to display in order distance
+  activeDests.sort((a, b) => {
+    // 1. Safely pull from the cache using optional chaining (?.)
+    // 2. Use a fallback (??) just in case the data is still in-flight
+    const distA = travelCache.current.routes[home.placeId]?.[a.placeId]?.drive?.distanceMeters ?? 0;
+    const distB = travelCache.current.routes[home.placeId]?.[b.placeId]?.drive?.distanceMeters ?? 0;
 
-const distByPlaceId = activeDestsDist.reduce((acc, row) => {
-  acc[row.desPlaceId] = row.distance;
-  return acc;
-}, {});
-
-activeDests.sort((a, b) => distByPlaceId[b.placeId] - distByPlaceId[a.placeId]);
-  
-return activeDests.map((dest,index) => (
-    <RouteEntry
-      key={dest.placeId}
-      destination={dest}
-      index={index}
-      color={activeRoutes[dest.placeId]}
-      routeOptions={routeOptions}
-    />
-));
-
+    // FURTHEST TO CLOSEST
+    return distB - distA; 
+  });
+    
+  return activeDests.map((dest,index) => (
+      <RouteEntry
+        key={dest.placeId}
+        destination={dest}
+        index={index}
+        color={activeRoutes[dest.placeId]}
+        routeOptions={routeOptions}
+      />
+  ));
 }

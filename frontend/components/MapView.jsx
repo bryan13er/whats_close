@@ -34,7 +34,7 @@ const routeOptions = {
 // so its leading to a crash becasue its running out o memory consult the
 // docs and see how to properly set center
 export default function MapView() {
-  console.log("🛠️ MapView Rendered"); // Add this
+  // console.log("🛠️ MapView Rendered"); // Add this
 
   // get from context provider
   const {
@@ -45,8 +45,17 @@ export default function MapView() {
     destHistory,
     homeHistory,
     activePins,
-    showDataTable,
   } = useMapFeatures();
+
+  console.log("🛠️ MapView Rendered", {
+    home,
+    destination,
+    mapType,
+    destHistoryKeys: Object.keys(destHistory).length,
+    activePinsKeys: Object.keys(activePins).length,
+    time: performance.now().toFixed(2),
+  });
+
 
   useEffect(() => {
     if (!navigator.geolocation) return;

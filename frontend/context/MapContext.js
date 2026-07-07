@@ -56,7 +56,6 @@ import { useOriginMetrics } from '../hooks/useOriginMetrics';
  * @property {boolean}                             showDataTable
  * @property {(v: boolean) => void}                setShowDataTable
  *
- * @property {Row[]}                               destRows                   - prepared data for table/cards (built by useDestinations)
  */
 
 /** @type {React.Context<MapFeatures|null>} */
@@ -69,7 +68,6 @@ export function MapFeatureProvider({ children }) {
   const [destHistory, setDestHistory] = useState({});
   const [homeHistory, setHomeHistory] = useState({});
   const [routeBounds, setRouteBounds] = useState(null);
-  const routesCache = useRef ({});
   const [activeRoutes, setActiveRoutes] = useState({});
   const [activePins, setActivePins] = useState({})
 
@@ -79,14 +77,20 @@ export function MapFeatureProvider({ children }) {
   const [mapType, setMapType] = useState(true); // true = roadmap, false = hybrid
   const [historyType, setHistoryType] = useState("destination");
 
-  // -- Additonal Route Colors
+  // -- Highlight Route Colors pool
   const routeColorsPoolRef  = useRef([...defaultColors]);
 
   // -- data cache 
+  const routesCache = useRef ({});
   const travelCache = useRef({
     places: {}, // { "placeId": placeData }
     routes: {}, // { "homeId": destId: { drive, walk, transit } }
   });
+
+  // CUSTOM HOOKS AND EFFECTS 
+  // pretend hook code is just brought over
+  const { syncingDestData } = useDestinations(home, destHistory, travelCache);
+  const { syncingMetrics, originMetrics } = useOriginMetrics(homeHistory, destHistory, activeRoutes, travelCache);
   
   // --- Logic Handlers (Memoized) ---
   const addHome = useCallback((location) => {
@@ -189,14 +193,13 @@ export function MapFeatureProvider({ children }) {
   }, []);
 
   // LESSON LEARNED NEVER HAVE NESTED SETTERS
-  // TODO: pass placeId only
-  const toggleActiveRoute = useCallback((dest) => {
+  const toggleActiveRoute = useCallback((destPlaceId) => {
     setActiveRoutes((prev) => {
-      const isActive = Object.hasOwn(prev, dest.placeId);
+      const isActive = Object.hasOwn(prev, destPlaceId);
 
       // --- CASE: TURN OFF ---
       if (isActive) {
-        return deactivateRoute(prev, dest.placeId, false);
+        return deactivateRoute(prev, destPlaceId, false);
       }
 
       // --- CASE: TURN ON ---
@@ -206,7 +209,7 @@ export function MapFeatureProvider({ children }) {
         return prev;
       }
 
-      return activateRoute(prev, dest.placeId);
+      return activateRoute(prev, destPlaceId);
     });
   }, []); // Dependencies: empty, because we use the functional update 'prev => ...'
 
@@ -242,19 +245,6 @@ export function MapFeatureProvider({ children }) {
     }
   }, [historyType]);
 
-  // destRows holds the data that fills the datatable
-  // I need it to persist even when the table is unmounted
-  // so it needs to exist here
-  // fetch the data with custom hook
-  // basically pretend the code is getting
-  // brought over 
-  // destRows DEFAUTL VALUE is []
-  // MapFeatureProvider   ← useDestinations() called here, destRows persist
-  // └── DestInfoTable    ← just reads destRows from context
-  const { destRows } = useDestinations(home, destHistory, travelCache);
-  const { syncingMetrics, originMetrics } = useOriginMetrics(homeHistory, destHistory, activeRoutes, travelCache);
-
-
   // read about why in:
   // https://react.dev/reference/react/useCallback
   // https://react.dev/reference/react/memo
@@ -281,7 +271,7 @@ export function MapFeatureProvider({ children }) {
     isStreetViewVisible, setIsStreetViewVisible,
     mapType, toggleMapType,
     historyType, toggleHistoryType,
-    destRows,
+    syncingDestData,
     syncingMetrics, originMetrics
   }), [
     home, addHome, homeHistory, handleHomeClear,
@@ -298,7 +288,7 @@ export function MapFeatureProvider({ children }) {
     isStreetViewVisible,
     mapType, toggleMapType,
     historyType, toggleHistoryType,
-    destRows,
+    syncingDestData,
     syncingMetrics, originMetrics
   ]);
 

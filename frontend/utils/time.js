@@ -8,6 +8,8 @@ export function formatDurationFromSeconds(totalSeconds) {
     return 'No Route';
   }
 
+  if(totalSeconds === 0) return '-';
+
   const secondsInDay  = 86400;
   const secondsInHour = 3600;
   const secondsInMin  = 60;

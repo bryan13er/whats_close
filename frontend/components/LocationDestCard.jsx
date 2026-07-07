@@ -1,13 +1,14 @@
 'use client'
 
 import { Trash2, Navigation, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle } from 'lucide-react';
-import { formatDurationFromSeconds } from '../utils/time';
+import { cleanTimeRes, formatDurationFromSeconds } from '../utils/time';
 import { getImperialDist } from '../utils/distance';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
 import './LocationCard.css'
 import { useMapFeatures } from "../context/MapContext";
+import { priceMap } from '../utils/places';
 
 //TODO: add weather
 const weatherIcons = {
@@ -26,6 +27,46 @@ const weatherColors = {
   drizzle: 'weather-drizzle',
 };
 
+function gatherEntryData(home, place, syncingDestData, travelCache) {
+  const entry = {
+    name: place.label,
+    placeId: place.placeId,
+    destObj: place,
+    distance: 0,
+    driveTime: 0,
+    walkTime: 0,
+    transitTime: 0,
+    ratings: "N/A",
+    cost: "N/A",
+  };
+
+  if (home === null || syncingDestData) return entry;
+
+  const routeData = travelCache.current.routes[home.placeId]?.[place.placeId];
+  const placeData = travelCache.current.places[place.placeId];
+
+  // TODO convert to a loop when ready
+  if (routeData) {
+    if (routeData.drive?.condition === 'ROUTE_EXISTS') {
+      entry.distance = routeData.drive.distanceMeters;
+      entry.driveTime = cleanTimeRes(routeData.drive);
+    }
+    if (routeData.walk?.condition === 'ROUTE_EXISTS') {
+      entry.walkTime = cleanTimeRes(routeData.walk);
+    }
+    if (routeData.transit?.condition === 'ROUTE_EXISTS') {
+      entry.transitTime = cleanTimeRes(routeData.transit);
+    }
+  }
+
+  if (placeData) {
+    entry.ratings = placeData.rating ?? "N/A";
+    entry.cost = priceMap[placeData.priceLevel] ?? "N/A";
+  }
+
+  return entry;
+}
+
 /**
  * @typedef {import('../types').Row} Row
  */
@@ -33,16 +74,18 @@ const weatherColors = {
 /**
  * @param {{ place: Row }} props
  */
+
+// TODO: convert to consume and creat its own row
 export default function LocationDestCard({place}) {
-  const { deleteFromDestHistory, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef} = useMapFeatures();
+  const { home, syncingDestData, travelCache, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef,  deleteFromDestHistory } = useMapFeatures();
+  const destData = gatherEntryData(home, place, syncingDestData, travelCache);
 
   // for name of place
-  const [mainName, ...rest] = place.name.split(",");
+  const [mainName, ...rest] = destData.name.split(",");
   const restOfAddress = rest.join(",").trim() ;
 
-  // TODO: clean up too
-  const isActive = !!activeRoutes[place.destObj.placeId];
-  const routeColor = isActive ? activeRoutes[place.destObj.placeId] : '';
+  const isActive = !!activeRoutes[destData.placeId];
+  const routeColor = isActive ? activeRoutes[destData.placeId] : '';
   const highlightLimit = routeColorsPoolRef.current.length === 0;
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
@@ -72,17 +115,17 @@ export default function LocationDestCard({place}) {
             {/* <WeatherIcon className={`weather-icon ${weatherColors[weather]}`} /> */}
           </div>
           <div className="card-distance">
-            {getImperialDist(place.distance)}
+            {getImperialDist(destData.distance)}
           </div>
         </div>
 
         {/* EDITED: Meta row — rating stars + price side by side, matching v4 info-line style */}
         <div className="card-meta">
-          {place.ratings !== 'N/A' && (
-            <StarRow rating={place.ratings} />
+          {destData.ratings !== 'N/A' && (
+            <StarRow rating={destData.ratings} />
           )}
-          {place.cost !== 'N/A' && (
-            <span className="price-label">{place.cost}</span>
+          {destData.cost !== 'N/A' && (
+            <span className="price-label">{destData.cost}</span>
           )}
         </div>
 
@@ -91,17 +134,17 @@ export default function LocationDestCard({place}) {
           <div className="transport-options">
             <div className="transport-option">
               <DriveEtaIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(place.driveTime)}</span>
+              <span className="transport-time">{formatDurationFromSeconds(destData.driveTime)}</span>
               <span className="transport-label">Drive</span>
             </div>
             <div className="transport-option">
               <DirectionsWalkIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(place.walkTime)}</span>
+              <span className="transport-time">{formatDurationFromSeconds(destData.walkTime)}</span>
               <span className="transport-label">Walk</span>
             </div>
             <div className="transport-option">
               <DirectionsTransitFilledIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(place.transitTime)}</span>
+              <span className="transport-time">{formatDurationFromSeconds(destData.transitTime)}</span>
               <span className="transport-label">Transit</span>
             </div>
           </div>
@@ -109,14 +152,14 @@ export default function LocationDestCard({place}) {
 
         {/* EDITED: Actions redesigned — Set Route fills remaining space, Highlight Route is bordered, Delete is icon-only bordered danger (v4 style) */}
         <div className="card-actions">
-          <button className="btn-route" onClick={() => { setDestination(place.destObj) }}>
+          <button className="btn-route" onClick={() => { setDestination(destData.destObj) }}>
             <Navigation className="btn-icon" />
             Set Route
           </button>
           {(!highlightLimit || isActive) &&
             <button
               className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
-              onClick={() => { toggleActiveRoute(place.destObj) }}
+              onClick={() => { toggleActiveRoute(destData.placeId) }}
               style={isActive ? { 
                 backgroundColor: routeColor, 
                 borderColor: routeColor,
@@ -128,7 +171,7 @@ export default function LocationDestCard({place}) {
                 : "Highlight Route"}
             </button>
           }
-          <button className="btn-delete" onClick={() => { deleteFromDestHistory(place.desPlaceId) }}>
+          <button className="btn-delete" onClick={() => { deleteFromDestHistory(destData.placeId) }}>
             <Trash2 className="btn-icon" />
           </button>
         </div>

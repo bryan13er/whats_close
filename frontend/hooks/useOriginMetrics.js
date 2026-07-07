@@ -175,6 +175,9 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
     };
 
     const loadOriginMetrics = async () => {
+      // If the map just loaded and there are no keys to process, do absolutely nothing.
+      if (crossProductKeys.length === 0) return;
+
       // Guard clause: if the useMemo calculated 0 missing routes, bail out instantly
       if (Object.keys(originToDests).length === 0){
         // no network requests needed
