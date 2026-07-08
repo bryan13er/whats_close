@@ -159,7 +159,7 @@ export default function LocationHomeCard({place, current = false}) {
                 onClick={() => { handleHomeClear() }}
               >
                 <House className="home-btn-icon" />
-                Unset Home 
+                Unset Origin
               </button>
 
               <button className="home-btn-delete" onClick={() => { deleteFromHomeHistory(place.placeId) }}>
@@ -174,7 +174,7 @@ export default function LocationHomeCard({place, current = false}) {
                 onClick={() => { addHome(place) }}
               >
                 <House className="home-btn-icon" />
-                Set Home 
+                Set Origin 
               </button>
       
               <button className={`home-btn-add-pin${isActive ? ' home-btn-add-pin--active' : ''}`} 

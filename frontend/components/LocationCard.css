@@ -24,7 +24,7 @@
   }
 
   .location-card.location-is-current .card-inner{
-    border-left: 4px solid #7425eb;
+    border-left: 4px solid #2563eb;
     border-bottom-color: transparent;
     padding-left: 16px;
   }
@@ -248,10 +248,22 @@
     border: 1.5px solid #eaeaea;
   }
   
-  .btn-highlight-route:hover {
+  /* .btn-highlight-route:hover {
     background: rgba(255, 92, 53, 0.08);
     color: #c6950e;
     border-color: #f0d895;
+  } */
+
+  /* .btn-highlight-route:hover {
+    background: rgba(255, 92, 53, 0.08);
+    color: #c66a0e;
+    border-color: #f0c295;
+  } */
+
+  .btn-highlight-route:hover {
+    background: rgba(212, 255, 19, 0.369);
+    color: #6f7d0b;
+    border-color: #c7eb25;
   }
   
   /* Stays colored while the route is active */
@@ -288,8 +300,8 @@
     display: inline-block;
     font-size: 12px;
     font-weight: 800;
-    color: #7425eb;
-    background: rgba(116, 37, 235, 0.1);
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.1);
     padding: 4px 8px;
     border-radius: 4px;
     letter-spacing: 0.05em;
