@@ -1,10 +1,6 @@
 import { useMapFeatures } from '../context/MapContext';
 import RouteEntry from './RouteEntry';
 
-/* think about how to improve this later*/
-const routeOptions = {
-  travelMode: 'DRIVE',
-};
 
 export default function MultiRoutes() {
   const {home, destHistory, activeRoutes, travelCache} = useMapFeatures();
@@ -31,7 +27,6 @@ export default function MultiRoutes() {
         destination={dest}
         index={index}
         color={activeRoutes[dest.placeId]}
-        routeOptions={routeOptions}
       />
   ));
 }

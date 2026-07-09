@@ -22,6 +22,7 @@ import ShowDataTableButton from "./ShowDataTableButton";
 import LocationDrawer from "./LocationDrawer";
 import MultiRoutes from "./MultiRoutes";
 import PinsOverlay from "./PinsOverlay";
+import RouteEntry from "./RouteEntry";
 
 
 const routeOptions = {
@@ -94,8 +95,10 @@ export default function MapView() {
           <StreetViewWatcher/>
 
           {home && destination &&
-            <Route
-              routeOptions={routeOptions}
+            <RouteEntry
+              destination={destination}
+              index={50}
+              isMainRoute={true}
             />
           }
 
