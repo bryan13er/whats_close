@@ -10,5 +10,5 @@ export const defaultColors = [
   "#EF4444",
   "#14B8A6",
   "#64748B",
-  "#F97316",
+  // "#F97316", TODO: got rid of one color because main route counts towards metrics now
 ];

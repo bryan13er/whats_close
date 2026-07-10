@@ -94,7 +94,7 @@ async function fetchMultipleMissingRoutes(originToDests, homeHistory, destHistor
 
 }
 
-export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelCache) {
+export function useOriginMetrics(destinationId, homeHistory, destHistory, activeRoutes, travelCache) {
   const [syncingMetrics, setSyncingMetrics] = useState(false);
   const [originMetrics, setOriginMetrics] = useState({}); // keyed by orign id 
 
@@ -103,7 +103,11 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
   // do some garabage collection or figure out how to create only the newest pairs
   const crossProductKeys = useMemo(() => {
     const homeIds = Object.keys(homeHistory);
-    const destIds = Object.keys(activeRoutes);
+   
+    // exclude main destination if null/undefined
+    const destIds = destinationId 
+      ? [...Object.keys(activeRoutes), destinationId]
+      : [...Object.keys(activeRoutes)];
 
     if (!homeIds.length || !destIds.length) return [];
 
@@ -113,7 +117,7 @@ export function useOriginMetrics(homeHistory, destHistory, activeRoutes, travelC
         .filter(destId => destId !== homeId)
         .map(destId => `${homeId}::${destId}`)
     );
-  }, [homeHistory, activeRoutes]);
+  }, [homeHistory, activeRoutes, destinationId]);
 
   //TODO: something about the data possibly becomeing stale need to look into this warning
   const missingCrossProductKeys = useMemo(() => {

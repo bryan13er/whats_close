@@ -90,7 +90,7 @@ export function MapFeatureProvider({ children }) {
   // CUSTOM HOOKS AND EFFECTS 
   // pretend hook code is just brought over
   const { syncingDestData } = useDestinations(home, destHistory, travelCache);
-  const { syncingMetrics, originMetrics } = useOriginMetrics(homeHistory, destHistory, activeRoutes, travelCache);
+  const { syncingMetrics, originMetrics } = useOriginMetrics(destination?.placeId, homeHistory, destHistory, activeRoutes, travelCache);
   
   // --- Logic Handlers (Memoized) ---
   const addHome = useCallback((location) => {
@@ -245,6 +245,14 @@ export function MapFeatureProvider({ children }) {
     }
   }, [historyType]);
 
+  const setMainRoute = useCallback((destObj) => {
+    setActiveRoutes((prev) => {
+      return deactivateRoute(prev, destObj.placeId);
+    });
+
+    setDestination(destObj);
+  }, []);
+
   // read about why in:
   // https://react.dev/reference/react/useCallback
   // https://react.dev/reference/react/memo
@@ -272,7 +280,8 @@ export function MapFeatureProvider({ children }) {
     mapType, toggleMapType,
     historyType, toggleHistoryType,
     syncingDestData,
-    syncingMetrics, originMetrics
+    syncingMetrics, originMetrics,
+    setMainRoute,
   }), [
     home, addHome, homeHistory, handleHomeClear,
     destination, addDestination, deleteFromHomeHistory, clearRoute,
@@ -289,7 +298,8 @@ export function MapFeatureProvider({ children }) {
     mapType, toggleMapType,
     historyType, toggleHistoryType,
     syncingDestData,
-    syncingMetrics, originMetrics
+    syncingMetrics, originMetrics,
+    setMainRoute,
   ]);
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>;

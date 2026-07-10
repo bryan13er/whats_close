@@ -288,13 +288,22 @@
   
   /* EDITED: Button icon scaled down to match v4's 12px icon size */
   .btn-icon {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
   }
 
   /* =========================================
     CURRENT HOME BADGE
     ========================================= */
+
+  .btn-unset-destination{
+    flex: 0 0 65%;
+  }
+
+  .btn-delete {
+    flex: 1;
+    min-width: 44px;
+  }
 
   .current-badge {
     display: inline-block;
