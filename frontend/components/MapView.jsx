@@ -110,7 +110,17 @@ export default function MapView() {
 
          
           {home && (
-            <AdvancedMarker position={home} />
+            <AdvancedMarker position={home} >
+              <div style={{
+                width: '26px',
+                height: '26px',
+                backgroundColor: '#FFFFFF', // White fill
+                border: '6px solid #0F9D58', // Blue border (Dodger Blue)
+                borderRadius: '50%',        // Makes it a perfect circle
+                boxShadow: '0 2px 6px rgba(0,0,0,0.3)', // Optional: subtle shadow to make it pop
+                cursor: 'pointer'
+              }} />
+            </AdvancedMarker>
           )}
 
           {Object.keys(activePins).length > 0 && 

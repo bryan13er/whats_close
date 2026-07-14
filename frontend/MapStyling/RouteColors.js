@@ -1,12 +1,12 @@
-/* Controls the route colors when displaying (9 distinct colors optimized for Google Maps) */
+/* WHEN STICT MODE IS ON IN PROD it does not work with useRef so it will pop more colors than normal*/
 export const defaultColors = [
-  "#1D4ED8", // Deep Royal Blue (Dark enough to not blend with water)
-  "#E11D48", // Vibrant Crimson (Pops strongly against map grays/whites)
-  "#059669", // Emerald Green (Darker than map parks/vegetation)
-  "#7C3AED", // Rich Purple (Highly distinct, no map features use this)
-  "#EA580C", // Burnt Orange (Darker than the yellow/orange used for highways)
-  "#DB2777", // Magenta/Pink (Excellent contrast and stands out clearly)
-  "#0F766E", // Dark Teal (Distinct from both blue and green)
-  "#B45309", // Golden Brown (Earthy tone that contrasts well with roads)
-  "#334155", // Charcoal Slate (A strong, neutral dark color for contrast)
+  "#92400E", // Terracotta brown
+  "#FF5C35", // Coral orange
+  "#F59E0B", // Amber gold
+  "#84CC16", // Chartreuse lime
+  "#16A34A", // Kelly green
+  "#0D9488", // Deep teal
+  "#8B5CF6", // Violet purple
+  "#C026D3", // Fuchsia
+  "#EC4899", // Hot pink
 ];

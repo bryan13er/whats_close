@@ -2,7 +2,10 @@
 // TODO: after testing delete this moved to using Field Mask
 // const fields = ['routes.viewport', 'routes.legs', 'routes.polylineDetails', 'routes.legs.duration', 'routes.legs.distanceMeters'];
 
+
 // docs at https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRoutes
+// docs that define the response body like leg vs step
+// https://developers.google.com/maps/documentation/routes/understand-route-response
 
 const ROUTES_API_ENDPOINT =
   'https://routes.googleapis.com/directions/v2:computeRoutes';

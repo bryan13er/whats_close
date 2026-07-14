@@ -80,6 +80,7 @@ export default function RouteEntry({destination, index:routeIndex, color:activeC
         strokeWeight={isWalking ? 2 : 6}
         strokeColor={color}
         zIndex={routeIndex}
+        strokeOpacity={isMainRoute ? 1 : 0.75}
       />
     );
   });
@@ -95,9 +96,15 @@ export default function RouteEntry({destination, index:routeIndex, color:activeC
        }
 
       {isMainRoute ?
-        <AdvancedMarker position={destination}/> :
+        <AdvancedMarker position={destination}/> 
+        :
         <AdvancedMarker position={destination}>
-          <Pin background={activeColor} borderColor={'	#686868'} glyphColor={'	#686868'}/>
+          <Pin 
+            background={activeColor} 
+            borderColor={'	#686868'} 
+            glyphColor={'	#686868'}
+            scale={0.65}
+          />
         </AdvancedMarker>
       } 
 
