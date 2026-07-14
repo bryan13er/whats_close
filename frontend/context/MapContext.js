@@ -106,7 +106,6 @@ export function MapFeatureProvider({ children }) {
 
   const handleHomeClear = useCallback(() => {
     setHome(null);
-    setDestination(null);
     setRouteBounds(null);
   }, []);
 

@@ -22,6 +22,7 @@ export class PlacesApi {
   }
 
   /**
+   * TODO: ratings and pricelevel are part of the enterprise API COST remeber that
    * get details on a place 
    * adjust fildmask args as needed
    * reference:

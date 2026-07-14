@@ -33,7 +33,7 @@ export const MarkerWithInfoWindow = ({position}) => {
         onClick={handleMarkerClick}
       >
         <Pin
-          background={'#2563eb'}
+          background={'#06b6d4'}
           glyphColor={'#ffffff'}
           borderColor={'#1d4ed8'}
         />

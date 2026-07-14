@@ -102,12 +102,15 @@ export function useOriginMetrics(destinationId, homeHistory, destHistory, active
   // its okay for the crossProductKeys to be recreated otherwise I would have to 
   // do some garabage collection or figure out how to create only the newest pairs
   const crossProductKeys = useMemo(() => {
+    console.log("destination", destinationId);
     const homeIds = Object.keys(homeHistory);
    
     // exclude main destination if null/undefined
     const destIds = destinationId 
       ? [...Object.keys(activeRoutes), destinationId]
       : [...Object.keys(activeRoutes)];
+
+      console.log("destIds", destIds);
 
     if (!homeIds.length || !destIds.length) return [];
 
@@ -118,6 +121,8 @@ export function useOriginMetrics(destinationId, homeHistory, destHistory, active
         .map(destId => `${homeId}::${destId}`)
     );
   }, [homeHistory, activeRoutes, destinationId]);
+
+  console.log("cross product key", crossProductKeys);
 
   //TODO: something about the data possibly becomeing stale need to look into this warning
   const missingCrossProductKeys = useMemo(() => {
@@ -179,8 +184,12 @@ export function useOriginMetrics(destinationId, homeHistory, destHistory, active
     };
 
     const loadOriginMetrics = async () => {
-      // If the map just loaded and there are no keys to process, do absolutely nothing.
-      if (crossProductKeys.length === 0) return;
+      // If the map just loaded and there are no keys to process, reset to empty to not show stale data
+      if (crossProductKeys.length === 0) {
+        setOriginMetrics({});
+        setSyncingMetrics(false);
+        return;
+      }
 
       // Guard clause: if the useMemo calculated 0 missing routes, bail out instantly
       if (Object.keys(originToDests).length === 0){
