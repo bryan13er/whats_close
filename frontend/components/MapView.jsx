@@ -9,16 +9,12 @@ import {
 import "./MapView.css";
 
 import RecenterRouteButton from "./RecenterRouteButton";
-import Route from './route'
-import DestInfoTable from "./DestInfoTable";
-
 import { MAP_CONFIG } from '../config/maps';
 import { useMapFeatures } from "../context/MapContext";
 import MapTypeButton from "./MapTypeButton";
 import StreetViewWatcher from "./StreetViewWatcher";
 import MapCenterControl from "./MapCenterControl";
 import NavPill from "./NavPill";
-import ShowDataTableButton from "./ShowDataTableButton";
 import LocationDrawer from "./LocationDrawer";
 import MultiRoutes from "./MultiRoutes";
 import PinsOverlay from "./PinsOverlay";
