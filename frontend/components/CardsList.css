@@ -1,0 +1,27 @@
+/* ==========================================================================
+   Layout Engine for CardsList.jsx
+   ========================================================================== */
+
+/* Root layout wrapper (Replaces your old .card-list) */
+.card-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;         /* Keeps spacing uniform with original container flow */
+  padding: 16px;     /* Retains your standard drawer side gutter padding */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Internal layout handling for multiple active pinned paths */
+.active-routes-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;         /* Slightly tighter spacing inside the active cluster */
+}
+
+/* The magic reverse container for old history rows */
+.history-items-wrapper {
+  display: flex;
+  flex-direction: column-reverse; /* Flips loop rendering with zero JS costs */
+  gap: 12px;         /* Card gaps remain stable as the array elements invert */
+}

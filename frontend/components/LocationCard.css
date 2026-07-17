@@ -6,7 +6,7 @@
     font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
     background: transparent;
     transition: background 0.12s;
-    border-left: 3.5px solid transparent;
+    border-left: 4px solid transparent;
   }
   
   .location-card:hover {
