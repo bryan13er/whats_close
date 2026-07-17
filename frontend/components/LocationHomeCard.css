@@ -30,14 +30,13 @@
   }
   
   .home-location-card.home-is-current .home-card-inner {
-    border-left: 4px solid #7425eb;
+    border-left: 8px solid #0F9D58; /* Main green */
     border-bottom-color: transparent;
     padding-left: 16px;
   }
   
   .home-card-inner {
     padding: 16px 20px;
-    border-bottom: 1px solid #eaeaea;
   }
   
   /* =========================================
@@ -257,12 +256,12 @@
   .home-btn-set-home {
     flex: 1;
     padding: 0 12px;
-    background: #7425eb;
+    background: #0F9D58; /* Main green */
     color: white;
   }
   
   .home-btn-set-home:hover {
-    background: #5d0eef;
+    background: #0B7F46; /* Richer, darker green for hover */
   }
   
   .home-btn-unset-home {
@@ -359,8 +358,8 @@
     display: inline-block;
     font-size: 12px;
     font-weight: 800;
-    color: #7425eb;
-    background: rgba(116, 37, 235, 0.1);
+    color: #0F9D58;
+    background: rgba(15, 157, 88, 0.1);
     padding: 4px 8px;
     border-radius: 4px;
     letter-spacing: 0.05em;

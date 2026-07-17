@@ -9,19 +9,16 @@ import {
 import "./MapView.css";
 
 import RecenterRouteButton from "./RecenterRouteButton";
-import Route from './route'
-import DestInfoTable from "./DestInfoTable";
-
 import { MAP_CONFIG } from '../config/maps';
 import { useMapFeatures } from "../context/MapContext";
 import MapTypeButton from "./MapTypeButton";
 import StreetViewWatcher from "./StreetViewWatcher";
 import MapCenterControl from "./MapCenterControl";
 import NavPill from "./NavPill";
-import ShowDataTableButton from "./ShowDataTableButton";
 import LocationDrawer from "./LocationDrawer";
 import MultiRoutes from "./MultiRoutes";
 import PinsOverlay from "./PinsOverlay";
+import RouteEntry from "./RouteEntry";
 
 
 const routeOptions = {
@@ -94,8 +91,10 @@ export default function MapView() {
           <StreetViewWatcher/>
 
           {home && destination &&
-            <Route
-              routeOptions={routeOptions}
+            <RouteEntry
+              destination={destination}
+              index={50}
+              isMainRoute={true}
             />
           }
 
@@ -107,7 +106,17 @@ export default function MapView() {
 
          
           {home && (
-            <AdvancedMarker position={home} />
+            <AdvancedMarker position={home} >
+              <div style={{
+                width: '26px',
+                height: '26px',
+                backgroundColor: '#FFFFFF', // White fill
+                border: '6px solid #0F9D58', // Blue border (Dodger Blue)
+                borderRadius: '50%',        // Makes it a perfect circle
+                boxShadow: '0 2px 6px rgba(0,0,0,0.3)', // Optional: subtle shadow to make it pop
+                cursor: 'pointer'
+              }} />
+            </AdvancedMarker>
           )}
 
           {Object.keys(activePins).length > 0 && 

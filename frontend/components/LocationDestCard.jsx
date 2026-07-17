@@ -9,7 +9,14 @@ import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFi
 import './LocationCard.css'
 import { useMapFeatures } from "../context/MapContext";
 import { priceMap } from '../utils/places';
-import FlagIcon from '@mui/icons-material/Flag';
+
+function DestFlagIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none">
+      <path d="M3 2v12M3 3l9 2.5L3 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 //TODO: add weather
 const weatherIcons = {
@@ -78,7 +85,7 @@ function gatherEntryData(home, place, syncingDestData, travelCache) {
 
 // TODO: convert to consume and creat its own row
 export default function LocationDestCard({place, current = false}) {
-  const { home, clearRoute, syncingDestData, travelCache, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef,  deleteFromDestHistory } = useMapFeatures();
+  const { home, clearRoute, syncingDestData, travelCache, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef,  deleteFromDestHistory, setMainRoute } = useMapFeatures();
   const destData = gatherEntryData(home, place, syncingDestData, travelCache);
 
   // for name of place
@@ -88,6 +95,12 @@ export default function LocationDestCard({place, current = false}) {
   const isActive = !!activeRoutes[destData.placeId];
   const routeColor = isActive ? activeRoutes[destData.placeId] : '';
   const highlightLimit = routeColorsPoolRef.current.length === 0;
+
+  // EDITED: Delete should spell out "Delete" and fill the remaining row space whenever
+  // Highlight Route isn't rendered next to it — true for the current-destination row
+  // (which never shows Highlight Route) and for the default row once the highlight limit
+  // has been reached and this route isn't the active one.
+  const deleteIsFull = current || (highlightLimit && !isActive);
 
   /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
   const StarRow = ({ rating }) => (
@@ -102,15 +115,15 @@ export default function LocationDestCard({place, current = false}) {
   );
 
   return (
-    /* EDITED: Removed card shadow/bg — now a flat row with bottom border divider (v4 PlaceRow style) */
-    <div className={`location-card ${current ? 'location-is-current' : ''}`}>
+    <div 
+      className={`location-card ${current ? 'location-is-current' : ''}`}
+      style={(!current && isActive) ? { borderLeftColor: routeColor } : {}}
+    >
       <div className="card-inner">
-
-        {/* EDITED: Header now has distance pinned top-right in monospace, matching v4 layout */}
         <div className="card-header">
           <div className="card-title-group">
             {current && (
-              <div className="current-badge">CURRENT DESTINATION</div>
+              <div className="current-badge">PRIMARY DESTINATION</div>
             )}
             <div className="card-title">
               <div className='card-main-name'>{mainName}</div>
@@ -122,8 +135,6 @@ export default function LocationDestCard({place, current = false}) {
             {getImperialDist(destData.distance)}
           </div>
         </div>
-
-        {/* EDITED: Meta row — rating stars + price side by side, matching v4 info-line style */}
         <div className="card-meta">
           {destData.ratings !== 'N/A' && (
             <StarRow rating={destData.ratings} />
@@ -154,7 +165,6 @@ export default function LocationDestCard({place, current = false}) {
           </div>
         </div>
 
-        {/* EDITED: Actions redesigned — Set Route fills remaining space, Highlight Route is bordered, Delete is icon-only bordered danger (v4 style) */}
         <div className="card-actions">
           { current ? (
             <>
@@ -162,33 +172,22 @@ export default function LocationDestCard({place, current = false}) {
                 className='btn-route btn-unset-destination'
                 onClick={() => {clearRoute()}}
               >
-                <FlagIcon className='btn-icon'/>
-                Unset Destination
+                <DestFlagIcon className='btn-icon'/>
+                Remove as Primary
               </button>
-              {(!highlightLimit || isActive) &&
-                <button
-                  className={`btn-highlight-route${isActive ? ' btn-highlight-route--active' : ''}`}
-                  onClick={() => { toggleActiveRoute(destData.placeId) }}
-                  style={isActive ? { 
-                    backgroundColor: routeColor, 
-                    borderColor: routeColor,
-                    color: '#fff' // Ensures text is readable against the background
-                  } : {}}
-                >
-                  {isActive
-                    ? "Hide Route"
-                    : "Highlight Route"}
-                </button>
-              }
-              <button className="btn-delete" onClick={() => { deleteFromDestHistory(destData.placeId) }}>
+              <button
+                className={`btn-delete${deleteIsFull ? ' btn-delete--full' : ''}`}
+                onClick={() => { deleteFromDestHistory(destData.placeId) }}
+              >
                 <Trash2 className="btn-icon" />
+                Delete
               </button>
             </>
           ):(
             <>
-              <button className="btn-route" onClick={() => { setDestination(destData.destObj) }}>
+              <button className="btn-route" onClick={() => { setMainRoute(destData.destObj) }}>
                 <Navigation className="btn-icon" />
-                Set Route
+                Set As Primary
               </button>
               {(!highlightLimit || isActive) &&
                 <button
@@ -201,12 +200,16 @@ export default function LocationDestCard({place, current = false}) {
                   } : {}}
                 >
                   {isActive
-                    ? "Hide Route"
-                    : "Highlight Route"}
+                    ? "End Compare"
+                    : "Compare"}
                 </button>
               }
-              <button className="btn-delete" onClick={() => { deleteFromDestHistory(destData.placeId) }}>
+              <button
+                className={`btn-delete${deleteIsFull ? ' btn-delete--full' : ''}`}
+                onClick={() => { deleteFromDestHistory(destData.placeId) }}
+              >
                 <Trash2 className="btn-icon" />
+                {deleteIsFull && 'Delete'}
               </button>
             </>
           )}

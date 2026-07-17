@@ -6,6 +6,7 @@
     font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
     background: transparent;
     transition: background 0.12s;
+    border-left: 3.5px solid transparent;
   }
   
   .location-card:hover {
@@ -16,6 +17,7 @@
     background: #fdfcff;
     position: relative;
     z-index: 10;
+    border-left: 8px solid #2563eb;
   
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.08),
@@ -24,15 +26,12 @@
   }
 
   .location-card.location-is-current .card-inner{
-    border-left: 4px solid #2563eb;
-    border-bottom-color: transparent;
     padding-left: 16px;
   }
 
   /* EDITED: Inner wrapper adds vertical padding + bottom border divider (v4 uses 16px 0 / 1px border) */
   .card-inner {
     padding: 16px 20px;
-    border-bottom: 1px solid #eaeaea;
   }
   
   /* EDITED: Header is now space-between with distance pinned top-right */
@@ -84,7 +83,7 @@
   }
   
   .location-card:hover .card-distance {
-    background: #eaeaea;
+    background: #d1d5db;
   }
   
   .weather-icon {
@@ -190,7 +189,9 @@
     letter-spacing: 0.06em;
   }
   
-  /* EDITED: Actions row redesigned — route fills, show-route is bordered, delete is icon-only bordered danger */
+  /* EDITED: Actions redesigned — Set Route / Highlight Route / Delete use flex-grow ratios (3:2:0)
+     so Route is always biggest, Highlight Route is second, and Delete sizes to its icon.
+     When Highlight Route isn't rendered, Route is the only growable item and fills the gap. */
   .card-actions {
     display: flex;
     gap: 6px;
@@ -213,9 +214,9 @@
     transition: all 0.15s;
   }
   
-  /* EDITED: Set Route — fills available space, dark filled background (v4 primary action) */
+  /* EDITED: Set Route — biggest share of the row, dark filled background (v4 primary action) */
   .btn-route {
-    flex: 1;
+    flex: 3 1 0%;
     padding: 9px 0;
     background: #2563eb;
     color: #fff;
@@ -227,6 +228,7 @@
   }
 
   .btn-unset-destination {
+    flex: 0 0 65%;
     padding: 0 12px;
     background: #fae591;
     color: #b45309;
@@ -240,25 +242,14 @@
     color: #78350f;
   }
   
-  /* EDITED: Show Route — bordered style with accent tones (v4 highlight/secondary action) */
+  /* EDITED: Highlight Route — second biggest share, bordered style with accent tones (v4 secondary action) */
   .btn-highlight-route {
+    flex: 2 1 0%;
     padding: 9px 12px;
     background: transparent;
     color: #888;
     border: 1.5px solid #eaeaea;
   }
-  
-  /* .btn-highlight-route:hover {
-    background: rgba(255, 92, 53, 0.08);
-    color: #c6950e;
-    border-color: #f0d895;
-  } */
-
-  /* .btn-highlight-route:hover {
-    background: rgba(255, 92, 53, 0.08);
-    color: #c66a0e;
-    border-color: #f0c295;
-  } */
 
   .btn-highlight-route:hover {
     background: rgba(212, 255, 19, 0.369);
@@ -273,8 +264,10 @@
     border-color: #dbab26;
   }
   
-  /* EDITED: Delete — icon-only, bordered danger (v4 trash button style) */
+  /* EDITED: Delete — sizes to its content (icon-only, or icon+"Delete" text), doesn't stretch */
   .btn-delete {
+    flex: 0 0 auto;
+    min-width: 44px;
     padding: 9px 10px;
     background: transparent;
     color: #ff3b30;
@@ -286,10 +279,18 @@
     border-color: #ff3b30;
   }
   
+  /* EDITED: Applied directly on the button — matches the class LocationDestCard.jsx adds
+     whenever Delete is the sole secondary action (current-destination row, or default row
+     once the highlight limit is reached), so it grows to fill the leftover space instead
+     of sizing to content */
+  .btn-delete--full {
+    flex: 1 1 0%;
+  }
+  
   /* EDITED: Button icon scaled down to match v4's 12px icon size */
   .btn-icon {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
   }
 
   /* =========================================

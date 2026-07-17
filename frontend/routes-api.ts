@@ -1,7 +1,11 @@
 /// <reference types="@types/google.maps" />
-const fields = ['routes.viewport', 'routes.legs', 'routes.polylineDetails', 'routes.legs.duration', 'routes.legs.distanceMeters'];
+// TODO: after testing delete this moved to using Field Mask
+// const fields = ['routes.viewport', 'routes.legs', 'routes.polylineDetails', 'routes.legs.duration', 'routes.legs.distanceMeters'];
+
 
 // docs at https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRoutes
+// docs that define the response body like leg vs step
+// https://developers.google.com/maps/documentation/routes/understand-route-response
 
 const ROUTES_API_ENDPOINT =
   'https://routes.googleapis.com/directions/v2:computeRoutes';
@@ -29,13 +33,13 @@ export class RoutesApi {
     };
 
     const url = new URL(ROUTES_API_ENDPOINT);
-    url.searchParams.set('fields', fields.join(','));
 
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Goog-Api-Key': this.apiKey
+        'X-Goog-Api-Key': this.apiKey,
+        'X-Goog-FieldMask': 'routes.viewport,routes.legs,routes.polylineDetails'
       },
       body: JSON.stringify(routeRequest)
     });
