@@ -8,12 +8,15 @@
   }
 }
 
+.drawer-container{
+  border-bottom: 1px solid #e5e7eb;
+}
+
 .drawer-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px;
-  border-bottom: 1px solid #e5e7eb;
 }
 
 .history-pill-group {
@@ -74,7 +77,7 @@
 }
 
 .btn-clear-all {
-  margin-left: auto;
+  /* margin-left: auto; */
   background: #e5e7eb;
   border: none;
   color: #374151;

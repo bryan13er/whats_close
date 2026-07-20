@@ -1,6 +1,6 @@
 'use client'
 
-import { Trash2, Navigation, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle } from 'lucide-react';
+import { Trash2, Navigation, Sun, Cloud, CloudRain, CloudSnow, CloudDrizzle, Split, X} from 'lucide-react';
 import { cleanTimeRes, formatDurationFromSeconds } from '../utils/time';
 import { getImperialDist } from '../utils/distance';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
@@ -200,8 +200,19 @@ export default function LocationDestCard({place, current = false}) {
                   } : {}}
                 >
                   {isActive
-                    ? "End Compare"
-                    : "Compare"}
+                    ? (
+                      <>
+                        <X className='btn-icon'/>
+                        End Compare
+                      </>
+                      )
+                    : (
+                      <>
+                        <Split className='btn-icon'/>
+                        Compare
+                      </>
+                      )
+                  }
                 </button>
               }
               <button

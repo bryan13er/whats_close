@@ -226,23 +226,31 @@ export function MapFeatureProvider({ children }) {
     })
   }, []);
 
+  const clearAllCompares = useCallback(() => {
+    routeColorsPoolRef.current = [...defaultColors];
+    setActiveRoutes({});
+  }, []);
 
-  // TODO: refactor the clear funcition to release all resources
-  // Wipes history in single atomic batch updates with zero loops
+  const clearAllPins = useCallback(() => {
+    setActivePins({});
+  }, []);
+
   const clearHistory = useCallback(() => {
     if (historyType === 'destination') {
       setDestHistory({});
       setDestination(null);
 
-      // chosing to only remove active routes if destHistory is reset 
-      routeColorsPoolRef.current = [...defaultColors];
-      setActiveRoutes({});
+      // chosing to only remove active routes if destHistory is reset
+      clearAllCompares();
+
     } else {
       setHomeHistory({});
       setHome(null);
-      setActivePins({});
+      clearAllPins
     }
   }, [historyType]);
+
+
 
   const setMainRoute = useCallback((destObj) => {
     setActiveRoutes((prev) => {
@@ -267,6 +275,8 @@ export function MapFeatureProvider({ children }) {
     home, addHome, homeHistory, handleHomeClear,
     destination, setDestination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory, setDestHistory,
+    clearAllPins,
+    clearAllCompares,
     clearHistory,
     routeBounds, setRouteBounds,
     routesCache,
@@ -285,6 +295,8 @@ export function MapFeatureProvider({ children }) {
     home, addHome, homeHistory, handleHomeClear,
     destination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory,
+    clearAllPins,
+    clearAllCompares,
     clearHistory,
     routeBounds,
     routesCache, 

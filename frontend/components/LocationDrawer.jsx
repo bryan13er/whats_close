@@ -6,12 +6,15 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import LocationDestCard from "./LocationDestCard";
 import LocationHomeCard from "./LocationHomeCard";
 import CardList from "./CardsList";
 import { useMapFeatures } from "../context/MapContext";
 import './LocationDrawer.css';
 import "./MapView.css";
+import { Merge, Settings2, MapPinOff } from 'lucide-react';
 
 
 const drawerWidth = 460;
@@ -21,7 +24,7 @@ export default function LocationDrawer() {
   const [open, setOpen] = useState(false);
   // const [sortBy, setSortBy] = useState('none');
   const menuButtonRef = useRef(null);
-  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearHistory, activeRoutes, activePins} = useMapFeatures();
+  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins} = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;
@@ -80,29 +83,47 @@ export default function LocationDrawer() {
           },
         }}
       >
-        <div className="drawer-header">
-          <IconButton onClick={handleClose}>
-            <ChevronRightIcon />
-          </IconButton>
-          <div className="history-pill-group">
-            <button 
-              type="button"
-              className={`history-pill-btn ${historyType === 'home' ? 'is-active' : ''}`}
-              onClick={() => historyType !== 'home' && toggleHistoryType()}
-            >
-              Origins
-            </button>
-            <button 
-              type="button"
-              className={`history-pill-btn ${historyType === 'destination' ? 'is-active' : ''}`}
-              onClick={() => historyType !== 'destination' && toggleHistoryType()}
-            >
-              Destinations
+        <div className="drawer-container">
+          <div className="drawer-header">
+            <IconButton onClick={handleClose}>
+              <ChevronRightIcon />
+            </IconButton>
+            <div className="history-pill-group">
+              <button 
+                type="button"
+                className={`history-pill-btn ${historyType === 'home' ? 'is-active' : ''}`}
+                onClick={() => historyType !== 'home' && toggleHistoryType()}
+              >
+                Origins
+              </button>
+              <button 
+                type="button"
+                className={`history-pill-btn ${historyType === 'destination' ? 'is-active' : ''}`}
+                onClick={() => historyType !== 'destination' && toggleHistoryType()}
+              >
+                Destinations
+              </button>
+            </div>
+
+            {historyType === 'destination' ? 
+              (
+                <IconButton onClick={() => clearAllCompares()}>
+                  <Merge />
+                </IconButton>
+              ) : (
+                <IconButton onClick={() => clearAllPins()}>
+                  <MapPinOff/>
+                </IconButton>
+              )
+            }
+            <IconButton onClick={() => console.log("expand menu")}>
+              <Settings2 />
+            </IconButton>
+
+            <button className="btn-clear-all" onClick={() => clearHistory()}>
+              Clear All
             </button>
           </div>
-          <button className="btn-clear-all" onClick={() => clearHistory()}>
-            Clear All
-          </button>
         </div>
         {cards}
       </Drawer>
