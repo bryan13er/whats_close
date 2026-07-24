@@ -123,10 +123,7 @@ export default function MapView() {
             <PinsOverlay/>
           }
         </GoogleMap>
-
-        {(Object.keys(destHistory).length > 0 || Object.keys(homeHistory).length > 0) &&
-          <LocationDrawer/>
-        }
+        <LocationDrawer/>
       </div>
     </APIProvider>
   );

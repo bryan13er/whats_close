@@ -1,0 +1,71 @@
+.sub-menu {
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px; /* or whatever tight spacing you want, e.g. 8px */
+}
+
+.btn-sort-by{
+  background: #e5e7eb;
+  border: none;
+  font-weight: 500;
+  font-size: 0.85rem; 
+  border-radius: 9999px;
+  box-sizing: border-box;
+  height: 34px;
+  padding: 0 16px;
+
+  /* 1. Lock the button to a consistent fixed width */
+  width: 180px; /* Tweak this number based on your longest label (e.g. "AVG DISTANCE") */
+}
+
+.sort-by-prefix {
+  font-weight: 600;
+}
+
+.btn-sort-by:hover {
+  background: #d1d5db;
+}
+
+.transport-pill-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;                    /* small gap instead of forcing equal widths */
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  padding: 3px;
+  width: fit-content;           /* was 210px */
+  height: 34px;
+  box-sizing: border-box;
+}
+
+.transport-pill-btn {
+  flex: 0 0 auto;               /* was flex: 1 */
+  width: 36px;                  /* square-ish tap target, tweak to taste */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #71757de4;
+  cursor: pointer;
+  border-radius: 9999px;
+  padding: 0;
+  border: none;
+}
+
+
+.transport-pill-btn.is-active {
+  background-color: #ffffff; /* Crisp white island stands out cleanly against the gray track */
+  color: #0f172a;            /* Bold, prominent text for active mode */
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.transport-pill-btn:not(.is-active):hover {
+  color: #111827;            /* Slightly darker text on hover */
+  background-color: #d1d5db; /* Distinct darker gray block to invite the click */
+}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from "react";
+import { use, useRef, useState } from "react";
 import Drawer from '@mui/material/Drawer';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import IconButton from '@mui/material/IconButton';
@@ -10,18 +10,37 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import LocationDestCard from "./LocationDestCard";
 import LocationHomeCard from "./LocationHomeCard";
+import SubMenu from "./SubMenu";
 import CardList from "./CardsList";
 import { useMapFeatures } from "../context/MapContext";
 import './LocationDrawer.css';
 import "./MapView.css";
 import { Merge, Settings2, MapPinOff } from 'lucide-react';
+import Collapse from "@mui/material/Collapse";
+import { SORT_OPTIONS } from '../config/sortOptions';
+
 
 
 const drawerWidth = 460;
 const drawerBleeding = 20;
 
+// Static definition: never changes, zero React overhead
 export default function LocationDrawer() {
   const [open, setOpen] = useState(false);
+  const [openSubMenu, setOpenSubMenu] = useState(false);
+
+  // orderBy: true = newest to oldest, false = oldest to newest
+  const [sortPrefs, setSortPrefs] = useState({
+    destination: {
+      sortBy: SORT_OPTIONS.destination[0],
+      orderBy: true,
+    },
+    home: {
+      sortBy: SORT_OPTIONS.home[0],
+      orderBy: true,
+    }
+  });
+
   // const [sortBy, setSortBy] = useState('none');
   const menuButtonRef = useRef(null);
   const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins} = useMapFeatures();
@@ -36,6 +55,37 @@ export default function LocationDrawer() {
     setOpen(false);
   };
 
+  const toggleSubMenu = () => {
+    setOpenSubMenu(!openSubMenu);
+  };
+
+  const handleSortByChange = (option) => {
+    setSortPrefs((prev) => ({
+      ...prev,
+      [historyType]: {
+        ...prev[historyType],
+        sortBy: option,
+      }
+    }));
+  };
+
+  const handleOrderByToggle = () => {
+    setSortPrefs((prev) => ({
+      ...prev,
+      [historyType]: {
+        ...prev[historyType],
+        orderBy: !prev[historyType].orderBy,
+      }
+    }));
+  };
+
+  const sortBy = sortPrefs[historyType]?.sortBy;
+  const orderBy = sortPrefs[historyType]?.orderBy;
+
+  console.log("history type", historyType, sortBy);
+  console.log(sortPrefs);
+
+
   //TODO: 
   // CURRENT VERSION IS BAD I GUESS
   //  GOOD: Only creates a new reference if the underlying rows object actually changes
@@ -48,8 +98,9 @@ export default function LocationDrawer() {
       locationsHistory={destHistory}
       activeLocations={activeRoutes}
       primary={destination}
-      sortBy = {'distance'}
       CardComponent={LocationDestCard}
+      sortBy = {sortBy.key}
+      orderBy = {orderBy}
     />
   ) : (
     <CardList 
@@ -57,6 +108,8 @@ export default function LocationDrawer() {
       activeLocations={activePins}
       primary={home}
       CardComponent={LocationHomeCard}
+      sortBy = {sortBy.key}
+      orderBy = {orderBy}
     />
   );
 
@@ -116,7 +169,7 @@ export default function LocationDrawer() {
                 </IconButton>
               )
             }
-            <IconButton onClick={() => console.log("expand menu")}>
+            <IconButton onClick={() => toggleSubMenu()}>
               <Settings2 />
             </IconButton>
 
@@ -124,6 +177,15 @@ export default function LocationDrawer() {
               Clear All
             </button>
           </div>
+          <Collapse in={openSubMenu} timeout="auto" unmountOnExit>
+            <SubMenu
+              historyType={historyType}
+              handleSortByChange={handleSortByChange}
+              handleOrderByToggle={handleOrderByToggle}
+              currOption={sortBy}
+              orderBy={orderBy}
+            />
+          </Collapse>
         </div>
         {cards}
       </Drawer>

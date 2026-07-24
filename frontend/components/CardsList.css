@@ -22,6 +22,43 @@
 /* The magic reverse container for old history rows */
 .history-items-wrapper {
   display: flex;
-  flex-direction: column-reverse; /* Flips loop rendering with zero JS costs */
+  flex-direction: column; 
   gap: 12px;         /* Card gaps remain stable as the array elements invert */
+}
+
+/* Modifier class: Flips layout visually when orderBy is true */
+.history-items-wrapper.reverse {
+  flex-direction: column-reverse;
+}
+
+.empty-history-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.empty-history-state .empty-icon {
+  width: 45px;
+  height: 45px;
+  color: #9ca3af; /* Muted gray icon */
+  margin-bottom: 0.75rem;
+  opacity: 0.75;
+}
+
+.empty-history-state .empty-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 600;
+  color: #374151; /* Soft dark slate instead of pure black */
+}
+
+.empty-history-state .empty-subtitle {
+  margin-top: 0.25rem;
+  font-size: 20px;
+  color: #9ca3af; /* Muted secondary text */
+  max-width: 220px;
+  line-height: 1.4;
 }
