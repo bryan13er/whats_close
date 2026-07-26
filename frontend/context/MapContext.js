@@ -8,6 +8,17 @@ import { defaultColors } from '../MapStyling/RouteColors';
 import { useOriginMetrics } from '../hooks/useOriginMetrics';
 import { usePlaceData } from '../hooks/usePlaceData';
 
+const ALL_TRANSPORT_MODES_DISABLED = {
+  drive: false,
+  walk: false,
+  transit: false,
+};
+
+const createInitialModes = (defaultModeKey = 'drive') => ({
+  ...ALL_TRANSPORT_MODES_DISABLED,
+  [defaultModeKey]: true,
+});
+
 /**
  * @typedef {import('../types').Place} Place
  * @typedef {import('../types').Row} Row
@@ -36,6 +47,8 @@ import { usePlaceData } from '../hooks/usePlaceData';
  *
  * @property {Place.placeId: color}                activeRoutes           - destIds pointing at color from colors map
  * @property {{Place.placeId: true}}               activePins             - set-like object of pinned placeIds; membership check via `placeId in activePins`
+ * 
+ * @property {ActiveTravelModes}                   activeTravelModes      - dictionary mapping travel mode keys (drive, walk, transit, bicycling) to enabled booleans, default is drive
  * 
  * @property {(loc: Place) => void}                toggleActiveRoute      - add/remove a route from the map
  * @property {(placeId: string) => void}           toggleActivePins       - add/remove a placeId from activePins
@@ -71,6 +84,9 @@ export function MapFeatureProvider({ children }) {
   const [routeBounds, setRouteBounds] = useState(null);
   const [activeRoutes, setActiveRoutes] = useState({});
   const [activePins, setActivePins] = useState({})
+
+  // -- transport mode --
+  const [activeTravelModes, setActiveTravelModes] = useState(() => createInitialModes('drive'));
 
   // --- UI/Map Control State ---
   const [mapCenter, setMapCenter] = useState(MAP_CONFIG.defaultCenter);
@@ -262,6 +278,12 @@ export function MapFeatureProvider({ children }) {
     setDestination(destObj);
   }, []);
 
+  // 7/26/26 can only handle one at a time will leave it for now
+  const toggleSingleTravelModeOn = useCallback((modeKey) => {
+    // Always activates the selected mode and disables the rest
+    setActiveTravelModes(createInitialModes(modeKey));
+  }, []);
+
   // read about why in:
   // https://react.dev/reference/react/useCallback
   // https://react.dev/reference/react/memo
@@ -285,6 +307,7 @@ export function MapFeatureProvider({ children }) {
     travelCache,
     activeRoutes, toggleActiveRoute,
     activePins, toggleActivePins,
+    activeTravelModes,toggleSingleTravelModeOn,
     routeColorsPoolRef,
     mapCenter, setMapCenter,
     isStreetViewVisible, setIsStreetViewVisible,
@@ -306,6 +329,7 @@ export function MapFeatureProvider({ children }) {
     travelCache,
     activeRoutes,
     activePins,
+    activeTravelModes,
     routeColorsPoolRef,
     mapCenter,
     isStreetViewVisible,

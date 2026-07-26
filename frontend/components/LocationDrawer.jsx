@@ -43,7 +43,8 @@ export default function LocationDrawer() {
 
   // const [sortBy, setSortBy] = useState('none');
   const menuButtonRef = useRef(null);
-  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins, placeDataCounter } = useMapFeatures();
+  // placeDataCounter Subscribed here to force drawer re-render when place details populate
+  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins, placeDataCounter, activeTravelModes, toggleSingleTravelModeOn,} = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;
@@ -184,6 +185,8 @@ export default function LocationDrawer() {
               handleOrderByToggle={handleOrderByToggle}
               currOption={sortBy}
               orderBy={orderBy}
+              activeTravelModes={activeTravelModes}
+              toggleSingleTravelModeOn={toggleSingleTravelModeOn}
             />
           </Collapse>
         </div>

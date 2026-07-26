@@ -10,7 +10,7 @@ import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
 import { SORT_OPTIONS } from '../config/sortOptions';
 
-export default function SubMenu({historyType, handleSortByChange, handleOrderByToggle, currOption, orderBy}) {
+export default function SubMenu({historyType, handleSortByChange, handleOrderByToggle, currOption, orderBy, activeTravelModes, toggleSingleTravelModeOn}) {
   const id = React.useId();
   const buttonId = `${id}-button`;
   const menuId = `${id}-menu`;
@@ -75,14 +75,24 @@ export default function SubMenu({historyType, handleSortByChange, handleOrderByT
       <IconButton onClick={handleOrderByToggle}>
         {orderBy ? <ArrowDownWideNarrow /> : <ArrowUpWideNarrow />}
       </IconButton>
+      {/* toggle args have to match key names defined in the default state in MapContext.js consider using a loop later*/}
       <div className='transport-pill-group'>
-        <button className='transport-pill-btn is-active'>
+        <button 
+          className={`transport-pill-btn ${activeTravelModes.drive ? 'is-active' : ''}`}
+          onClick={() => toggleSingleTravelModeOn('drive')}
+        >
           <DriveEtaIcon/>
         </button>
-        <button className='transport-pill-btn'>
+        <button 
+          className={`transport-pill-btn ${activeTravelModes.walk ? 'is-active' : ''}`}
+          onClick={() => toggleSingleTravelModeOn('walk')}
+        >
           <DirectionsWalkIcon/>
         </button>
-        <button className='transport-pill-btn'>
+        <button
+          className={`transport-pill-btn ${activeTravelModes.transit ? 'is-active' : ''}`}
+          onClick={() => toggleSingleTravelModeOn('transit')}
+        >
           <DirectionsTransitFilledIcon/>
         </button>
       </div>
