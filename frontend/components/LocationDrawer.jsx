@@ -43,7 +43,7 @@ export default function LocationDrawer() {
 
   // const [sortBy, setSortBy] = useState('none');
   const menuButtonRef = useRef(null);
-  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins} = useMapFeatures();
+  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins, placeDataCounter } = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;

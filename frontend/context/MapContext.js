@@ -6,6 +6,7 @@ import { MAP_CONFIG } from '../config/maps';
 import { useDestinations } from '../hooks/useDestinations';
 import { defaultColors } from '../MapStyling/RouteColors';
 import { useOriginMetrics } from '../hooks/useOriginMetrics';
+import { usePlaceData } from '../hooks/usePlaceData';
 
 /**
  * @typedef {import('../types').Place} Place
@@ -89,6 +90,7 @@ export function MapFeatureProvider({ children }) {
 
   // CUSTOM HOOKS AND EFFECTS 
   // pretend hook code is just brought over
+  const { placeDataCounter } =  usePlaceData(homeHistory, destHistory, travelCache);
   const { syncingDestData } = useDestinations(home, destHistory, travelCache);
   const { syncingMetrics, originMetrics } = useOriginMetrics(destination?.placeId, homeHistory, destHistory, activeRoutes, travelCache);
   
@@ -290,6 +292,7 @@ export function MapFeatureProvider({ children }) {
     historyType, toggleHistoryType,
     syncingDestData,
     syncingMetrics, originMetrics,
+    placeDataCounter,
     setMainRoute,
   }), [
     home, addHome, homeHistory, handleHomeClear,
@@ -310,6 +313,7 @@ export function MapFeatureProvider({ children }) {
     historyType, toggleHistoryType,
     syncingDestData,
     syncingMetrics, originMetrics,
+    placeDataCounter,
     setMainRoute,
   ]);
 

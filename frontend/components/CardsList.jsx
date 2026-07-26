@@ -110,7 +110,11 @@ export default function CardList({ locationsHistory = {}, activeLocations = {}, 
     <div className="card-list-container">
       {/* 1. Render the active "Current" card at the absolute top if it exists[cite: 2] */}
       {primary?.placeId && (
-        <CardComponent key={primary.placeId} place={primary} current={true}/>
+        <CardComponent 
+          key={primary.placeId} 
+          place={primary} 
+          current={true} 
+        />
       )}
 
       {/* 

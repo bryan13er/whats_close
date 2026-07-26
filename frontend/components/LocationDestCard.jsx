@@ -48,12 +48,19 @@ function gatherEntryData(home, place, syncingDestData, travelCache) {
     cost: "N/A",
   };
 
+  // 1. ALWAYS get Place Data (Ratings & Cost) because it does not depend on 'home'
+  const placeData = travelCache.current.places[place.placeId];
+  if (placeData) {
+    entry.ratings = placeData.rating ?? "N/A";
+    entry.cost = priceMap[placeData.priceLevel] ?? "N/A";
+  }
+
+  // 2. Early return if no home or if still syncing routes
   if (home === null || syncingDestData) return entry;
 
+  // 3. Get Route Data (Distance & Time) - Only runs if 'home' exists
   const routeData = travelCache.current.routes[home.placeId]?.[place.placeId];
-  const placeData = travelCache.current.places[place.placeId];
 
-  // TODO convert to a loop when ready
   if (routeData) {
     if (routeData.drive?.condition === 'ROUTE_EXISTS') {
       entry.distance = routeData.drive.distanceMeters;
@@ -65,11 +72,6 @@ function gatherEntryData(home, place, syncingDestData, travelCache) {
     if (routeData.transit?.condition === 'ROUTE_EXISTS') {
       entry.transitTime = cleanTimeRes(routeData.transit);
     }
-  }
-
-  if (placeData) {
-    entry.ratings = placeData.rating ?? "N/A";
-    entry.cost = priceMap[placeData.priceLevel] ?? "N/A";
   }
 
   return entry;

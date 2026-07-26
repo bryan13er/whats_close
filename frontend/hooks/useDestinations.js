@@ -108,11 +108,6 @@ export function useDestinations(home, destinations, travelCache) {
         const currentHomeId = home.placeId;
         // 1. Identify what data is currently missing from our travelCaches
         
-        // places travelCache i.e. ratings and price
-        const missingPlaces = filteredDests.filter(
-          d => !travelCache.current.places[d.placeId]
-        );
-
         // set up a homeId history in useRef if there is none
         if (!travelCache.current.routes[currentHomeId]) {
           travelCache.current.routes[currentHomeId] = {};
@@ -123,7 +118,7 @@ export function useDestinations(home, destinations, travelCache) {
           d => !travelCache.current.routes[currentHomeId][d.placeId]
         );
 
-        if (missingPlaces.length === 0 && missingRoutes.length === 0){ 
+        if (missingRoutes.length === 0){ 
           setSyncingDestData(false);
           return;
         }
@@ -132,7 +127,6 @@ export function useDestinations(home, destinations, travelCache) {
 
         // 2. Fetch only the missing pieces concurrently
         await Promise.all([
-          fetchMissingPlaces(missingPlaces, travelCache),
           fetchMissingRoutes(home, missingRoutes, travelCache)
         ]);
 
