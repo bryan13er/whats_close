@@ -58,6 +58,13 @@
     display: flex;
     flex-direction: column;
   }
+
+  .card-title.inline-title {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem; /* Adjust spacing between mainName and restOfAddress */
+  }
   
   .card-main-name {
     font-size: 16px;
@@ -68,6 +75,17 @@
     font-size: 14px;
     font-weight: 500;
     color: #777;
+  }
+
+  /* Target the children inside inline-title to override base sizes */
+  .card-title.inline-title .card-main-name {
+    font-size: 20px; /* Incremented size */
+    margin-bottom: 0; /* Clears the bottom margin so baseline alignment works */
+  }
+
+  .card-title.inline-title .card-rest-of-address {
+    font-size: 17px; /* Scaled up proportionally */
+    font-weight: 800;
   }
   
   /* EDITED: Distance badge — monospace, bold, top-right, gets a subtle bg on hover */

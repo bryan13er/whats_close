@@ -35,12 +35,16 @@ const weatherColors = {
   drizzle: 'weather-drizzle',
 };
 
-function gatherEntryData(home, place, syncingDestData, travelCache) {
+function gatherEntryData(home, place, syncingDestData, travelCache, activeTravelModes) {
   const entry = {
     name: place.label,
     placeId: place.placeId,
     destObj: place,
-    distance: 0,
+    distance: {
+      drive: 0,
+      walk: 0,
+      transit: 0,
+    },
     driveTime: 0,
     walkTime: 0,
     transitTime: 0,
@@ -62,14 +66,16 @@ function gatherEntryData(home, place, syncingDestData, travelCache) {
   const routeData = travelCache.current.routes[home.placeId]?.[place.placeId];
 
   if (routeData) {
-    if (routeData.drive?.condition === 'ROUTE_EXISTS') {
-      entry.distance = routeData.drive.distanceMeters;
+    if (activeTravelModes.drive && routeData.drive?.condition === 'ROUTE_EXISTS') {
+      entry.distance.drive = routeData.drive.distanceMeters;
       entry.driveTime = cleanTimeRes(routeData.drive);
     }
-    if (routeData.walk?.condition === 'ROUTE_EXISTS') {
+    if (activeTravelModes.walk && routeData.walk?.condition === 'ROUTE_EXISTS') {
+      entry.distance.walk = routeData.walk.distanceMeters;
       entry.walkTime = cleanTimeRes(routeData.walk);
     }
-    if (routeData.transit?.condition === 'ROUTE_EXISTS') {
+    if (activeTravelModes.transit && routeData.transit?.condition === 'ROUTE_EXISTS') {
+      entry.distance.transit = routeData.transit.distanceMeters;
       entry.transitTime = cleanTimeRes(routeData.transit);
     }
   }
@@ -87,8 +93,10 @@ function gatherEntryData(home, place, syncingDestData, travelCache) {
 
 // TODO: convert to consume and creat its own row
 export default function LocationDestCard({place, current = false}) {
-  const { home, clearRoute, syncingDestData, travelCache, setDestination, toggleActiveRoute, activeRoutes, routeColorsPoolRef,  deleteFromDestHistory, setMainRoute } = useMapFeatures();
-  const destData = gatherEntryData(home, place, syncingDestData, travelCache);
+  const { home, clearRoute, syncingDestData, travelCache, toggleActiveRoute, activeRoutes, 
+          routeColorsPoolRef,  deleteFromDestHistory, setMainRoute, activeTravelModes} = useMapFeatures();
+  
+  const destData = gatherEntryData(home, place, syncingDestData, travelCache, activeTravelModes);
 
   // for name of place
   const [mainName, ...rest] = destData.name.split(",");
@@ -97,6 +105,14 @@ export default function LocationDestCard({place, current = false}) {
   const isActive = !!activeRoutes[destData.placeId];
   const routeColor = isActive ? activeRoutes[destData.placeId] : '';
   const highlightLimit = routeColorsPoolRef.current.length === 0;
+  const showTravelData = isActive || current;
+
+  // Finds the first mode toggled on in activeTravelModes (e.g., 'drive')
+  const firstActiveMode = Object.keys(activeTravelModes).find((mode) => activeTravelModes[mode]);
+  console.log("TEST", firstActiveMode);
+  // Get distance in meters for that mode, defaulting to 0
+  const activeDistanceMeters = destData.distance[firstActiveMode] ?? 0;
+  console.log("TEST2", activeDistanceMeters);
 
   // EDITED: Delete should spell out "Delete" and fill the remaining row space whenever
   // Highlight Route isn't rendered next to it — true for the current-destination row
@@ -127,15 +143,17 @@ export default function LocationDestCard({place, current = false}) {
             {current && (
               <div className="current-badge">PRIMARY DESTINATION</div>
             )}
-            <div className="card-title">
-              <div className='card-main-name'>{mainName}</div>
-              <div className='card-rest-of-address'>{restOfAddress}</div>
+            <div className={`card-title ${!showTravelData ? 'inline-title' : ''}`}>
+              <div className="card-main-name">{mainName}</div>
+              <div className="card-rest-of-address">{restOfAddress}</div>
             </div>
             {/* <WeatherIcon className={`weather-icon ${weatherColors[weather]}`} /> */}
           </div>
-          <div className="card-distance">
-            {getImperialDist(destData.distance)}
-          </div>
+          {showTravelData && activeDistanceMeters > 0 && (
+            <div className="card-distance">
+              {getImperialDist(activeDistanceMeters)}
+            </div>
+          )}
         </div>
         <div className="card-meta">
           {destData.ratings !== 'N/A' && (
@@ -147,26 +165,27 @@ export default function LocationDestCard({place, current = false}) {
         </div>
 
         {/* EDITED: Transport changed from pill chips to 3-column stacked layout (icon / time / label) matching v4 */}
-        <div className="transport-section">
-          <div className="transport-options">
-            <div className="transport-option">
-              <DriveEtaIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(destData.driveTime)}</span>
-              <span className="transport-label">Drive</span>
-            </div>
-            <div className="transport-option">
-              <DirectionsWalkIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(destData.walkTime)}</span>
-              <span className="transport-label">Walk</span>
-            </div>
-            <div className="transport-option">
-              <DirectionsTransitFilledIcon className="transport-icon"/>
-              <span className="transport-time">{formatDurationFromSeconds(destData.transitTime)}</span>
-              <span className="transport-label">Transit</span>
+        {showTravelData  && (
+          <div className="transport-section">
+            <div className="transport-options">
+              <div className="transport-option">
+                <DriveEtaIcon className="transport-icon"/>
+                <span className="transport-time">{formatDurationFromSeconds(destData.driveTime)}</span>
+                <span className="transport-label">Drive</span>
+              </div>
+              <div className="transport-option">
+                <DirectionsWalkIcon className="transport-icon"/>
+                <span className="transport-time">{formatDurationFromSeconds(destData.walkTime)}</span>
+                <span className="transport-label">Walk</span>
+              </div>
+              <div className="transport-option">
+                <DirectionsTransitFilledIcon className="transport-icon"/>
+                <span className="transport-time">{formatDurationFromSeconds(destData.transitTime)}</span>
+                <span className="transport-label">Transit</span>
+              </div>
             </div>
           </div>
-        </div>
-
+        )}
         <div className="card-actions">
           { current ? (
             <>
