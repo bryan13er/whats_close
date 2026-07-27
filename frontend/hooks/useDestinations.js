@@ -19,19 +19,6 @@ import { routesMatrixApi, placesApi } from '../config/maps';
 
 // TODO: 3/20 think about a simple travelCache garabage collection strategy
 
-// Helper 1: Fetches only missing place details and mutates the travelCache object
-async function fetchMissingPlaces(missingDests, travelCacheRef) {
-  if (missingDests.length === 0) return;
-  
-  const results = await Promise.all(
-    missingDests.map(dest => placesApi.getPlaceDetails(dest.placeId))
-  );
-  
-  // Write the results ot the travelCache
-  results.forEach((res, i) => {
-    travelCacheRef.current.places[missingDests[i].placeId] = res;
-  });
-}
 
 // Helper 2: Fetches only missing routes for the current home and mutates the travelCache object
 async function fetchMissingRoutes(home, missingDests, travelCacheRef) {
