@@ -11,41 +11,20 @@ function removeHomeDestDup(home, destinations){
   return filteredDests;
 }
 
-function intalizeTravelCache(homeId, destinations, travelCache){
-  // 1. Ensure cache skeleton exists for this home origin
-  if (!travelCache.current.routes[homeId]) {
-    travelCache.current.routes[homeId] = {};
-  }
-
-  // 2. Ensure cache objects exist for all target destinations
-  destinations.forEach(dest => {
-    if (!travelCache.current.routes[homeId][dest.placeId]) {
-      travelCache.current.routes[homeId][dest.placeId] = {};
-    }
-  });
-
-  return;
-}
-
 function createFetchJobs(homeId, destinations, activeTravelModes, travelCache){
   const jobs = [];
-  
-  // Get array of currently active modes (e.g., ['drive', 'transit'])
   const activeModeKeys = Object.keys(activeTravelModes).filter(k => activeTravelModes[k]);
   
   if (activeModeKeys.length === 0 || destinations.length === 0) return jobs;
 
   activeModeKeys.forEach(modeKey => {
     const missingDests = destinations.filter(
-      d => !travelCache.current.routes[homeId][d.placeId][modeKey]
+      // Safely check if the modeKey exists using optional chaining
+      d => !travelCache.current.routes[homeId]?.[d.placeId]?.[modeKey]
     );
 
     if (missingDests.length > 0) {
-      jobs.push({ 
-        modeKey, 
-        apiModeStr: modeKey.toUpperCase(),
-        missingDests 
-      });
+      jobs.push({ modeKey, apiModeStr: modeKey.toUpperCase(), missingDests });
     }
   });
 
@@ -67,15 +46,18 @@ async function fetchMissingRoutes(home, jobs, travelCache) {
   results.forEach((res, index) => {
     const job = jobs[index];
     const lookUp = createDataLookup(res);
-    
+
+    travelCache.current.routes[homeId] ??= {};
+
     job.missingDests.forEach((dest, destIndex) => {
+      travelCache.current.routes[homeId][dest.placeId] ??= {};
       travelCache.current.routes[homeId][dest.placeId][job.modeKey] = lookUp[destIndex];
     });
   });
 
 }
 
-export function useDestinations(home, destinations, activeTravelModes, travelCache) {
+export function useDestMetrics(home, destinations, activeTravelModes, travelCache) {
   const [syncingDestData, setSyncingDestData] = useState(false);
 
   useEffect(() => {
@@ -97,10 +79,7 @@ export function useDestinations(home, destinations, activeTravelModes, travelCac
       return;
     }
 
-    // 3. intalize travel cache to create object skeleton and avoid erros when searching for keys
-    intalizeTravelCache(currentHomeId, cleanDestinations, travelCache);
-
-    // 4. create the jobs for the missing home -> dest travelMethod routes
+    // 3. create the jobs for the missing home -> dest travelMethod routes
     const jobs = createFetchJobs(currentHomeId, cleanDestinations, activeTravelModes, travelCache);
 
     if(jobs.length === 0){
@@ -108,7 +87,7 @@ export function useDestinations(home, destinations, activeTravelModes, travelCac
       return;
     }
 
-    // 5. ASYNC EXECUTION: Only spin up async logic when there are jobs to compute
+    // 4. ASYNC EXECUTION: Only spin up async logic when there are jobs to compute
     const fetchDestData = async () => {
       try {
         setSyncingDestData(true);

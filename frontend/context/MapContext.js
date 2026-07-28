@@ -7,6 +7,7 @@ import { useDestinations } from '../hooks/useDestinations';
 import { defaultColors } from '../MapStyling/RouteColors';
 import { useOriginMetrics } from '../hooks/useOriginMetrics';
 import { usePlaceData } from '../hooks/usePlaceData';
+import { useDestMetrics } from '../hooks/useDestMetrics';
 
 const ALL_TRANSPORT_MODES_DISABLED = {
   drive: false,
@@ -107,7 +108,8 @@ export function MapFeatureProvider({ children }) {
   // CUSTOM HOOKS AND EFFECTS 
   // pretend hook code is just brought over
   const { placeDataCounter } =  usePlaceData(homeHistory, destHistory, travelCache);
-  const { syncingDestData } = useDestinations(home, destHistory, travelCache);
+  const { syncingDestData } = useDestMetrics(home, destHistory, activeTravelModes, travelCache);
+  // const { syncingMetrics, originMetrics } = { syncingMetrics: false, originMetrics: {} };//TODO: useOriginMetrics(destination?.placeId, homeHistory, destHistory, activeRoutes, travelCache);
   const { syncingMetrics, originMetrics } = useOriginMetrics(destination?.placeId, homeHistory, destHistory, activeRoutes, travelCache);
   
   // --- Logic Handlers (Memoized) ---
