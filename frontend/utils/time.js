@@ -38,6 +38,7 @@ export function formatDurationFromSeconds(totalSeconds) {
   return time.trim();
 }
 
+// TODO: should defintely only expect a string
 // duartion value looks like this for all travel modes
 // "duration": "419s",
 // returns an int for the seconds

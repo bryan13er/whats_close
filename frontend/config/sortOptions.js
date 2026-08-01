@@ -10,8 +10,8 @@ export const SORT_OPTIONS = {
   ],
   home: [
     { key: 'none', label: 'Newest First' },
-    { key: 'avg distance', label: 'AVG Distance' },
-    { key: 'avg eta', label: 'AVG ETA'},
+    { key: 'avgDistance', label: 'AVG Distance' },
+    { key: 'avgTime', label: 'AVG ETA'},
     { key: 'rating', label: 'Rating' },
     { key: 'price', label: 'Price' },
   ],

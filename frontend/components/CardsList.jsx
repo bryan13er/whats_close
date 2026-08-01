@@ -3,17 +3,18 @@ import './CardsList.css'
 import { useMapFeatures } from "../context/MapContext";
 import { MapPinSearch } from 'lucide-react';
 import { PRICE_LEVEL_WEIGHTS } from '../config/priceLevelWeights';
+import { cleanTimeRes } from '../utils/time';
 
-function getDistance({homeId, destId, travelCache, activeTravelMode}){
+
+function getValidRouteMode({ homeId, destId, travelCache, activeTravelMode }) {
   const routeData = travelCache.current.routes[homeId]?.[destId];
 
-  if (routeData) {
-    if(routeData[activeTravelMode]?.condition === 'ROUTE_EXISTS'){
-      return routeData[activeTravelMode]?.distanceMeters;
-    }
+  // Optional chaining makes this very clean
+  if (routeData?.[activeTravelMode]?.condition === 'ROUTE_EXISTS') {
+    return routeData[activeTravelMode];
   }
 
-  return undefined
+  return undefined;
 }
 
 /**
@@ -45,7 +46,8 @@ function compare(valA, valB, dir){
  * @param {string} homeId - The placeId of the current home
  * @param {Object} travelCache - The ref containing route and place data
  */
-function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, activeTravelMode, travelCache) {
+function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, activeTravelMode, travelCache, originMetrics) {
+
 
   const ASC = 1;
   const DESC = -1;
@@ -83,10 +85,44 @@ function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, activeTra
       }
 
       if (sortBy === 'distance') {
-        const distA = getDistance({homeId, destId: placeA, travelCache, activeTravelMode, }) ?? -1;
-        const distB = getDistance({homeId, destId: placeB, travelCache, activeTravelMode, }) ?? -1;
+        const routeA = getValidRouteMode({ homeId, destId: placeA, travelCache, activeTravelMode });
+        const routeB = getValidRouteMode({ homeId, destId: placeB, travelCache, activeTravelMode });
+        
+        const distA = routeA?.distanceMeters ?? -1;
+        const distB = routeB?.distanceMeters ?? -1;
 
         return compare(distA, distB, dir);
+      }
+
+      if (sortBy === 'eta') {
+        const routeA = getValidRouteMode({ homeId, destId: placeA, travelCache, activeTravelMode });
+        const routeB = getValidRouteMode({ homeId, destId: placeB, travelCache, activeTravelMode });
+        
+        // Apply your cleaning function here
+        const etaA = routeA ? cleanTimeRes(routeA.duration) : -1;
+        const etaB = routeB ? cleanTimeRes(routeB.duration) : -1;
+
+        return compare(etaA, etaB, dir);
+      }
+
+      if (sortBy === 'avgTime') {
+        const metricsA = originMetrics?.[placeA]?.[activeTravelMode];
+        const metricsB = originMetrics?.[placeB]?.[activeTravelMode];
+
+        const avgTimeA = metricsA?.avgTime ?? -1;
+        const avgTimeB = metricsB?.avgTime ?? -1;
+
+        return compare(avgTimeA, avgTimeB, dir);
+      }
+
+      if (sortBy == 'avgDistance') {
+        const metricsA = originMetrics?.[placeA]?.[activeTravelMode];
+        const metricsB = originMetrics?.[placeB]?.[activeTravelMode];
+
+        const avgDistanceA = metricsA?.avgDistance ?? -1;
+        const avgDistanceB = metricsB?.avgDistance ?? -1;
+
+        return compare(avgDistanceA, avgDistanceB, dir);
       }
 
       return 0;
@@ -109,7 +145,7 @@ function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, activeTra
  * @param {React.Component} CardComponent - The unrendered card component to instantiate
  */
 export default function CardList({ locationsHistory = {}, activeLocations = {}, primary = null, CardComponent, sortBy, orderBy}) {
-  const { travelCache, home, activeTravelModes } = useMapFeatures();
+  const { travelCache, home, activeTravelModes, originMetrics } = useMapFeatures();
 
   // TODO: rn will get first travel mode thats turned on only
   const transportMode = Object.keys(activeTravelModes).find(
@@ -130,7 +166,7 @@ export default function CardList({ locationsHistory = {}, activeLocations = {}, 
     );
   }
   
-  sortActiveList(activeLocationsArray, sortBy, orderBy, home?.placeId, transportMode, travelCache);
+  sortActiveList(activeLocationsArray, sortBy, orderBy, home?.placeId, transportMode, travelCache, originMetrics);
 
   return (
     <div className="card-list-container">
