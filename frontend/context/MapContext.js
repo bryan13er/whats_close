@@ -8,6 +8,7 @@ import { defaultColors } from '../MapStyling/RouteColors';
 import { useOriginMetrics } from '../hooks/useOriginMetrics';
 import { usePlaceData } from '../hooks/usePlaceData';
 import { useDestMetrics } from '../hooks/useDestMetrics';
+import { useMatrixData } from '../hooks/useMatrixData';
 
 const ALL_TRANSPORT_MODES_DISABLED = {
   drive: false,
@@ -108,9 +109,7 @@ export function MapFeatureProvider({ children }) {
   // CUSTOM HOOKS AND EFFECTS 
   // pretend hook code is just brought over
   const { placeDataCounter } =  usePlaceData(homeHistory, destHistory, travelCache);
-  const { syncingDestData } = useDestMetrics(home, destHistory, activeTravelModes, travelCache);
-  // const { syncingMetrics, originMetrics } = { syncingMetrics: false, originMetrics: {} };//TODO: useOriginMetrics(destination?.placeId, homeHistory, destHistory, activeRoutes, travelCache);
-  const { syncingMetrics, originMetrics } = useOriginMetrics(destination?.placeId, homeHistory, destHistory, activeRoutes, travelCache);
+  const { syncingMatrixData, originMetrics } = useMatrixData(destination, homeHistory, destHistory, activeRoutes, activeTravelModes, travelCache);
   
   // --- Logic Handlers (Memoized) ---
   const addHome = useCallback((location) => {
@@ -266,7 +265,7 @@ export function MapFeatureProvider({ children }) {
     } else {
       setHomeHistory({});
       setHome(null);
-      clearAllPins
+      clearAllPins();
     }
   }, [historyType]);
 
@@ -315,8 +314,9 @@ export function MapFeatureProvider({ children }) {
     isStreetViewVisible, setIsStreetViewVisible,
     mapType, toggleMapType,
     historyType, toggleHistoryType,
-    syncingDestData,
-    syncingMetrics, originMetrics,
+    // syncingDestData,
+    // syncingMetrics, originMetrics,
+    syncingMatrixData, originMetrics,
     placeDataCounter,
     setMainRoute,
   }), [
@@ -337,8 +337,9 @@ export function MapFeatureProvider({ children }) {
     isStreetViewVisible,
     mapType, toggleMapType,
     historyType, toggleHistoryType,
-    syncingDestData,
-    syncingMetrics, originMetrics,
+    // syncingDestData,
+    // syncingMetrics, originMetrics,
+    syncingMatrixData, originMetrics,
     placeDataCounter,
     setMainRoute,
   ]);

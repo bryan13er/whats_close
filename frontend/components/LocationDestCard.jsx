@@ -35,7 +35,7 @@ const weatherColors = {
   drizzle: 'weather-drizzle',
 };
 
-function gatherEntryData(home, place, syncingDestData, travelCache, activeTravelModes) {
+function gatherEntryData(home, place, syncingState, travelCache, activeTravelModes) {
   const entry = {
     name: place.label,
     placeId: place.placeId,
@@ -60,7 +60,7 @@ function gatherEntryData(home, place, syncingDestData, travelCache, activeTravel
   }
 
   // 2. Early return if no home or if still syncing routes
-  if (home === null || syncingDestData) return entry;
+  if (home === null || syncingState) return entry;
 
   // 3. Get Route Data (Distance & Time) - Only runs if 'home' exists
   const routeData = travelCache.current.routes[home.placeId]?.[place.placeId];
@@ -93,10 +93,12 @@ function gatherEntryData(home, place, syncingDestData, travelCache, activeTravel
 
 // TODO: convert to consume and creat its own row
 export default function LocationDestCard({place, current = false}) {
-  const { home, clearRoute, syncingDestData, travelCache, toggleActiveRoute, activeRoutes, 
+  const { home, clearRoute, syncingMatrixData, placeDataCounter, travelCache, toggleActiveRoute, activeRoutes, 
           routeColorsPoolRef,  deleteFromDestHistory, setMainRoute, activeTravelModes} = useMapFeatures();
   
-  const destData = gatherEntryData(home, place, syncingDestData, travelCache, activeTravelModes);
+  const destData = gatherEntryData(home, place, syncingMatrixData, travelCache, activeTravelModes);
+
+  console.log("placeDataCounter", placeDataCounter);
 
   // for name of place
   const [mainName, ...rest] = destData.name.split(",");
@@ -217,7 +219,7 @@ export default function LocationDestCard({place, current = false}) {
                   style={isActive ? { 
                     backgroundColor: routeColor, 
                     borderColor: routeColor,
-                    color: '#fff' // Ensures text is readable against the background
+                    color: '#fff', // Ensures text is readable against the background
                   } : {}}
                 >
                   {isActive

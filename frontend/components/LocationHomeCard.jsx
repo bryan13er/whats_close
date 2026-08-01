@@ -10,6 +10,7 @@ import LoopIcon from '@mui/icons-material/Loop';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
 import './LocationHomeCard.css'
 import { useMapFeatures } from "../context/MapContext";
+import { priceMap } from '../utils/places';
 
 //TODO: add weather
 const weatherIcons = {
@@ -28,33 +29,69 @@ const weatherColors = {
   drizzle: 'home-weather-drizzle',
 };
 
+const transportLabels = {
+  drive:{
+    avgTime:{
+      icon: AccessTimeIcon,
+      label: 'avg. drive time'
+    },
+    avgDistance:{
+      icon: DriveEtaIcon,
+      label: 'avg. drive distance'
+    },
+  },
+
+  walk:{
+    avgTime:{
+      icon: AccessTimeIcon,
+      label: 'avg. walk time'
+    },
+    avgDistance:{
+      icon: DirectionsWalkIcon,
+      label: 'avg. walk distance'
+    },
+  },
+
+  transit:{
+    avgTime:{
+      icon: AccessTimeIcon,
+      label: 'avg. transit time'
+    },
+    avgDistance:{
+      icon: DirectionsTransitFilledIcon,
+      label: 'avg. transit distance'
+    },
+  },
+}
+
 function DisplayMetric({ 
-  syncingMetrics, 
+  syncingState, 
   placeMetrics, 
   mode,       // "drive", "walk", or "transit"
   metricKey,  // "avgTime" or "avgDistance"
-  label,      // "avg. Drive", "avg. Drive Distance", etc.
-  Icon,       // Pass the Icon component directly (e.g., DriveEtaIcon)
-  formatter   // Pass the formatting function directly (e.g., formatDurationFromSeconds)
+  formatter   // Pass the formatting function directly
 }) {
-  
-  // Clean, defensive guard check inside the component
+  // 1. Get the icon and label config from your transportLabels map
+  const config = transportLabels[mode]?.[metricKey];
+  const IconComponent = config?.icon;
+  const label = config?.label;
+
+  // 2. Data check
   const modeData = placeMetrics?.[mode];
   const hasData = modeData && modeData.count > 0;
 
   return (
     <div className="home-transport-option">
-      {/* Render the dynamic icon passed down as a component property */}
-      <Icon className="home-transport-icon" />
+      {/* 3. Render the retrieved Icon component */}
+      {IconComponent && <IconComponent className="home-transport-icon" />}
       
       {hasData ? (
         <span className="home-transport-time">
-          {/* Dynamically invoke the correct formatter function passed in */}
           {formatter(modeData[metricKey])}
         </span>
-      ) : syncingMetrics ? (
+      ) : syncingState ? (
         <span className="home-transport-time loading">
-          <LoopIcon/>
+          <LoopIcon />
         </span>
       ) : (
         <span className="home-transport-time">-</span>
@@ -65,6 +102,68 @@ function DisplayMetric({
   );
 }
 
+function DisplayMetrics({syncingMatrixData, placeMetrics, transportMode}) { 
+  return (
+    <div className="home-transport-section">
+      <div className="home-transport-options">
+        {/* 1. DRIVE TIME */}
+        <DisplayMetric 
+          syncingState={syncingMatrixData}
+          placeMetrics={placeMetrics}
+          mode={transportMode}
+          metricKey="avgTime"
+          formatter={formatDurationFromSeconds}
+        />
+
+        {/* 2. DRIVE DISTANCE */}
+        <DisplayMetric 
+          syncingState={syncingMatrixData}
+          placeMetrics={placeMetrics}
+          mode={transportMode}
+          metricKey="avgDistance"
+          formatter={getImperialDist}
+        />
+      </div>
+    </div>
+  )
+}
+
+const StarRow = ({ rating }) => (
+  <div className="home-star-row">
+    {[1, 2, 3, 4, 5].map(i => (
+      <span key={i} className={`home-star ${i <= Math.round(rating) ? 'home-star--filled' : 'home-star--empty'}`}>
+        ★
+      </span>
+    ))}
+    <span className="home-rating-number">{rating.toFixed(1)}</span>
+  </div>
+);
+
+function gatherEntryData(place, travelCache, originMetrics) {
+  const entry = {
+    name: place.label,
+    placeId: place.placeId,
+    destObj: place,
+    ratings: "N/A",
+    cost: "N/A",
+    metrics: undefined,
+  };
+
+  // 1. ALWAYS get Place Data (Ratings & Cost) because it does not depend on 'home'
+  const placeData = travelCache.current.places[place.placeId];
+  if (placeData) {
+    entry.ratings = placeData.rating ?? "N/A";
+    entry.cost = priceMap[placeData.priceLevel] ?? "N/A";
+  }
+
+  // 2. intalize metrics
+  entry.metrics = originMetrics?.[place.placeId];
+  return entry;
+}
+
+
+
+
 /**
  * @typedef {import('../types').Row} Row
  */
@@ -73,16 +172,19 @@ function DisplayMetric({
  * @param {{ place: Row }} props
  */
 export default function LocationHomeCard({place, current = false}) {
-  const { addHome, handleHomeClear, deleteFromHomeHistory, toggleActivePins, activePins, syncingMetrics, originMetrics } = useMapFeatures();
+  const { addHome, handleHomeClear, deleteFromHomeHistory, toggleActivePins, activePins, syncingMatrixData, originMetrics, activeTravelModes, travelCache } = useMapFeatures();
+  const homeData = gatherEntryData(place, travelCache, originMetrics);
 
   // for name of place TODO: using .lable tomporarily
-  const [mainName, ...rest] = place.label.split(",");
+  const [mainName, ...rest] = homeData.name.split(",");
   const restOfAddress = rest.join(",").trim() ;
 
   const isActive = !!activePins[place.placeId];
 
-  // get metrics on the particalar placeid 
-  const placeMetrics = originMetrics?.[place.placeId];
+  // TODO: rn will get first travel mode thats turned on only
+  const transportMode = Object.keys(activeTravelModes).find(
+    (mode) => activeTravelModes[mode] === true
+  );
 
   return (
     <div className={`home-location-card ${current ? 'home-is-current' : ''}`}>
@@ -106,50 +208,19 @@ export default function LocationHomeCard({place, current = false}) {
         </div>
 
         <div className="home-card-meta">
-          {place.ratings && place.ratings !== 'N/A' && (
-            <StarRow rating={place.ratings} />
+          {homeData.ratings !== 'N/A' && (
+            <StarRow rating={homeData.ratings} />
           )}
-          {place.cost && place.cost !== 'N/A' && (
-            <span className="home-price-label">{place.cost}</span>
+          {homeData.cost !== 'N/A' && (
+            <span className="home-price-label">{homeData.cost}</span>
           )}
         </div>
 
-        <div className="home-transport-section">
-          <div className="home-transport-options">
-            {/* 1. DRIVE TIME */}
-            <DisplayMetric 
-              syncingMetrics={syncingMetrics}
-              placeMetrics={placeMetrics}
-              mode="drive"
-              metricKey="avgTime"
-              label=" avg. Drive Time"
-              Icon={AccessTimeIcon}
-              formatter={formatDurationFromSeconds}
-            />
-
-            {/* 2. DRIVE DISTANCE */}
-            <DisplayMetric 
-              syncingMetrics={syncingMetrics}
-              placeMetrics={placeMetrics}
-              mode="drive"
-              metricKey="avgDistance"
-              label="avg. Drive Distance"
-              Icon={DriveEtaIcon } // Swap to a ruler or landscape icon if you want to distinguish it from walking rows
-              formatter={getImperialDist}
-            />
-
-            {/* 3. TRANSIT TIME */}
-            {/* <DisplayMetric 
-              syncingMetrics={syncingMetrics}
-              placeMetrics={placeMetrics}
-              mode="transit"
-              metricKey="avgTime"
-              label="avg. Transit"
-              Icon={DirectionsTransitFilledIcon}
-              formatter={formatDurationFromSeconds}
-            /> */}
-          </div>
-        </div>
+        <DisplayMetrics
+          syncingMatrixData={syncingMatrixData}
+          placeMetrics={homeData.metrics}
+          transportMode={transportMode}
+        />
 
         <div className="home-card-actions">
           { current ? ( 
@@ -199,13 +270,3 @@ export default function LocationHomeCard({place, current = false}) {
   );
 }
 
-const StarRow = ({ rating }) => (
-  <div className="home-star-row">
-    {[1, 2, 3, 4, 5].map(i => (
-      <span key={i} className={`home-star ${i <= Math.round(rating) ? 'home-star--filled' : 'home-star--empty'}`}>
-        ★
-      </span>
-    ))}
-    <span className="home-rating-number">{rating.toFixed(1)}</span>
-  </div>
-);

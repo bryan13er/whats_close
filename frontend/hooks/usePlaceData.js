@@ -62,5 +62,5 @@ export function usePlaceData(origins, destinations, travelCache) {
     };
   }, [origins, destinations]); 
 
-  return placeDataCounter;
+  return { placeDataCounter };
 }

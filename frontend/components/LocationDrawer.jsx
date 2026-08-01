@@ -44,7 +44,7 @@ export default function LocationDrawer() {
   // const [sortBy, setSortBy] = useState('none');
   const menuButtonRef = useRef(null);
   // placeDataCounter Subscribed here to force drawer re-render when place details populate
-  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins, placeDataCounter, activeTravelModes, toggleSingleTravelModeOn,} = useMapFeatures();
+  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins, activeTravelModes, toggleSingleTravelModeOn,} = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;

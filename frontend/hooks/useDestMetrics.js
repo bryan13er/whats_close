@@ -2,14 +2,6 @@ import { useState, useEffect, } from 'react';
 import { createDataLookup, } from '../utils/places';
 import { routesMatrixApi, } from '../config/maps';
 
-// returns an array
-function removeHomeDestDup(home, destinations){
-  // 1. remove any destination that matches the home value
-  const cleanIds = Object.keys(destinations).filter(destId => destId !== home.placeId);
-  const filteredDests = cleanIds.map(cleanId => destinations[cleanId]);
-
-  return filteredDests;
-}
 
 function createFetchJobs(homeId, destinations, activeTravelModes, travelCache){
   const jobs = [];
@@ -57,14 +49,14 @@ async function fetchMissingRoutes(home, jobs, travelCache) {
 
 }
 
-export function useDestMetrics(home, destinations, activeTravelModes, travelCache) {
+export function useDestMetrics(homeHistory, destinations, activeTravelModes, travelCache) {
   const [syncingDestData, setSyncingDestData] = useState(false);
 
   useEffect(() => {
     let isCurrentRequest = true;
 
     // 1. if niether is set skip
-    if (!home || !destinations || Object.keys(destinations).length === 0) {
+    if (!homeHistory || !destinations || Object.keys(destinations).length === 0) {
       setSyncingDestData(false);
       return;
     }

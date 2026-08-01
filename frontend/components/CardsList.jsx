@@ -4,6 +4,18 @@ import { useMapFeatures } from "../context/MapContext";
 import { MapPinSearch } from 'lucide-react';
 import { PRICE_LEVEL_WEIGHTS } from '../config/priceLevelWeights';
 
+function getDistance({homeId, destId, travelCache, activeTravelMode}){
+  const routeData = travelCache.current.routes[homeId]?.[destId];
+
+  if (routeData) {
+    if(routeData[activeTravelMode]?.condition === 'ROUTE_EXISTS'){
+      return routeData[activeTravelMode]?.distanceMeters;
+    }
+  }
+
+  return undefined
+}
+
 /**
  * Compares two numerical values for array sorting, applying a direction multiplier 
  * and ensuring missing or invalid values (-1) are always pushed to the end.
@@ -33,7 +45,7 @@ function compare(valA, valB, dir){
  * @param {string} homeId - The placeId of the current home
  * @param {Object} travelCache - The ref containing route and place data
  */
-function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, travelCache) {
+function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, activeTravelMode, travelCache) {
 
   const ASC = 1;
   const DESC = -1;
@@ -70,8 +82,17 @@ function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, travelCac
         return compare(ratingA, ratingB, dir)
       }
 
+      if (sortBy === 'distance') {
+        const distA = getDistance({homeId, destId: placeA, travelCache, activeTravelMode, }) ?? -1;
+        const distB = getDistance({homeId, destId: placeB, travelCache, activeTravelMode, }) ?? -1;
+
+        return compare(distA, distB, dir);
+      }
+
       return 0;
     });
+
+ 
 
     console.log("after", activeLocationsArray);
   }
@@ -82,13 +103,18 @@ function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, travelCac
 /**
  * CardList Component
  * 
- * @param {Object} locationsHistory - Object keyed by placeId holding history data[cite: 1, 2]
+ * @param {Object} locationsHistory - Object keyed by placeId holding history data
  * @param {Object} activeLocations - placeIds that are members of activeRoutes or activePins
- * @param {Object|null} primary - The active current item (e.g., home or destination)[cite: 1, 2]
+ * @param {Object|null} primary - The active current item (e.g., home or destination)
  * @param {React.Component} CardComponent - The unrendered card component to instantiate
  */
 export default function CardList({ locationsHistory = {}, activeLocations = {}, primary = null, CardComponent, sortBy, orderBy}) {
-  const { travelCache, home } = useMapFeatures();
+  const { travelCache, home, activeTravelModes } = useMapFeatures();
+
+  // TODO: rn will get first travel mode thats turned on only
+  const transportMode = Object.keys(activeTravelModes).find(
+    (mode) => activeTravelModes[mode] === true
+  );
 
   const activeLocationsArray = Object.keys(activeLocations); // Changed to Object.keys to extract the IDs
   const locationsArray = Object.values(locationsHistory); // Convert history object to iterable array
@@ -104,7 +130,7 @@ export default function CardList({ locationsHistory = {}, activeLocations = {}, 
     );
   }
   
-  sortActiveList(activeLocationsArray, sortBy, orderBy, home?.placeId, travelCache);
+  sortActiveList(activeLocationsArray, sortBy, orderBy, home?.placeId, transportMode, travelCache);
 
   return (
     <div className="card-list-container">

@@ -18,6 +18,7 @@
     position: relative;
     z-index: 10;
     border-left: 8px solid #2563eb;
+    border-top: none;
   
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.08),
@@ -61,7 +62,7 @@
 
   .card-title.inline-title {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: baseline;
     gap: 0.5rem; /* Adjust spacing between mainName and restOfAddress */
   }
