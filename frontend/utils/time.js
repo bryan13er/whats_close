@@ -38,6 +38,7 @@ export function formatDurationFromSeconds(totalSeconds) {
   return time.trim();
 }
 
+// TODO: should defintely only expect a string
 // duartion value looks like this for all travel modes
 // "duration": "419s",
 // returns an int for the seconds
@@ -49,5 +50,17 @@ export function cleanTimeRes(travelMode) {
     // have to clean response
     return parseInt(travelMode?.duration?.replace('s', ''), numSys);
   }
+}
+
+/**
+ * Expects a duration string (e.g., "419s") and returns an int for the seconds.
+ */
+export function cleanTimeString(durationStr) {
+  const numSys = 10;
+  if (!durationStr || typeof durationStr !== 'string') {
+    return -1;
+  }
+  const parsed = parseInt(durationStr.replace('s', ''), numSys);
+  return isNaN(parsed) ? -1 : parsed;
 }
 

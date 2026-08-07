@@ -1,25 +1,50 @@
 'use client'
 
-import { useRef, useState } from "react";
+import { use, useRef, useState } from "react";
 import Drawer from '@mui/material/Drawer';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import LocationDestCard from "./LocationDestCard";
 import LocationHomeCard from "./LocationHomeCard";
+import SubMenu from "./SubMenu";
+import CardList from "./CardsList";
 import { useMapFeatures } from "../context/MapContext";
 import './LocationDrawer.css';
 import "./MapView.css";
+import { Merge, Settings2, MapPinOff } from 'lucide-react';
+import Collapse from "@mui/material/Collapse";
+import { SORT_OPTIONS } from '../config/sortOptions';
+
 
 
 const drawerWidth = 460;
 const drawerBleeding = 20;
 
+// Static definition: never changes, zero React overhead
 export default function LocationDrawer() {
   const [open, setOpen] = useState(false);
+  const [openSubMenu, setOpenSubMenu] = useState(false);
+
+  // orderBy: true = newest to oldest, false = oldest to newest
+  const [sortPrefs, setSortPrefs] = useState({
+    destination: {
+      sortBy: SORT_OPTIONS.destination[0],
+      orderBy: true,
+    },
+    home: {
+      sortBy: SORT_OPTIONS.home[0],
+      orderBy: true,
+    }
+  });
+
+  // const [sortBy, setSortBy] = useState('none');
   const menuButtonRef = useRef(null);
-  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearHistory} = useMapFeatures();
+  // placeDataCounter Subscribed here to force drawer re-render when place details populate
+  const { destination, destHistory, home, homeHistory, historyType, toggleHistoryType, clearAllPins, clearAllCompares, clearHistory, activeRoutes, activePins, activeTravelModes, toggleSingleTravelModeOn,} = useMapFeatures();
 
   const handleClose = () => {
     const activeElement = document.activeElement;
@@ -31,43 +56,62 @@ export default function LocationDrawer() {
     setOpen(false);
   };
 
-  //TODO: REMEBER THAT THE INPUT TO DATA DRAWER is an array not an object
+  const toggleSubMenu = () => {
+    setOpenSubMenu(!openSubMenu);
+  };
+
+  const handleSortByChange = (option) => {
+    setSortPrefs((prev) => ({
+      ...prev,
+      [historyType]: {
+        ...prev[historyType],
+        sortBy: option,
+      }
+    }));
+  };
+
+  const handleOrderByToggle = () => {
+    setSortPrefs((prev) => ({
+      ...prev,
+      [historyType]: {
+        ...prev[historyType],
+        orderBy: !prev[historyType].orderBy,
+      }
+    }));
+  };
+
+  const sortBy = sortPrefs[historyType]?.sortBy;
+  const orderBy = sortPrefs[historyType]?.orderBy;
+
+  console.log("history type", historyType, sortBy);
+  console.log(sortPrefs);
+
+
+  //TODO: 
   // CURRENT VERSION IS BAD I GUESS
   //  GOOD: Only creates a new reference if the underlying rows object actually changes
   // const sortedRows = useMemo(() => {
   //   return Object.values(rows);
   // }, [rows]);
-  const rowData = historyType === "destination" ? Object.values(destHistory) : Object.values(homeHistory);
-  console.log("row data:", rowData);
 
-  const cards = (
-    <div className="card-list">
-      {historyType === 'destination' ? (
-        <>
-          {destination?.placeId && (
-            <LocationDestCard key={destHistory.placeId} place={destination} current={true} />
-          )}
-
-          {rowData.map((row) => {
-            if (row.placeId === destination?.placeId) return null;
-            return <LocationDestCard key={row.placeId} place={row} />;
-          })}
-        </>
-      ) : (
-        <>
-          {/* Special card for the current home */}
-          {home?.placeId && (
-            <LocationHomeCard key={home.placeId} place={home} current={true} />
-          )}
-
-          {/* Rest of home history, excluding the current home */}
-          {rowData.map((row) => {
-            if (row.placeId === home?.placeId) return null;
-            return <LocationHomeCard key={row.placeId} place={row} />;
-          })}
-        </>
-      )}
-    </div>
+  const cards = historyType === 'destination' ? (
+    <CardList 
+      locationsHistory={destHistory}
+      activeLocations={activeRoutes}
+      primary={destination}
+      CardComponent={LocationDestCard}
+      sortBy = {sortBy.key}
+      orderBy = {orderBy}
+    />
+  ) : (
+    <CardList 
+      locationsHistory={homeHistory}
+      activeLocations={activePins}
+      primary={home}
+      CardComponent={LocationHomeCard}
+      sortBy = {sortBy.key}
+      orderBy = {orderBy}
+    />
   );
 
   return (
@@ -93,29 +137,58 @@ export default function LocationDrawer() {
           },
         }}
       >
-        <div className="drawer-header">
-          <IconButton onClick={handleClose}>
-            <ChevronRightIcon />
-          </IconButton>
-          <div className="history-pill-group">
-            <button 
-              type="button"
-              className={`history-pill-btn ${historyType === 'home' ? 'is-active' : ''}`}
-              onClick={() => historyType !== 'home' && toggleHistoryType()}
-            >
-              Origins
-            </button>
-            <button 
-              type="button"
-              className={`history-pill-btn ${historyType === 'destination' ? 'is-active' : ''}`}
-              onClick={() => historyType !== 'destination' && toggleHistoryType()}
-            >
-              Destinations
+        <div className="drawer-container">
+          <div className="drawer-header">
+            <IconButton onClick={handleClose}>
+              <ChevronRightIcon />
+            </IconButton>
+            <div className="history-pill-group">
+              <button 
+                type="button"
+                className={`history-pill-btn ${historyType === 'home' ? 'is-active' : ''}`}
+                onClick={() => historyType !== 'home' && toggleHistoryType()}
+              >
+                Origins
+              </button>
+              <button 
+                type="button"
+                className={`history-pill-btn ${historyType === 'destination' ? 'is-active' : ''}`}
+                onClick={() => historyType !== 'destination' && toggleHistoryType()}
+              >
+                Destinations
+              </button>
+            </div>
+
+            {historyType === 'destination' ? 
+              (
+                <IconButton onClick={() => clearAllCompares()}>
+                  <Merge />
+                </IconButton>
+              ) : (
+                <IconButton onClick={() => clearAllPins()}>
+                  <MapPinOff/>
+                </IconButton>
+              )
+            }
+            <IconButton onClick={() => toggleSubMenu()}>
+              <Settings2 />
+            </IconButton>
+
+            <button className="btn-clear-all" onClick={() => clearHistory()}>
+              Clear All
             </button>
           </div>
-          <button className="btn-clear-all" onClick={() => clearHistory()}>
-            Clear All
-          </button>
+          <Collapse in={openSubMenu} timeout="auto" unmountOnExit>
+            <SubMenu
+              historyType={historyType}
+              handleSortByChange={handleSortByChange}
+              handleOrderByToggle={handleOrderByToggle}
+              currOption={sortBy}
+              orderBy={orderBy}
+              activeTravelModes={activeTravelModes}
+              toggleSingleTravelModeOn={toggleSingleTravelModeOn}
+            />
+          </Collapse>
         </div>
         {cards}
       </Drawer>

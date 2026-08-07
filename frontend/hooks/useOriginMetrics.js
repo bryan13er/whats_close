@@ -97,6 +97,7 @@ async function fetchMultipleMissingRoutes(originToDests, homeHistory, destHistor
 export function useOriginMetrics(destinationId, homeHistory, destHistory, activeRoutes, travelCache) {
   const [syncingMetrics, setSyncingMetrics] = useState(false);
   const [originMetrics, setOriginMetrics] = useState({}); // keyed by orign id 
+  console.log("METRIC ORIGINS")
 
   // upon review I find that given the maximum size of homeHistoyr and activeRoutes
   // its okay for the crossProductKeys to be recreated otherwise I would have to 

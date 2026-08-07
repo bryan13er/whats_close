@@ -106,7 +106,10 @@ export default function MapView() {
 
          
           {home && (
-            <AdvancedMarker position={home} >
+            <AdvancedMarker 
+              position={home} 
+              zIndex={1000} // render on top always
+            >
               <div style={{
                 width: '26px',
                 height: '26px',
@@ -123,10 +126,7 @@ export default function MapView() {
             <PinsOverlay/>
           }
         </GoogleMap>
-
-        {(Object.keys(destHistory).length > 0 || Object.keys(homeHistory).length > 0) &&
-          <LocationDrawer/>
-        }
+        <LocationDrawer/>
       </div>
     </APIProvider>
   );

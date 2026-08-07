@@ -1,5 +1,6 @@
 /* WHEN STICT MODE IS ON IN PROD it does not work with useRef so it will pop more colors than normal*/
 export const defaultColors = [
+  "#4F46E5", // indigo (purple like)
   "#92400E", // Terracotta brown
   "#FF5C35", // Coral orange
   "#F59E0B", // Amber gold

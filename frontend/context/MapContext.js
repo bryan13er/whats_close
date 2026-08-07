@@ -6,6 +6,20 @@ import { MAP_CONFIG } from '../config/maps';
 import { useDestinations } from '../hooks/useDestinations';
 import { defaultColors } from '../MapStyling/RouteColors';
 import { useOriginMetrics } from '../hooks/useOriginMetrics';
+import { usePlaceData } from '../hooks/usePlaceData';
+import { useDestMetrics } from '../hooks/useDestMetrics';
+import { useMatrixData } from '../hooks/useMatrixData';
+
+const ALL_TRANSPORT_MODES_DISABLED = {
+  drive: false,
+  walk: false,
+  transit: false,
+};
+
+const createInitialModes = (defaultModeKey = 'drive') => ({
+  ...ALL_TRANSPORT_MODES_DISABLED,
+  [defaultModeKey]: true,
+});
 
 /**
  * @typedef {import('../types').Place} Place
@@ -35,6 +49,8 @@ import { useOriginMetrics } from '../hooks/useOriginMetrics';
  *
  * @property {Place.placeId: color}                activeRoutes           - destIds pointing at color from colors map
  * @property {{Place.placeId: true}}               activePins             - set-like object of pinned placeIds; membership check via `placeId in activePins`
+ * 
+ * @property {ActiveTravelModes}                   activeTravelModes      - dictionary mapping travel mode keys (drive, walk, transit, bicycling) to enabled booleans, default is drive
  * 
  * @property {(loc: Place) => void}                toggleActiveRoute      - add/remove a route from the map
  * @property {(placeId: string) => void}           toggleActivePins       - add/remove a placeId from activePins
@@ -71,6 +87,9 @@ export function MapFeatureProvider({ children }) {
   const [activeRoutes, setActiveRoutes] = useState({});
   const [activePins, setActivePins] = useState({})
 
+  // -- transport mode --
+  const [activeTravelModes, setActiveTravelModes] = useState(() => createInitialModes('drive'));
+
   // --- UI/Map Control State ---
   const [mapCenter, setMapCenter] = useState(MAP_CONFIG.defaultCenter);
   const [isStreetViewVisible, setIsStreetViewVisible] = useState(false);
@@ -89,8 +108,8 @@ export function MapFeatureProvider({ children }) {
 
   // CUSTOM HOOKS AND EFFECTS 
   // pretend hook code is just brought over
-  const { syncingDestData } = useDestinations(home, destHistory, travelCache);
-  const { syncingMetrics, originMetrics } = useOriginMetrics(destination?.placeId, homeHistory, destHistory, activeRoutes, travelCache);
+  const { placeDataCounter } =  usePlaceData(homeHistory, destHistory, travelCache);
+  const { syncingMatrixData, originMetrics } = useMatrixData(destination, homeHistory, destHistory, activeRoutes, activeTravelModes, travelCache);
   
   // --- Logic Handlers (Memoized) ---
   const addHome = useCallback((location) => {
@@ -226,23 +245,31 @@ export function MapFeatureProvider({ children }) {
     })
   }, []);
 
+  const clearAllCompares = useCallback(() => {
+    routeColorsPoolRef.current = [...defaultColors];
+    setActiveRoutes({});
+  }, []);
 
-  // TODO: refactor the clear funcition to release all resources
-  // Wipes history in single atomic batch updates with zero loops
+  const clearAllPins = useCallback(() => {
+    setActivePins({});
+  }, []);
+
   const clearHistory = useCallback(() => {
     if (historyType === 'destination') {
       setDestHistory({});
       setDestination(null);
 
-      // chosing to only remove active routes if destHistory is reset 
-      routeColorsPoolRef.current = [...defaultColors];
-      setActiveRoutes({});
+      // chosing to only remove active routes if destHistory is reset
+      clearAllCompares();
+
     } else {
       setHomeHistory({});
       setHome(null);
-      setActivePins({});
+      clearAllPins();
     }
   }, [historyType]);
+
+
 
   const setMainRoute = useCallback((destObj) => {
     setActiveRoutes((prev) => {
@@ -250,6 +277,12 @@ export function MapFeatureProvider({ children }) {
     });
 
     setDestination(destObj);
+  }, []);
+
+  // 7/26/26 can only handle one at a time will leave it for now
+  const toggleSingleTravelModeOn = useCallback((modeKey) => {
+    // Always activates the selected mode and disables the rest
+    setActiveTravelModes(createInitialModes(modeKey));
   }, []);
 
   // read about why in:
@@ -267,37 +300,47 @@ export function MapFeatureProvider({ children }) {
     home, addHome, homeHistory, handleHomeClear,
     destination, setDestination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory, setDestHistory,
+    clearAllPins,
+    clearAllCompares,
     clearHistory,
     routeBounds, setRouteBounds,
     routesCache,
     travelCache,
     activeRoutes, toggleActiveRoute,
     activePins, toggleActivePins,
+    activeTravelModes,toggleSingleTravelModeOn,
     routeColorsPoolRef,
     mapCenter, setMapCenter,
     isStreetViewVisible, setIsStreetViewVisible,
     mapType, toggleMapType,
     historyType, toggleHistoryType,
-    syncingDestData,
-    syncingMetrics, originMetrics,
+    // syncingDestData,
+    // syncingMetrics, originMetrics,
+    syncingMatrixData, originMetrics,
+    placeDataCounter,
     setMainRoute,
   }), [
     home, addHome, homeHistory, handleHomeClear,
     destination, addDestination, deleteFromHomeHistory, clearRoute,
     destHistory, deleteFromDestHistory,
+    clearAllPins,
+    clearAllCompares,
     clearHistory,
     routeBounds,
     routesCache, 
     travelCache,
     activeRoutes,
     activePins,
+    activeTravelModes,
     routeColorsPoolRef,
     mapCenter,
     isStreetViewVisible,
     mapType, toggleMapType,
     historyType, toggleHistoryType,
-    syncingDestData,
-    syncingMetrics, originMetrics,
+    // syncingDestData,
+    // syncingMetrics, originMetrics,
+    syncingMatrixData, originMetrics,
+    placeDataCounter,
     setMainRoute,
   ]);
 

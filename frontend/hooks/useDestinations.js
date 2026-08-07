@@ -19,19 +19,6 @@ import { routesMatrixApi, placesApi } from '../config/maps';
 
 // TODO: 3/20 think about a simple travelCache garabage collection strategy
 
-// Helper 1: Fetches only missing place details and mutates the travelCache object
-async function fetchMissingPlaces(missingDests, travelCacheRef) {
-  if (missingDests.length === 0) return;
-  
-  const results = await Promise.all(
-    missingDests.map(dest => placesApi.getPlaceDetails(dest.placeId))
-  );
-  
-  // Write the results ot the travelCache
-  results.forEach((res, i) => {
-    travelCacheRef.current.places[missingDests[i].placeId] = res;
-  });
-}
 
 // Helper 2: Fetches only missing routes for the current home and mutates the travelCache object
 async function fetchMissingRoutes(home, missingDests, travelCacheRef) {
@@ -108,11 +95,6 @@ export function useDestinations(home, destinations, travelCache) {
         const currentHomeId = home.placeId;
         // 1. Identify what data is currently missing from our travelCaches
         
-        // places travelCache i.e. ratings and price
-        const missingPlaces = filteredDests.filter(
-          d => !travelCache.current.places[d.placeId]
-        );
-
         // set up a homeId history in useRef if there is none
         if (!travelCache.current.routes[currentHomeId]) {
           travelCache.current.routes[currentHomeId] = {};
@@ -123,7 +105,7 @@ export function useDestinations(home, destinations, travelCache) {
           d => !travelCache.current.routes[currentHomeId][d.placeId]
         );
 
-        if (missingPlaces.length === 0 && missingRoutes.length === 0){ 
+        if (missingRoutes.length === 0){ 
           setSyncingDestData(false);
           return;
         }
@@ -132,7 +114,6 @@ export function useDestinations(home, destinations, travelCache) {
 
         // 2. Fetch only the missing pieces concurrently
         await Promise.all([
-          fetchMissingPlaces(missingPlaces, travelCache),
           fetchMissingRoutes(home, missingRoutes, travelCache)
         ]);
 

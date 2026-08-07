@@ -6,7 +6,7 @@
     font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
     background: transparent;
     transition: background 0.12s;
-    border-left: 3.5px solid transparent;
+    border-left: 4px solid transparent;
   }
   
   .location-card:hover {
@@ -18,6 +18,7 @@
     position: relative;
     z-index: 10;
     border-left: 8px solid #2563eb;
+    border-top: none;
   
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.08),
@@ -58,6 +59,13 @@
     display: flex;
     flex-direction: column;
   }
+
+  .card-title.inline-title {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    gap: 0.5rem; /* Adjust spacing between mainName and restOfAddress */
+  }
   
   .card-main-name {
     font-size: 16px;
@@ -68,6 +76,17 @@
     font-size: 14px;
     font-weight: 500;
     color: #777;
+  }
+
+  /* Target the children inside inline-title to override base sizes */
+  .card-title.inline-title .card-main-name {
+    font-size: 20px; /* Incremented size */
+    margin-bottom: 0; /* Clears the bottom margin so baseline alignment works */
+  }
+
+  .card-title.inline-title .card-rest-of-address {
+    font-size: 17px; /* Scaled up proportionally */
+    font-weight: 800;
   }
   
   /* EDITED: Distance badge — monospace, bold, top-right, gets a subtle bg on hover */
