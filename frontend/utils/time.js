@@ -52,3 +52,15 @@ export function cleanTimeRes(travelMode) {
   }
 }
 
+/**
+ * Expects a duration string (e.g., "419s") and returns an int for the seconds.
+ */
+export function cleanTimeString(durationStr) {
+  const numSys = 10;
+  if (!durationStr || typeof durationStr !== 'string') {
+    return -1;
+  }
+  const parsed = parseInt(durationStr.replace('s', ''), numSys);
+  return isNaN(parsed) ? -1 : parsed;
+}
+

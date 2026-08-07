@@ -3,7 +3,7 @@ import './CardsList.css'
 import { useMapFeatures } from "../context/MapContext";
 import { MapPinSearch } from 'lucide-react';
 import { PRICE_LEVEL_WEIGHTS } from '../config/priceLevelWeights';
-import { cleanTimeRes } from '../utils/time';
+import { cleanTimeString } from '../utils/time';
 
 
 function getValidRouteMode({ homeId, destId, travelCache, activeTravelMode }) {
@@ -97,10 +97,11 @@ function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, activeTra
       if (sortBy === 'eta') {
         const routeA = getValidRouteMode({ homeId, destId: placeA, travelCache, activeTravelMode });
         const routeB = getValidRouteMode({ homeId, destId: placeB, travelCache, activeTravelMode });
-        
+
         // Apply your cleaning function here
-        const etaA = routeA ? cleanTimeRes(routeA.duration) : -1;
-        const etaB = routeB ? cleanTimeRes(routeB.duration) : -1;
+        const etaA = routeA ? cleanTimeString(routeA.duration) : -1;
+        const etaB = routeB ? cleanTimeString(routeB.duration) : -1;
+
 
         return compare(etaA, etaB, dir);
       }
@@ -128,9 +129,6 @@ function sortActiveList(activeLocationsArray, sortBy, orderBy, homeId, activeTra
       return 0;
     });
 
- 
-
-    console.log("after", activeLocationsArray);
   }
 }
 

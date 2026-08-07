@@ -1,0 +1,85 @@
+938a26e finished adding the rest of the sortby options, remeber that home sorting only works on pinned locations, need to implement some sort of enum need to go through and avoid macgin numbers
+03276a6  the objective was to unify the useOrigins hook and useDestinations hook into one. Why because each hook shared a subset of its fetch calls this allows me to avoid double fetching a resource while making it easier to manage the data. The draw back is sometimes showing data on the destinations side is a tiny bit slower but its worth the cost, now the only problem is now the transport modes are attached to each other there is one global mode in the future i might explore detaching them again but its fine remeber to add the notes i wrote about how to jump to the neccesary fethces without having to do the nested loop, I then improved the home ui list by adding a gather data function like dest and displaying ratings and price and I added a sort by distance to the sorter now that i can get the correct data according to the mode. Goals continue building out the sort by options and a refactor / simplification of the home card and the dest card is needed they share some compoenents and now they need to get cleaned up
+70b85b0 work in progress for creating data fetch after speaking with Ryan I have come to the conclusion i need to manage all the fetches in on custom hook
+ca14ce1 changed dest card to handle the one transport mode case and working towards descion of only allowing activeLocations to show data
+62db833 created a neew hook ment to replace useDestinations > useDestMetrics as a I work towards refactoring code and supporting only one trasport mode at a time
+4e4c47e introduced the transport mode state and added a toggle function to sub menu need to integrate into data fetching and rendering
+909279e this commit focuses on moving the place data fetch logic into its own hook in retrospect I should have done this from the beginning but this change was done so that i can show the place data i.e. ratings and price for locations whithout having an origin set because useDestinations has a guard to exit early if no origin stat value is set, This will help for my next task which is to add a state that mantians one transporation mode at a type as i make useDestination a hook that handles only route info fetches, useDestination and useMetricOrgins are two hooks that will require some clean up or some abstraction because there is too much going on/share betweent them its probably easier if i move the fetch function into some share config file because I use it in both and with this transportation type state it will need to be udpdated in both. I'm thinking that the transporation state could be a list of bools for each one so i auto fetch them if they are turned on for a premimum user like myself and so i don't have to rewrite the logic later on if i want to introduce multi modes or if i ever want to add bike estiames i can just add it
+b231659 added the sub menu and some basic buttons layout needs to be improved but its a start, sub menu was added using collapse and menu from MUI, this version has a start of the sort by button and order by button the state of the buttons is keyed by the historyType so when user swaps settings stay. GOALS need to only track one transportatin mode at one time this will definely be a struggle aim to make it modular so if i ever want to bring the feature back or only let myself get all time estimates at once or some pripotity system that doesnt' even provide walking estiamte unless specified if location distance is too great. BUG from the start i show the menu and give the user directions to seach (do the same when they have only done one search as well with different langauge ) but i realized i don't get the places details until i show the route this is a problem i might have to make a speical places hook that just tracks both history lists and updates travelCache as well but I need to investiage
+c142da9 preparing to make changes to top menu in drawer I have settled on using collapse from mui and menu for the seperate buttons that need it, this commit focuses on button icon improvements and finally adding a remove all compare and remove all pins button a the top
+8898f99 changed the green to indigo for compare routes
+60e5872 improiving the way the card element list is rendered, abstracted the logic out to its ownn compenent, now whenever something is compared it it brough to the top same thing for origins when a pin is place for that origin bring it to the top below the primary location, next step is sort by button and expanding menu UI to fit it, the new default is based on order of insertion i.e. stack order last in first on top instead of last in oldest on top like it has been play with this idea will probably get promoted to state
+222d0d9 Merge pull request #18 from bryan13er/merging-multi-route
+474881a finally deleted the old system of rendering the main run and the old table way to dispaly information, might have to go back to take a look a the infor pill but will probably use a new style to show information only for main route when menu is hidden, turned restrict back on when running npm run dev
+4ea0860 made the origin color pallet green now, made the origin point a green puck with white center apple maps/google maps like, make the pins for comparison routes smaller and made their routes have some opacity
+b2408be contining the clean up of the UI need to investagate custom pins for the main route i.e. primary and origin when they are set. I'm considering using semi transeprate colors for the compariosn route and and then adding a sort by at the top
+59080f3 working on handling the main route, need to properly text intergration in to useMetrics but i believe its correct, made a new handle funciton so that whena destiantion is promoted to main route if it was being highlighted it gets unhgihlighted first then it is made set to being the route need to look at the weird error about sow network
+9541ed0 updated routeEntry to handle setting route bounds and now MapView uses Route Entry to show the route for the main route remeber you have to use a useEffect to set the routeBounds otherwise it leads to an infinite rerender, need to handle passing it mainRoute data to useMetrics next and limiting highlight route to one route, and creating a main route pin still need to decide if main route zindex should go directly to the top and need to get rid of highlight route for main route
+6e2971f finished improving ui presentation for current destination
+b02e466 making the same highlight location visiual occur on dest history render definelty need to clean up the css and need to choose a different color pallet for the highlight
+83ef5a4 finished the transiton to end destRows and handle orphanining the async call in the useEffect by using the flag system. If I don't have the data for a a dest or if I don't have a home value set I can render rows without problem.
+68ac73e transitioning useDestations to no produce destRows anymore instead have each destCard consume the data from the travelCache and use the syncState variable in order to show the correct data
+3ee95d5 this commit handles fixing the bugs that were present when deletining a location from either dest history or home history as well as when the clear all function is pressed, and added a useEffect in the nav bar so that when the home or dest family are changed the correct value is reflected in the navbar, next item is getting rid of destRows and converting it to a value store so that it can be consumed
+b506db5 needed to swap icon
+d4d6f37 Merge pull request #16 from bryan13er/feat/home_history
+8d8e858 5/4/26 preparing to merge the feat branch, there is still work to be done to the home card, probably need to cut down on all mode of transporation fetchs. I have commited to only historical times it makes no sense to only support the current route as the live traffic time route and the rest aren't
+d4f565c adding .claude to .gitignore
+1201a49 created a new hook that handles fetching and caching route matrix data in order to create the metrics state that holds data on avgTime and avgDistance on a per transporation mode key i thik i need to slow down now and make sure this works proepry and try to simpliyf code and consider what i want to render and how in the home card
+64a252e formatting issue
+9cd4362 added design doc
+e078888 Updates a bug where if home is not selected an a pin is set it crashes
+216d933 succesfully able to add markers for home locations, improved the style of home history current set home gets elevated to the top and auto swaps when users select a ne current home, seprated the css files for homeCard and destCard, need to consider what data i want in my home card, need to some how make the css for the buttons and text uniform for home card and dest card so that its more aligned, need to add the same bring to top feacture for current set home, current custom pin when tapped on shows name of location thats it customization is limited
+b14bbb2 succesfully added pin toggle option to the home objects now I need to create my custom pin to have the name of the place or something
+4f9f82e updated the button to reflect the history type when swapping
+d912735 working on the development of a seprate home card to display the search history for home, I will eventually have to create a proper history object with the other data i have have considered but just to begin development the only thing displayed is the name, the next feature I will add is allowing users to set pins associate with home, this will require adding a pin object to my context and a pins component
+741c626 add a deleteFromHome History setter for feature card use
+45043eb added a object that tracks home history, updated handleHomeSelect into addHome
+f1e51d2 Merge pull request #15 from bryan13er/converting_destHistory_to_object
+3d6740a before merge
+2593a4d needs further testing but transition from array to object for destHistory is complete, make sure to review the clean up funcitons that execute when clearing the map and update the types for the comments to object
+8392e99 starting to remove some of the code for the old dataTable
+54ce30f finally got the highlight route to get assoicated with the color of the route, added a next.js.config strict is off in this commit, I also sorted the route lines by distance from greatest to least and used the z index so that the routes reender in the right order
+eb7d026 Merge pull request #14 from bryan13er/feature/jsdoc-types
+600369c Add JSDoc type definitions for shared shapes
+c61a7a9 trying to add multi color
+30cdacc tweaks to map ui like space and making full address into a sub header
+6da06b8 Merge pull request #8 from bryan13er/refactor/rename-mapview
+a605503 Rename MapWithBox to MapView throughout
+c75865b Merge pull request #7 from bryan13er/docs/project-overview
+fec97fc Add project README and code audit to docs/
+455b88d need to work on multi color next and only using multiRoute to show routes made highlight button
+56f64bd with the help of claude code I changed the location card UI, I added a global font and increment the font to 16px in some places. Next up in chaning the default color of highlight route
+ac48d0f Merge pull request #4 from bryan13er/feature/location-card-redesign
+a7307fe Redesign LocationCard to match Map UI v4 style
+a248c90 Merge pull request #1 from yoshisada/main
+675c033 Merge pull request #1 from yoshisada/copilot/add-swipe-indicator-open
+f0afba8 Add tap-to-open on puller-tab and cursor:pointer styling
+5974b1f added mutli route feature
+11c84e8 working towards displaying multiple routes at the same time
+046381a trying drawer update and places tile to show information
+0a848ea about to integrate new card view for info
+6442a8e changing display to crop when only 1 item, added a clear all button, moved do no show table to table, adjusted the route boutes to use padding
+6d368c8 lets see
+acc8da0 trying to fix mobile issue but can only be verivied on an actual phone
+0d664c3 trying to fix phone sizing
+9973a58 wow good job you linked the button to hide the datatable at will and so it hides itself when typing on mobile overlay review this later, look into behavior when destation input is set and home changes it does not activeate the route automatically
+f3ad550 integrated the navpill into my page need to add a button to hide the table now
+dee5519 improved the useDestinations hook need to add garbage collection but now there are two useRef caches that hold the fetches reduces complexity and reduces overall repeated future calls espeically for places data given that its static and is not dependent on home
+0e93246 reducing api calls
+e0ecffd about to start working on custom autocomplete component
+fcc1d4a many changes, did a refactor added functional hooks and custom hooks moved fucntions around some clean up is neccessary still but much easier to read now need to continue improving upon how to dispaly info like newst to oldest need to look at font color of buttons chainging for some reason and added a map context to keep track of my state vairalbes and reduce renders finally need to add headers to make it easier to know what each object has
+59f4a17 refactored the mui data table moved logic into its own files and made a custom hook for fetching, finally have a proper delete, and need to think about reduckign function calls later
+7a56ae0 saving before i try to update my table
+7db258f about to start working on dashboard
+fc662b2 making changes to buttons, buttons hide when in streetview, able to select only destination as well, need to add custom satelite/traffic button
+a7c4ae2 about to start making changes to add destination menu
+26a0cfb refactored main slighly improved ui info pill for route
+e42a6d2 managed to create a route convert to type script before moving forward
+47eedf5 currently this can search for a home and destenation and store them in state variables going to add actual drawing
+ba1c0a5 added home button reset
+8f4a20a basic search added with new libraries move on to creating a home button that resummons setting home again
+0dc3b8c no advanced markers
+8596206 basic box
+b462b3b gpt fixed tailwind dependacy issue
+6cf8978 basic file setup and env variables added
+43ac1d9 Initial commit
