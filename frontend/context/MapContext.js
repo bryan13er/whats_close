@@ -3,11 +3,8 @@
 // look into reducesrs https://react.dev/learn/scaling-up-with-reducer-and-context
 import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
 import { MAP_CONFIG } from '../config/maps';
-import { useDestinations } from '../hooks/useDestinations';
 import { defaultColors } from '../MapStyling/RouteColors';
-import { useOriginMetrics } from '../hooks/useOriginMetrics';
 import { usePlaceData } from '../hooks/usePlaceData';
-import { useDestMetrics } from '../hooks/useDestMetrics';
 import { useMatrixData } from '../hooks/useMatrixData';
 
 const ALL_TRANSPORT_MODES_DISABLED = {
