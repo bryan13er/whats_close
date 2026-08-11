@@ -18,6 +18,7 @@ import "./MapView.css";
 import { Merge, Settings2, MapPinOff } from 'lucide-react';
 import Collapse from "@mui/material/Collapse";
 import { SORT_OPTIONS } from '../config/sortOptions';
+import { ORDER_BY_MODES } from "../config/orderOptions";
 
 
 
@@ -33,11 +34,11 @@ export default function LocationDrawer() {
   const [sortPrefs, setSortPrefs] = useState({
     destination: {
       sortBy: SORT_OPTIONS.destination[0],
-      orderBy: true,
+      orderBy: ORDER_BY_MODES.DESC,
     },
     home: {
       sortBy: SORT_OPTIONS.home[0],
-      orderBy: true,
+      orderBy: ORDER_BY_MODES.DESC,
     }
   });
 
@@ -75,7 +76,7 @@ export default function LocationDrawer() {
       ...prev,
       [historyType]: {
         ...prev[historyType],
-        orderBy: !prev[historyType].orderBy,
+        orderBy: prev[historyType].orderBy * ORDER_BY_MODES.FLIP_DIRECTION,
       }
     }));
   };

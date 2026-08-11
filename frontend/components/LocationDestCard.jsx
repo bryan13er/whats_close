@@ -9,6 +9,7 @@ import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFi
 import './LocationCard.css'
 import { useMapFeatures } from "../context/MapContext";
 import { priceMap } from '../utils/places';
+import StarRow from './SharedLocationCardComponents/StarRow/StarRow';
 
 function DestFlagIcon({ className }) {
   return (
@@ -121,18 +122,6 @@ export default function LocationDestCard({place, current = false}) {
   // (which never shows Highlight Route) and for the default row once the highlight limit
   // has been reached and this route isn't the active one.
   const deleteIsFull = current || (highlightLimit && !isActive);
-
-  /* EDITED: Replaced single Star icon with 5-star row to match v4 design's RatingBar */
-  const StarRow = ({ rating }) => (
-    <div className="star-row">
-      {[1, 2, 3, 4, 5].map(i => (
-        <span key={i} className={`star ${i <= Math.round(rating) ? 'star--filled' : 'star--empty'}`}>
-          ★
-        </span>
-      ))}
-      <span className="rating-number">{rating.toFixed(1)}</span>
-    </div>
-  );
 
   return (
     <div 

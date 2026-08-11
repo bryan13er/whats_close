@@ -1,0 +1,13 @@
+.star-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.star--filled  { color: #ff5c35; }
+.star--empty   { color: #ff5c35; opacity: 0.15; }

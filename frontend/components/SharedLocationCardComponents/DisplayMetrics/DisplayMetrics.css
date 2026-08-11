@@ -1,0 +1,44 @@
+.display-metrics {
+  margin-bottom: 14px;
+}
+
+.display-metrics__container {
+  display: flex;
+  gap: 0;
+}
+
+.display-metrics__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+  border-right: 1px solid #cecdcd;
+  background: transparent;
+}
+
+.display-metrics__item:last-child {
+  border-right: none;
+}
+
+.display-metrics__icon {
+  width: 18px !important;
+  height: 18px !important;
+  color: #888 !important;
+}
+
+.display-metrics__value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111;
+  white-space: nowrap;
+}
+
+.display-metrics__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

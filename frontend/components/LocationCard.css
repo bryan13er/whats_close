@@ -125,19 +125,7 @@
   }
   
   /* EDITED: Star row replaces single Star icon — 5 individual stars + numeric rating in monospace (v4 RatingBar) */
-  .star-row {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-  }
-  
-  .star {
-    font-size: 13px;
-    line-height: 1;
-  }
-  
-  .star--filled  { color: #ff5c35; }
-  .star--empty   { color: #ff5c35; opacity: 0.15; }
+
   
   /* EDITED: Rating number is monospace bold accent color to match v4 */
   .rating-number {

@@ -92,21 +92,7 @@
     background: #eaeaea;
   }
   
-  /* =========================================
-      WEATHER
-      ========================================= */
-  
-  .home-weather-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .home-weather-sunny { color: #eab308; }
-  .home-weather-cloudy { color: #6b7280; }
-  .home-weather-rainy { color: #3b82f6; }
-  .home-weather-snowy { color: #93c5fd; }
-  .home-weather-drizzle { color: #60a5fa; }
-  
+
   /* =========================================
       META
       ========================================= */
@@ -116,26 +102,6 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 12px;
-  }
-  
-  .home-star-row {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-  }
-  
-  .home-star {
-    font-size: 13px;
-    line-height: 1;
-  }
-  
-  .home-star--filled {
-    color: #ff5c35;
-  }
-  
-  .home-star--empty {
-    color: #ff5c35;
-    opacity: 0.15;
   }
   
   .home-rating-number {
@@ -152,55 +118,6 @@
     letter-spacing: 0.04em;
     color: #111;
     font-family: 'Geist Mono', 'Courier New', monospace;
-  }
-  
-  /* =========================================
-      TRANSPORT
-      ========================================= */
-  
-  .home-transport-section {
-    margin-bottom: 14px;
-  }
-  
-  .home-transport-options {
-    display: flex;
-    gap: 0;
-  }
-  
-  .home-transport-option {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 0;
-    border-right: 1px solid #cecdcd;
-    background: transparent;
-  }
-  
-  .home-transport-option:last-child {
-    border-right: none;
-  }
-  
-  .home-transport-icon {
-    width: 18px !important;
-    height: 18px !important;
-    color: #888 !important;
-  }
-  
-  .home-transport-time {
-    font-size: 12px;
-    font-weight: 700;
-    color: #111;
-    white-space: nowrap;
-  }
-  
-  .home-transport-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
   
   /* =========================================

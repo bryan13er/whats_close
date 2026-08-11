@@ -6,14 +6,15 @@ import { MAP_CONFIG } from '../config/maps';
 import { defaultColors } from '../MapStyling/RouteColors';
 import { usePlaceData } from '../hooks/usePlaceData';
 import { useMatrixData } from '../hooks/useMatrixData';
+import { TRAVEL_MODES } from '../config/travelMode';
 
 const ALL_TRANSPORT_MODES_DISABLED = {
-  drive: false,
-  walk: false,
-  transit: false,
+  [TRAVEL_MODES.DRIVE] : false,
+  [TRAVEL_MODES.WALK]: false,
+  [TRAVEL_MODES.TRANSIT]: false,
 };
 
-const createInitialModes = (defaultModeKey = 'drive') => ({
+const createInitialModes = (defaultModeKey = TRAVEL_MODES.DRIVE) => ({
   ...ALL_TRANSPORT_MODES_DISABLED,
   [defaultModeKey]: true,
 });
@@ -85,7 +86,7 @@ export function MapFeatureProvider({ children }) {
   const [activePins, setActivePins] = useState({})
 
   // -- transport mode --
-  const [activeTravelModes, setActiveTravelModes] = useState(() => createInitialModes('drive'));
+  const [activeTravelModes, setActiveTravelModes] = useState(() => createInitialModes());
 
   // --- UI/Map Control State ---
   const [mapCenter, setMapCenter] = useState(MAP_CONFIG.defaultCenter);

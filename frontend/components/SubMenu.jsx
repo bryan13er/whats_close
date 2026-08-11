@@ -9,6 +9,7 @@ import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsTransitFilledIcon from '@mui/icons-material/DirectionsTransitFilled';
 import { SORT_OPTIONS } from '../config/sortOptions';
+import { ORDER_BY_MODES } from '../config/orderOptions';
 
 export default function SubMenu({historyType, handleSortByChange, handleOrderByToggle, currOption, orderBy, activeTravelModes, toggleSingleTravelModeOn}) {
   const id = React.useId();
@@ -16,6 +17,7 @@ export default function SubMenu({historyType, handleSortByChange, handleOrderByT
   const menuId = `${id}-menu`;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const OrderByIcon = orderBy ===  ORDER_BY_MODES.DESC ? ArrowDownWideNarrow : ArrowUpWideNarrow;
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,7 +35,7 @@ export default function SubMenu({historyType, handleSortByChange, handleOrderByT
       <div>
         <button onClick={handleClick} className='btn-sort-by'>
           <span className='sort-by-prefix'>Sort By </span>
-          <span className='sort-by-label'>{currOption?.label}</span>
+          <span className='sort-by-label'>{currOption.label}</span>
         </button>
         <Menu
           id={menuId}
@@ -66,14 +68,14 @@ export default function SubMenu({historyType, handleSortByChange, handleOrderByT
                   handleClose();
                 }}
               >
-                {option.label}
+                {option.label}: {orderBy === ORDER_BY_MODES.DESC ? option.descLabel : option.ascLabel}
               </MenuItem>
             );
           })}
         </Menu>
       </div>
       <IconButton onClick={handleOrderByToggle}>
-        {orderBy ? <ArrowDownWideNarrow /> : <ArrowUpWideNarrow />}
+        <OrderByIcon/>
       </IconButton>
       {/* toggle args have to match key names defined in the default state in MapContext.js consider using a loop later*/}
       <div className='transport-pill-group'>
